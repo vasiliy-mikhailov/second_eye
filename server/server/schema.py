@@ -8,6 +8,11 @@ class SkillType(DjangoObjectType):
         model = Skill
         fields = "__all__"
 
+class SystemType(DjangoObjectType):
+    class Meta:
+        model = System
+        fields = "__all__"
+
 class DedicatedTeamType(DjangoObjectType):
     class Meta:
         model = DedicatedTeam

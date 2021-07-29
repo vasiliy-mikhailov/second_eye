@@ -43,6 +43,7 @@ class SystemChangeRequest(models.Model):
     id = models.IntegerField(primary_key=True)
     url = models.URLField(max_length=255)
     name = models.CharField(max_length=255)
+
     system = models.ForeignKey(
         System, related_name="system_change_requests", on_delete=models.CASCADE
     )
