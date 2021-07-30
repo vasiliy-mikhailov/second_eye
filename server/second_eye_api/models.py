@@ -2,7 +2,6 @@ from django.db import models
 
 class DedicatedTeam(models.Model):
     id = models.IntegerField(primary_key=True)
-    url = models.URLField(max_length=255)
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -10,7 +9,6 @@ class DedicatedTeam(models.Model):
 
 class ProjectTeam(models.Model):
     id = models.IntegerField(primary_key=True)
-    url = models.URLField(max_length=255)
     name = models.CharField(max_length=255)
 
     dedicated_team = models.ForeignKey(
@@ -33,7 +31,7 @@ class ChangeRequest(models.Model):
         return self.name
 
 class System(models.Model):
-    id = models.CharField(primary_key=True, max_length=255)
+    id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255)
 
     def __str__(self):

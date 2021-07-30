@@ -1,6 +1,6 @@
 import pandas as pd
 
-class ExtractSystems:
+class SystemsExtractor:
     def __init__(self, get_connection):
         self.get_connection = get_connection
 

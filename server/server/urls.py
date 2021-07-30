@@ -16,26 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
-from threading import Thread
-import traceback
-import logging
+from second_eye_api.refill_internal_db import refill_internal_db_in_cycle_in_background
 
 from graphene_django.views import GraphQLView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api", csrf_exempt(GraphQLView.as_view(graphiql=True))),
+    path("api/", csrf_exempt(GraphQLView.as_view(graphiql=True))),
 ]
 
-def refill_internal_db_in_cycle():
-    from second_eye_api import refill_internal_db
-
-    while (True):
-        try:
-            refill_internal_db.refill_internal_db()
-        except Exception as e:
-            logging.error(traceback.format_exc())
-            print(traceback.format_exc())
-
-t = Thread(target=refill_internal_db_in_cycle, daemon=True)
-t.start()
+refill_internal_db_in_cycle_in_background()

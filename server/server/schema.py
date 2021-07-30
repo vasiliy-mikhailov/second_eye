@@ -1,5 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
+import graphene_django_optimizer as gql_optimizer
 
 from second_eye_api.models import *
 
@@ -51,19 +52,27 @@ class FunctionComponentKindType(DjangoObjectType):
 class Query(graphene.ObjectType):
     all_dedicated_teams = graphene.List(DedicatedTeamType)
     all_project_teams = graphene.List(ProjectTeamType)
+    all_change_requests = graphene.List(ChangeRequestType)
     all_skills = graphene.List(SkillType)
+    all_systems = graphene.List(SystemType)
     all_tasks = graphene.List(TaskType)
 
     def resolve_all_dedicated_teams(root, info):
-        return DedicatedTeam.objects.all()
+        return gql_optimizer.query(DedicatedTeam.objects.all(), info)
 
     def resolve_all_project_teams(root, info):
-        return ProjectTeam.objects.all()
+        return gql_optimizer.query(ProjectTeam.objects.all(), info)
+
+    def resolve_all_change_requests(root, info):
+        return gql_optimizer.query(ChangeRequest.objects.all(), info)
 
     def resolve_all_skills(root, info):
-        return Skill.objects.all()
+        return gql_optimizer.query(Skill.objects.all(), info)
+
+    def resolve_all_systems(root, info):
+        return gql_optimizer.query(System.objects.all(), info)
 
     def resolve_all_tasks(root, info):
-        return Task.objects.all()
+        return gql_optimizer.query(Task.objects.all(), info)
 
 schema = graphene.Schema(query=Query)

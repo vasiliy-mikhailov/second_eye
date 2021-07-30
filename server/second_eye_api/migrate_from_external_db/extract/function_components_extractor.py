@@ -1,4 +1,6 @@
-class ExtractFunctionComponents:
+import pandas as pd
+
+class FunctionComponentsExtractor:
     def __init__(self, get_connection):
         self.get_connection = get_connection
 

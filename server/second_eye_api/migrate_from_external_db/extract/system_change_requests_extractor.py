@@ -1,6 +1,6 @@
 import pandas as pd
 
-class ExtractSystemChangeRequests:
+class SystemChangeRequestsExtractor:
     def __init__(self, get_connection):
         self.get_connection = get_connection
 
@@ -47,5 +47,39 @@ class ExtractSystemChangeRequests:
 
             system_change_requests = pd.read_sql(query, connection, index_col="id")
             system_change_requests['system_id'].fillna(-1, inplace=True)
+
+            system_change_request_not_specified = pd.DataFrame([[
+                -1,
+                "",
+                "Не указано",
+                -1,
+                "Не указано",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                -1,
+                'Запланировано',
+            ]], columns=[
+                "id",
+                "url",
+                "name",
+                "system_id",
+                "system_name",
+                "analysis_preliminary_estimate",
+                "dev_preliminary_estimate",
+                "testing_preliminary_estimate",
+                "analysis_planned_estimate",
+                "dev_planned_estimate",
+                "testing_planned_estimate",
+                "change_request_id",
+                "state",
+            ])
+
+            system_change_requests = system_change_requests.reset_index().append(
+                system_change_request_not_specified
+            )
 
             self.data = system_change_requests

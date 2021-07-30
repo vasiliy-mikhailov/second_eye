@@ -1,5 +1,5 @@
 from second_eye_api.models import ChangeRequest
-from second_eye_api.migrate_from_external_db.load.load import load_dataframe_to_db
+from second_eye_api.migrate_from_external_db.load.loader import load_dataframe_to_db
 
 class ChangeRequestsLoader:
     def __init__(self, change_requests, output_database):

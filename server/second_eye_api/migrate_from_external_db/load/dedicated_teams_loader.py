@@ -1,7 +1,7 @@
 from second_eye_api.models import DedicatedTeam
-from second_eye_api.migrate_from_external_db.load.load import load_dataframe_to_db
+from second_eye_api.migrate_from_external_db.load.loader import load_dataframe_to_db
 
-class LoadDedicatedTeams:
+class DedicatedTeamsLoader:
     def __init__(self, dedicated_teams, output_database):
         self.dedicated_teams = dedicated_teams
         self.output_database = output_database
