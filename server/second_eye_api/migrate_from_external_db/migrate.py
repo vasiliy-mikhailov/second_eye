@@ -17,6 +17,7 @@ from second_eye_api.migrate_from_external_db.load.change_requests_loader import 
 from second_eye_api.migrate_from_external_db.load.system_change_requests_loader import SystemChangeRequestsLoader
 from second_eye_api.migrate_from_external_db.load.tasks_loader import TasksLoader
 from second_eye_api.migrate_from_external_db.load.persons_loader import PersonsLoader
+from second_eye_api.migrate_from_external_db.load.dedicated_team_positions_loader import DedicatedTeamPositionsLoader
 from concurrent.futures import ThreadPoolExecutor
 
 

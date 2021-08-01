@@ -37,6 +37,7 @@ class DedicatedTeamPositionsExtractor:
                     position.issuetype=13205
             """
 
-            data = pd.read_sql(query, connection, index_col="id")
+            dedicated_team_positions = pd.read_sql(query, connection)
+            dedicated_team_positions = dedicated_team_positions.drop_duplicates(subset=['id']).set_index("id")
 
-            self.data = data
+            self.data = dedicated_team_positions
