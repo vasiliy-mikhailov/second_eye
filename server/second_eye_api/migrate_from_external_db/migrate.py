@@ -6,6 +6,8 @@ from second_eye_api.migrate_from_external_db.extract.project_teams_extractor imp
 from second_eye_api.migrate_from_external_db.extract.change_requests_extractor import ChangeRequestsExtractor
 from second_eye_api.migrate_from_external_db.extract.system_change_requests_extractor import SystemChangeRequestsExtractor
 from second_eye_api.migrate_from_external_db.extract.tasks_extractor import TasksExtractor
+from second_eye_api.migrate_from_external_db.extract.persons_extractor import PersonsExtractor
+from second_eye_api.migrate_from_external_db.extract.dedicated_team_positions_extractor import DedicatedTeamPositionsExtractor
 from second_eye_api.migrate_from_external_db.output_data import OutputData
 from second_eye_api.migrate_from_external_db.load.skills_loader import SkillsLoader
 from second_eye_api.migrate_from_external_db.load.systems_loader import SystemsLoader
@@ -14,6 +16,7 @@ from second_eye_api.migrate_from_external_db.load.project_teams_loader import Pr
 from second_eye_api.migrate_from_external_db.load.change_requests_loader import ChangeRequestsLoader
 from second_eye_api.migrate_from_external_db.load.system_change_requests_loader import SystemChangeRequestsLoader
 from second_eye_api.migrate_from_external_db.load.tasks_loader import TasksLoader
+from second_eye_api.migrate_from_external_db.load.persons_loader import PersonsLoader
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -33,6 +36,8 @@ def extract_input_data(get_connection, settings):
     change_requests_extractor = ChangeRequestsExtractor(get_connection=get_connection)
     system_change_requests_extractor = SystemChangeRequestsExtractor(get_connection=get_connection)
     tasks_extractor = TasksExtractor(get_connection=get_connection, last_period_number_of_days=settings.last_period_number_of_days)
+    persons_extractor = PersonsExtractor(get_connection=get_connection)
+    dedicated_team_positions_extractor = DedicatedTeamPositionsExtractor(get_connection=get_connection)
 
     run_tasks_in_parallel([
         lambda: skills_extractor.extract(),
@@ -42,6 +47,8 @@ def extract_input_data(get_connection, settings):
         lambda: change_requests_extractor.extract(),
         lambda: system_change_requests_extractor.extract(),
         lambda: tasks_extractor.extract(),
+        lambda: persons_extractor.extract(),
+        lambda: dedicated_team_positions_extractor.extract(),
     ])
 
     skills = skills_extractor.data
@@ -64,6 +71,12 @@ def extract_input_data(get_connection, settings):
 
     tasks = tasks_extractor.data
     input_data.tasks = tasks
+
+    persons = persons_extractor.data
+    input_data.persons = persons
+
+    dedicated_team_positions = dedicated_team_positions_extractor.data
+    input_data.dedicated_team_positions = dedicated_team_positions
 
     return input_data
 
@@ -107,6 +120,8 @@ def transform_input_data_to_output_data(input_data, settings):
     output_data.change_requests = input_data.change_requests
     output_data.system_change_requests = input_data.system_change_requests
     output_data.tasks = input_data.tasks
+    output_data.persons = input_data.persons
+    output_data.dedicated_team_positions = input_data.dedicated_team_positions
 
     fix_links(output_data=output_data)
 
@@ -133,6 +148,12 @@ def load_output_data(output_data, output_database):
 
     tasks_loader = TasksLoader(tasks=output_data.tasks, output_database=output_database)
     tasks_loader.load()
+
+    persons_loader = PersonsLoader(persons=output_data.persons, output_database=output_database)
+    persons_loader.load()
+
+    dedicated_team_positions_loader = DedicatedTeamPositionsLoader(dedicated_team_positions=output_data.dedicated_team_positions, output_database=output_database)
+    dedicated_team_positions_loader.load()
 
 def migrate(get_input_connection, output_database, settings):
     print("extract")

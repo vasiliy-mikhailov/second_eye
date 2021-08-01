@@ -137,5 +137,8 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GRAPHENE = {
-    'SCHEMA': 'server.schema.schema' # Where your Graphene schema lives
+    'SCHEMA': 'server.schema.schema', # Where your Graphene schema lives
+    'MIDDLEWARE': [
+        'graphene_django.debug.DjangoDebugMiddleware',
+    ],
 }

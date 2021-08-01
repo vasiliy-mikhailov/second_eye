@@ -11,7 +11,10 @@ class SecondEyeDatabaseSwitchingRouter(DatabaseSwitchingRouter):
         FunctionComponent,
         FunctionComponentKind,
         Skill,
-        System
+        System,
+        DedicatedTeamPosition,
+        ProjectTeamPosition,
+        Person
     ]
     db1 = 'db1'
     db2 = 'db2'
