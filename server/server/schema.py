@@ -50,9 +50,29 @@ class FunctionComponentKindType(DjangoObjectType):
         model = FunctionComponentKind
         fields = "__all__"
 
+class DedicatedTeamPositionType(DjangoObjectType):
+    class Meta:
+        model = DedicatedTeamPosition
+        fields = "__all__"
+
+class ProjectTeamPositionType(DjangoObjectType):
+    class Meta:
+        model = ProjectTeamPosition
+        fields = "__all__"
+
 class PersonType(DjangoObjectType):
     class Meta:
         model = Person
+        fields = "__all__"
+
+class DedicatedTeamPositionAbilityType(DjangoObjectType):
+    class Meta:
+        model = DedicatedTeamPositionAbility
+        fields = "__all__"
+
+class ProjectTeamPositionAbilityType(DjangoObjectType):
+    class Meta:
+        model = ProjectTeamPositionAbility
         fields = "__all__"
 
 class Query(graphene.ObjectType):

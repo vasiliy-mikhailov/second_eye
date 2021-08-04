@@ -12,9 +12,9 @@ class SystemsExtractor:
                     id as "id",
                     customValue as "name"
                 from
-                    jira60.customfieldoption system
+                    jira60.customFieldOption system
                 where
-                    system.customfield = 15663 -- Справочник систем
+                    system.customField = 14713 -- Справочник систем
             """
 
             systems = pd.read_sql(query, connection, index_col="id")

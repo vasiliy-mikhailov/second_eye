@@ -14,7 +14,9 @@ class SecondEyeDatabaseSwitchingRouter(DatabaseSwitchingRouter):
         System,
         DedicatedTeamPosition,
         ProjectTeamPosition,
-        Person
+        Person,
+        DedicatedTeamPositionAbility,
+        ProjectTeamPositionAbility,
     ]
     db1 = 'db1'
     db2 = 'db2'

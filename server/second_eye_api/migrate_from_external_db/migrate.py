@@ -8,6 +8,9 @@ from second_eye_api.migrate_from_external_db.extract.system_change_requests_extr
 from second_eye_api.migrate_from_external_db.extract.tasks_extractor import TasksExtractor
 from second_eye_api.migrate_from_external_db.extract.persons_extractor import PersonsExtractor
 from second_eye_api.migrate_from_external_db.extract.dedicated_team_positions_extractor import DedicatedTeamPositionsExtractor
+from second_eye_api.migrate_from_external_db.extract.project_team_positions_extractor import ProjectTeamPositionsExtractor
+from second_eye_api.migrate_from_external_db.extract.dedicated_team_position_abilities_extractor import DedicatedTeamPositionAbilitiesExtractor
+from second_eye_api.migrate_from_external_db.extract.project_team_position_abilities_extractor import ProjectTeamPositionAbilitiesExtractor
 from second_eye_api.migrate_from_external_db.output_data import OutputData
 from second_eye_api.migrate_from_external_db.load.skills_loader import SkillsLoader
 from second_eye_api.migrate_from_external_db.load.systems_loader import SystemsLoader
@@ -18,14 +21,20 @@ from second_eye_api.migrate_from_external_db.load.system_change_requests_loader 
 from second_eye_api.migrate_from_external_db.load.tasks_loader import TasksLoader
 from second_eye_api.migrate_from_external_db.load.persons_loader import PersonsLoader
 from second_eye_api.migrate_from_external_db.load.dedicated_team_positions_loader import DedicatedTeamPositionsLoader
-from concurrent.futures import ThreadPoolExecutor
-
+from second_eye_api.migrate_from_external_db.load.project_team_positions_loader import ProjectTeamPositionsLoader
+from second_eye_api.migrate_from_external_db.load.dedicated_team_position_abilities_loader import DedicatedTeamPositionAbilitiesLoader
+from second_eye_api.migrate_from_external_db.load.project_team_position_abilities_loader import ProjectTeamPositionAbilitiesLoader
+from threading import Thread
 
 def run_tasks_in_parallel(tasks):
-    with ThreadPoolExecutor() as executor:
-        running_tasks = [executor.submit(task) for task in tasks]
-        for running_task in running_tasks:
-            running_task.result()
+    threads = [Thread(target=task) for task in tasks]
+
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+        print("{} done".format(thread))
 
 def extract_input_data(get_connection, settings):
     input_data = InputData()
@@ -39,6 +48,9 @@ def extract_input_data(get_connection, settings):
     tasks_extractor = TasksExtractor(get_connection=get_connection, last_period_number_of_days=settings.last_period_number_of_days)
     persons_extractor = PersonsExtractor(get_connection=get_connection)
     dedicated_team_positions_extractor = DedicatedTeamPositionsExtractor(get_connection=get_connection)
+    project_team_positions_extractor = ProjectTeamPositionsExtractor(get_connection=get_connection)
+    dedicated_team_position_abilities_extractor = DedicatedTeamPositionAbilitiesExtractor(get_connection=get_connection)
+    project_team_position_abilities_extractor = ProjectTeamPositionAbilitiesExtractor(get_connection=get_connection)
 
     run_tasks_in_parallel([
         lambda: skills_extractor.extract(),
@@ -50,6 +62,9 @@ def extract_input_data(get_connection, settings):
         lambda: tasks_extractor.extract(),
         lambda: persons_extractor.extract(),
         lambda: dedicated_team_positions_extractor.extract(),
+        lambda: project_team_positions_extractor.extract(),
+        lambda: dedicated_team_position_abilities_extractor.extract(),
+        lambda: project_team_position_abilities_extractor.extract(),
     ])
 
     skills = skills_extractor.data
@@ -79,6 +94,15 @@ def extract_input_data(get_connection, settings):
     dedicated_team_positions = dedicated_team_positions_extractor.data
     input_data.dedicated_team_positions = dedicated_team_positions
 
+    project_team_positions = project_team_positions_extractor.data
+    input_data.project_team_positions = project_team_positions
+
+    dedicated_team_position_abilities = dedicated_team_position_abilities_extractor.data
+    input_data.dedicated_team_position_abilities = dedicated_team_position_abilities
+
+    project_team_position_abilities = project_team_position_abilities_extractor.data
+    input_data.project_team_position_abilities = project_team_position_abilities
+
     return input_data
 
 def replace_column_values_with_minus_one_if_not_in_valid_list(dataframe, column_name, valid_list):
@@ -86,7 +110,7 @@ def replace_column_values_with_minus_one_if_not_in_valid_list(dataframe, column_
         valid_list
     ), column_name] = -1
 
-def replace_non_existing_change_request_id_with_minus_one(change_requests, system_change_requests):
+def replace_broken_system_change_request_change_request_id_to_change_request_id_with_minus_one(system_change_requests, change_requests):
     valid_change_request_ids = change_requests.reset_index()['id']
     replace_column_values_with_minus_one_if_not_in_valid_list(
         dataframe=system_change_requests,
@@ -94,7 +118,7 @@ def replace_non_existing_change_request_id_with_minus_one(change_requests, syste
         valid_list=valid_change_request_ids
     )
 
-def replace_non_existing_system_change_request_id_with_minus_one(system_change_requests, tasks):
+def replace_broken_task_system_change_request_id_to_system_change_request_id_with_minus_one(tasks, system_change_requests):
     valid_system_change_request_ids = system_change_requests.reset_index()['id']
     replace_column_values_with_minus_one_if_not_in_valid_list(
         dataframe=tasks,
@@ -102,14 +126,41 @@ def replace_non_existing_system_change_request_id_with_minus_one(system_change_r
         valid_list=valid_system_change_request_ids
     )
 
-def fix_links(output_data):
-    replace_non_existing_change_request_id_with_minus_one(
-        change_requests=output_data.change_requests,
+def replace_broken_dedicated_team_positions_person_id_to_persons_id_with_minus_one(dedicated_team_positions, persons):
+    valid_person_ids = persons.reset_index()['id']
+    replace_column_values_with_minus_one_if_not_in_valid_list(
+        dataframe=dedicated_team_positions,
+        column_name="person_id",
+        valid_list=valid_person_ids
+    )
+
+def replace_broken_project_team_positions_person_id_to_persons_id_with_minus_one(project_team_positions, persons):
+    valid_person_ids = persons.reset_index()['id']
+    replace_column_values_with_minus_one_if_not_in_valid_list(
+        dataframe=project_team_positions,
+        column_name="person_id",
+        valid_list=valid_person_ids
+    )
+
+def fix_broken_links(output_data):
+    replace_broken_system_change_request_change_request_id_to_change_request_id_with_minus_one(
+        system_change_requests=output_data.system_change_requests,
+        change_requests=output_data.change_requests
+    )
+
+    replace_broken_task_system_change_request_id_to_system_change_request_id_with_minus_one(
+        tasks=output_data.tasks,
         system_change_requests=output_data.system_change_requests
     )
-    replace_non_existing_system_change_request_id_with_minus_one(
-        system_change_requests=output_data.system_change_requests,
-        tasks=output_data.tasks
+
+    replace_broken_dedicated_team_positions_person_id_to_persons_id_with_minus_one(
+        dedicated_team_positions=output_data.dedicated_team_positions,
+        persons=output_data.persons
+    )
+
+    replace_broken_project_team_positions_person_id_to_persons_id_with_minus_one(
+        project_team_positions=output_data.project_team_positions,
+        persons=output_data.persons
     )
 
 def transform_input_data_to_output_data(input_data, settings):
@@ -123,8 +174,11 @@ def transform_input_data_to_output_data(input_data, settings):
     output_data.tasks = input_data.tasks
     output_data.persons = input_data.persons
     output_data.dedicated_team_positions = input_data.dedicated_team_positions
+    output_data.project_team_positions = input_data.project_team_positions
+    output_data.dedicated_team_position_abilities = input_data.dedicated_team_position_abilities
+    output_data.project_team_position_abilities = input_data.project_team_position_abilities
 
-    fix_links(output_data=output_data)
+    fix_broken_links(output_data=output_data)
 
     return output_data
 
@@ -155,6 +209,15 @@ def load_output_data(output_data, output_database):
 
     dedicated_team_positions_loader = DedicatedTeamPositionsLoader(dedicated_team_positions=output_data.dedicated_team_positions, output_database=output_database)
     dedicated_team_positions_loader.load()
+
+    project_team_positions_loader = ProjectTeamPositionsLoader(project_team_positions=output_data.project_team_positions, output_database=output_database)
+    project_team_positions_loader.load()
+
+    dedicated_team_position_abilities_loader = DedicatedTeamPositionAbilitiesLoader(dedicated_team_position_abilities=output_data.dedicated_team_position_abilities, output_database=output_database)
+    dedicated_team_position_abilities_loader.load()
+
+    project_team_position_abilities_loader = ProjectTeamPositionAbilitiesLoader(project_team_position_abilities=output_data.project_team_position_abilities, output_database=output_database)
+    project_team_position_abilities_loader.load()
 
 def migrate(get_input_connection, output_database, settings):
     print("extract")
