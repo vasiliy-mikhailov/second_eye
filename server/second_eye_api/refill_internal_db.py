@@ -25,25 +25,8 @@ def find_database_switching_router():
 
 def get_connection_to_jira_db():
     import cx_Oracle
-    dsn = """
-    (DESCRIPTION=
-        (COMPRESSION=on)
-        (COMPRESSION_LEVELS=(LEVEL=low)(LEVEL=high))
-        (ADDRESS_LIST=
-            (ADDRESS=
-                (PROTOCOL=tcp)
-                (HOST=Jira-db1.mcb.ru)
-                (PORT=1521)
-                (SEND_BUF_SIZE=1048576)
-                (RECV_BUF_SIZE=1048576)
-            )
-        )
-        (CONNECT_DATA=
-            (SERVER_NAME=Jira-db1.mcb.ru)
-            (SERVICE_NAME=orcl)
-        )
-    )
-    """
+    dsn = "Jira-db1.mcb.ru/orcl"
+
     return cx_Oracle.connect(user='jiraro', password='jiraro', dsn=dsn, encoding='UTF-8')
 
 def refill_internal_db():
