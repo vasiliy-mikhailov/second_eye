@@ -30,7 +30,13 @@ def get_connection_to_jira_db():
         (COMPRESSION=on)
         (COMPRESSION_LEVELS=(LEVEL=low)(LEVEL=high))
         (ADDRESS_LIST=
-            (ADDRESS=(PROTOCOL=tcp)(HOST=Jira-db1.mcb.ru)(PORT=1521))
+            (ADDRESS=
+                (PROTOCOL=tcp)
+                (HOST=Jira-db1.mcb.ru)
+                (PORT=1521)
+                (SEND_BUF_SIZE=1048576)
+                (RECV_BUF_SIZE=1048576)
+            )
         )
         (CONNECT_DATA=
             (SERVER_NAME=Jira-db1.mcb.ru)
