@@ -1,0 +1,12 @@
+from second_eye_api.models.entities import TaskTimeSheetsByDate
+from second_eye_api.migrate_from_external_db.load.utils import load_dataframe_to_db
+
+class TaskTimeSheetsByDateLoader:
+    def __init__(self, task_time_sheets_by_date, output_database):
+        self.task_time_sheets_by_date = task_time_sheets_by_date
+        self.output_database = output_database
+
+    def load(self):
+        task_time_sheets_by_date = self.task_time_sheets_by_date
+        output_database = self.output_database
+        load_dataframe_to_db(dataframe=task_time_sheets_by_date, model=TaskTimeSheetsByDate, output_database=output_database)

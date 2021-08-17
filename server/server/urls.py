@@ -18,7 +18,6 @@ from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 from second_eye_api.refill_internal_db import refill_internal_db_in_cycle_in_background
 import sys
-
 from graphene_django.views import GraphQLView
 
 urlpatterns = [

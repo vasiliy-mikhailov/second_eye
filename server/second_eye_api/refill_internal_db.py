@@ -40,15 +40,9 @@ def refill_internal_db():
     router.switch_databases()
 
 def refill_internal_db_in_cycle():
-    os.environ['NLS_LANG'] = 'AMERICAN_AMERICA.WE8ISO8859P1'
-    import cx_Oracle
-    cx_Oracle.init_oracle_client(lib_dir=r"C:\instantclient_19_11")
-
-    from second_eye_api import refill_internal_db
-
     while (True):
         try:
-            refill_internal_db.refill_internal_db()
+            refill_internal_db()
         except Exception as e:
             logging.error(traceback.format_exc())
             print(traceback.format_exc())

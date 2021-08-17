@@ -25,8 +25,7 @@ SECRET_KEY = 'django-insecure-54j7haqf)k1pvcfltzcxoxvy8fk2$2%qb1o*ex1-(dw13mx@r!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -37,8 +36,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'graphene_django',
-    'second_eye_api'
+    'second_eye_api',
 ]
 
 MIDDLEWARE = [
@@ -49,6 +49,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'server.urls'
@@ -83,11 +85,13 @@ DATABASES = {
     },
     'db1': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db1.sqlite3',
+        # 'NAME': BASE_DIR / 'db1.sqlite3',
+        'NAME': 'file:db1.sqlite3?mode=memory&cache=shared',
     },
     'db2': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db2.sqlite3',
+        # 'NAME': BASE_DIR / 'db2.sqlite3',
+        'NAME': 'file:db2.sqlite3?mode=memory&cache=shared',
     }
 }
 
@@ -133,6 +137,8 @@ STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
