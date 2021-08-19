@@ -1,0 +1,2 @@
+def calculate_project_team_planning_periods_from_change_requests_planning_period_id_and_project_team_id(change_requests):
+    return change_requests.groupby(["planning_period_id", "project_team_id"]).size().reset_index(name="count")

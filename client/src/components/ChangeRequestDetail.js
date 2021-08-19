@@ -138,7 +138,13 @@ class ChangeRequestDetail extends Component {
                         allowDataOverflow={true}
                         tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
                     />
-                    <YAxis type="number" dataKey="timeSpentCumsum" />
+                    <YAxis
+                        type="number"
+                        dataKey="timeSpentCumsum"
+                        tickFormatter={ tick => {
+                            return tick.toLocaleString();
+                        }}
+                    />
                     <ZAxis type="number" range={[1]} />
                     <Legend/>
 
@@ -176,7 +182,13 @@ class ChangeRequestDetail extends Component {
                         allowDataOverflow={true}
                         tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
                     />
-                    <YAxis type="number" dataKey="timeSpentCumsum" />
+                    <YAxis
+                        type="number"
+                        dataKey="timeSpentCumsum"
+                        tickFormatter={ tick => {
+                            return tick.toLocaleString();
+                        }}
+                    />
                     <ZAxis type="number" range={[1]} />
                     <Legend/>
                     {
@@ -213,7 +225,13 @@ class ChangeRequestDetail extends Component {
                         allowDataOverflow={true}
                         tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
                     />
-                    <YAxis type="number" dataKey="timeSpentCumsum" />
+                    <YAxis
+                        type="number"
+                        dataKey="timeSpentCumsum"
+                        tickFormatter={ tick => {
+                            return tick.toLocaleString();
+                        }}
+                    />
                     <ZAxis type="number" range={[1]} />
                     <Legend/>
                     {
@@ -250,7 +268,13 @@ class ChangeRequestDetail extends Component {
                         allowDataOverflow={true}
                         tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
                     />
-                    <YAxis type="number" dataKey="timeSpentCumsum" />
+                    <YAxis
+                        type="number"
+                        dataKey="timeSpentCumsum"
+                        tickFormatter={ tick => {
+                            return tick.toLocaleString();
+                        }}
+                    />
                     <ZAxis type="number" range={[1]} />
                     <Legend/>
                     {

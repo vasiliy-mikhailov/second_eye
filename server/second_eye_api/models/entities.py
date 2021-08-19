@@ -396,8 +396,34 @@ class PlanningPeriod(models.Model):
         'DedicatedTeam', through='DedicatedTeamPlanningPeriod', related_name='planning_periods'
     )
 
+    estimate = models.FloatField()
+    time_spent = models.FloatField()
+    time_left = models.FloatField()
+
     def __str__(self):
         return self.name
+
+class PlanningPeriodTimeSheetsByDate(models.Model):
+    id = models.AutoField(primary_key=True)
+    date = models.DateField()
+
+    time_spent = models.FloatField()
+    time_spent_cumsum = models.FloatField()
+
+    planning_period = models.ForeignKey(
+        'PlanningPeriod', related_name="time_sheets_by_date", on_delete=models.CASCADE
+    )
+
+class PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate(models.Model):
+    id = models.AutoField(primary_key=True)
+    date = models.DateField()
+
+    time_spent_with_value_percent_cumsum = models.FloatField()
+    time_spent_without_value_percent_cumsum = models.FloatField()
+
+    planning_period = models.ForeignKey(
+        'PlanningPeriod', related_name="time_spent_percent_with_value_and_without_value_by_date", on_delete=models.CASCADE
+    )
 
 class ProjectTeamPlanningPeriod(models.Model):
     id = models.AutoField(primary_key=True)
@@ -557,6 +583,8 @@ ALL_ENTITIES = [
     ProjectTeamPositionAbility,
     TaskTimeSheets,
     PlanningPeriod,
+    PlanningPeriodTimeSheetsByDate,
+    PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate,
     ProjectTeamPlanningPeriod,
     DedicatedTeamPlanningPeriod,
     DedicatedTeamPlanningPeriodTimeSheetsByDate,

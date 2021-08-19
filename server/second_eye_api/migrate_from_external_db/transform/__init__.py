@@ -16,6 +16,8 @@ from .entities.system_change_request_time_sheets_by_date_transform import *
 from .entities.task_time_sheets_by_date_transform import *
 from .entities.dedicated_team_planning_period_time_sheets_by_date_transform import *
 from .entities.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
+from .entities.planning_period_time_sheets_by_date_transform import *
+from .entities.planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
 
 def fix_broken_links(output_data):
     replace_broken_system_change_request_system_id_to_system_id_with_minus_one(
@@ -205,6 +207,14 @@ def calculate_time_sheets_inplace(output_data):
     )
 
     output_data.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date = calculate_dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date(
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    output_data.planning_period_time_sheets_by_date = calculate_planning_period_time_sheets_by_date(
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    output_data.planning_period_time_spent_percent_with_value_and_without_value_by_date = calculate_planning_period_time_spent_percent_with_value_and_without_value_by_date(
         task_time_sheets=output_data.task_time_sheets
     )
 
@@ -452,6 +462,21 @@ class Transformer:
         output_data.change_requests = propagate_dedicated_team_planning_period_id_into_change_requests(
             change_requests=output_data.change_requests,
             dedicated_team_planning_periods=output_data.dedicated_team_planning_periods
+        )
+
+        output_data.planning_periods = calculate_planning_periods_estimate_using_tasks_estimate(
+            planning_periods=output_data.planning_periods,
+            tasks=output_data.tasks
+        )
+
+        output_data.planning_periods = calculate_planning_periods_time_spent_using_tasks_time_spent(
+            planning_periods=output_data.planning_periods,
+            tasks=output_data.tasks
+        )
+
+        output_data.planning_periods = calculate_planning_periods_time_left_using_tasks_time_left(
+            planning_periods=output_data.planning_periods,
+            tasks=output_data.tasks
         )
 
         calculate_time_sheets_inplace(output_data=output_data)

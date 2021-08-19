@@ -98,7 +98,13 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                         allowDataOverflow={true}
                         tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
                     />
-                    <YAxis type="number" dataKey="timeSpentCumsum" />
+                    <YAxis
+                        type="number"
+                        dataKey="timeSpentCumsum"
+                        tickFormatter={ tick => {
+                            return tick.toLocaleString();
+                        }}
+                    />
                     <ZAxis type="number" range={[1]} />
                     <Legend/>
 
@@ -135,7 +141,13 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                         allowDataOverflow={true}
                         tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
                     />
-                    <YAxis type="number" dataKey="timeSpentWithoutValuePercentCumsum" />
+                    <YAxis
+                        type="number"
+                        dataKey="timeSpentWithoutValuePercentCumsum"
+                        tickFormatter={(tick) => {
+                            return `${ tick * 100 }%`;
+                        }}
+                    />
                     <ZAxis type="number" range={[1]} />
                     <Legend/>
 

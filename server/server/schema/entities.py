@@ -33,7 +33,7 @@ class ProjectTeamType(DjangoObjectType):
         fields = "__all__"
 
 class ChangeRequestType(DjangoObjectType):
-    state_id = graphene.Int()
+    state_category_id = graphene.Int()
 
     class Meta:
         model = ChangeRequest
@@ -92,6 +92,16 @@ class TaskTimeSheetsType(DjangoObjectType):
 class PlanningPeriodType(DjangoObjectType):
     class Meta:
         model = PlanningPeriod
+        fields = "__all__"
+
+class PlanningPeriodTimeSheetsByDateType(DjangoObjectType):
+    class Meta:
+        model = PlanningPeriodTimeSheetsByDate
+        fields = "__all__"
+
+class PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDateType(DjangoObjectType):
+    class Meta:
+        model = PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate
         fields = "__all__"
 
 class DedicatedTeamPlanningPeriodType(DjangoObjectType):
