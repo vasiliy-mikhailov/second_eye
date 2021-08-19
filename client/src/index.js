@@ -16,6 +16,8 @@ import DedicatedTeamInPlanningPeriodDetail from "./components/DedicatedTeamPlann
 import ChangeRequestDetail from "./components/ChangeRequestDetail";
 import SystemChangeRequestDetail from "./components/SystemChangeRequestDetail";
 import {Box} from "@material-ui/core";
+import * as Sentry from "@sentry/react";
+import { Integrations } from "@sentry/tracing";
 
 import {
   ApolloClient,
@@ -23,6 +25,15 @@ import {
   ApolloProvider
 } from "@apollo/client";
 
+Sentry.init({
+  dsn: "https://2bdd473a8cea45a495242e7259b2846d@o498438.ingest.sentry.io/5916644",
+  integrations: [new Integrations.BrowserTracing()],
+
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 0.01,
+});
 
 const client = new ApolloClient({
     uri: process.env.REACT_APP_SECOND_EYE_API_URL,
@@ -49,7 +60,8 @@ ReactDOM.render(
                 </Router>
             </Box>
         </ApolloProvider>
-    </React.StrictMode>,
+    </React.StrictMode>
+    ,
     document.getElementById('root')
 );
 
