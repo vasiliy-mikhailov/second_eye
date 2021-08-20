@@ -1,7 +1,17 @@
-import graphene
 import graphene_django_optimizer as gql_optimizer
 from graphene_django.debug import DjangoDebug
-from .entities import *
+from .change_request import *
+from .dedicated_team import *
+from .function_component import *
+from .person import *
+from .planning_period import *
+from .project_team import *
+from .skill import *
+from .state import *
+from .state_category import *
+from .system import *
+from .system_change_request import *
+from .task import *
 from .team_load_output import *
 
 class Query(graphene.ObjectType):

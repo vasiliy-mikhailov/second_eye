@@ -7,6 +7,74 @@ class DedicatedTeam(models.Model):
     def __str__(self):
         return self.name
 
+class DedicatedTeamPlanningPeriod(models.Model):
+    id = models.IntegerField(primary_key=True)
+    dedicated_team = models.ForeignKey('DedicatedTeam', db_column='dedicated_team_id', on_delete=models.CASCADE)
+    planning_period = models.ForeignKey('PlanningPeriod', db_column='planning_period_id', on_delete=models.CASCADE)
+    project_teams = models.ManyToManyField(
+        'ProjectTeam', through='ProjectTeamPlanningPeriod', related_name='project_teams'
+    )
+
+    estimate = models.FloatField()
+    time_spent = models.FloatField()
+    time_left = models.FloatField()
+
+class DedicatedTeamPlanningPeriodTimeSheetsByDate(models.Model):
+    id = models.AutoField(primary_key=True)
+    date = models.DateField()
+
+    time_spent = models.FloatField()
+    time_spent_cumsum = models.FloatField()
+
+    dedicated_team_planning_period = models.ForeignKey(
+        'DedicatedTeamPlanningPeriod', related_name="time_sheets_by_date", on_delete=models.CASCADE
+    )
+
+class DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate(models.Model):
+    id = models.AutoField(primary_key=True)
+    date = models.DateField()
+
+    time_spent_with_value_percent_cumsum = models.FloatField()
+    time_spent_without_value_percent_cumsum = models.FloatField()
+
+    dedicated_team_planning_period = models.ForeignKey(
+        'DedicatedTeamPlanningPeriod', related_name="time_spent_percent_with_value_and_without_value_by_date", on_delete=models.CASCADE
+    )
+
+class DedicatedTeamPosition(models.Model):
+    id = models.IntegerField(primary_key=True)
+    url = models.URLField(max_length=255)
+    name = models.CharField(max_length=255)
+    change_request_capacity = models.FloatField(blank=True, null=True)
+
+    dedicated_team = models.ForeignKey(
+        'DedicatedTeam', related_name="positions", on_delete=models.CASCADE
+    )
+
+    person = models.ForeignKey(
+        'Person', related_name="dedicated_team_positions", on_delete=models.CASCADE, blank=True, null=True
+    )
+
+    def __str__(self):
+        return self.name
+
+class DedicatedTeamPositionAbility(models.Model):
+    id = models.IntegerField(primary_key=True)
+    dedicated_team_position = models.ForeignKey(
+        'DedicatedTeamPosition', related_name='abilities', on_delete=models.CASCADE
+    )
+
+    skill = models.ForeignKey(
+        'Skill', related_name='dedicated_team_position_abilities', on_delete=models.CASCADE
+    )
+
+    system = models.ForeignKey(
+        'System', related_name='dedicated_team_position_abilities', on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return '{} {}'.format(self.skill, self.system)
+
 class ProjectTeam(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -17,6 +85,42 @@ class ProjectTeam(models.Model):
 
     def __str__(self):
         return self.name
+
+class ProjectTeamPlanningPeriod(models.Model):
+    id = models.AutoField(primary_key=True)
+    project_team = models.ForeignKey('ProjectTeam', db_column='project_team_id', on_delete=models.CASCADE)
+    planning_period = models.ForeignKey('PlanningPeriod', db_column='planning_period_id', on_delete=models.CASCADE)
+    dedicated_team_planning_period = models.ForeignKey(
+        'DedicatedTeamPlanningPeriod',
+        related_name="project_team_planning_periods",
+        on_delete=models.CASCADE
+    )
+
+    estimate = models.FloatField()
+    time_spent = models.FloatField()
+    time_left = models.FloatField()
+
+class ProjectTeamPlanningPeriodTimeSheetsByDate(models.Model):
+    id = models.AutoField(primary_key=True)
+    date = models.DateField()
+
+    time_spent = models.FloatField()
+    time_spent_cumsum = models.FloatField()
+
+    project_team_planning_period = models.ForeignKey(
+        'ProjectTeamPlanningPeriod', related_name="time_sheets_by_date", on_delete=models.CASCADE
+    )
+
+class ProjectTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate(models.Model):
+    id = models.AutoField(primary_key=True)
+    date = models.DateField()
+
+    time_spent_with_value_percent_cumsum = models.FloatField()
+    time_spent_without_value_percent_cumsum = models.FloatField()
+
+    project_team_planning_period = models.ForeignKey(
+        'ProjectTeamPlanningPeriod', related_name="time_spent_percent_with_value_and_without_value_by_date", on_delete=models.CASCADE
+    )
 
 class State(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -277,23 +381,6 @@ class FunctionComponent(models.Model):
     def __str__(self):
         return self.name
 
-class DedicatedTeamPosition(models.Model):
-    id = models.IntegerField(primary_key=True)
-    url = models.URLField(max_length=255)
-    name = models.CharField(max_length=255)
-    change_request_capacity = models.FloatField(blank=True, null=True)
-
-    dedicated_team = models.ForeignKey(
-        'DedicatedTeam', related_name="positions", on_delete=models.CASCADE
-    )
-
-    person = models.ForeignKey(
-        'Person', related_name="dedicated_team_positions", on_delete=models.CASCADE, blank=True, null=True
-    )
-
-    def __str__(self):
-        return self.name
-
 class ProjectTeamPosition(models.Model):
     id = models.IntegerField(primary_key=True)
     url = models.URLField(max_length=255)
@@ -317,24 +404,6 @@ class Person(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class DedicatedTeamPositionAbility(models.Model):
-    id = models.IntegerField(primary_key=True)
-    dedicated_team_position = models.ForeignKey(
-        'DedicatedTeamPosition', related_name='abilities', on_delete=models.CASCADE
-    )
-
-    skill = models.ForeignKey(
-        'Skill', related_name='dedicated_team_position_abilities', on_delete=models.CASCADE
-    )
-
-    system = models.ForeignKey(
-        'System', related_name='dedicated_team_position_abilities', on_delete=models.CASCADE
-    )
-
-    def __str__(self):
-        return '{} {}'.format(self.skill, self.system)
 
 class ProjectTeamPositionAbility(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -423,42 +492,6 @@ class PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate(models.Model)
 
     planning_period = models.ForeignKey(
         'PlanningPeriod', related_name="time_spent_percent_with_value_and_without_value_by_date", on_delete=models.CASCADE
-    )
-
-class ProjectTeamPlanningPeriod(models.Model):
-    id = models.AutoField(primary_key=True)
-    project_team = models.ForeignKey('ProjectTeam', db_column='project_team_id', on_delete=models.CASCADE)
-    planning_period = models.ForeignKey('PlanningPeriod', db_column='planning_period_id', on_delete=models.CASCADE)
-
-class DedicatedTeamPlanningPeriod(models.Model):
-    id = models.IntegerField(primary_key=True)
-    dedicated_team = models.ForeignKey('DedicatedTeam', db_column='dedicated_team_id', on_delete=models.CASCADE)
-    planning_period = models.ForeignKey('PlanningPeriod', db_column='planning_period_id', on_delete=models.CASCADE)
-
-    estimate = models.FloatField()
-    time_spent = models.FloatField()
-    time_left = models.FloatField()
-
-class DedicatedTeamPlanningPeriodTimeSheetsByDate(models.Model):
-    id = models.AutoField(primary_key=True)
-    date = models.DateField()
-
-    time_spent = models.FloatField()
-    time_spent_cumsum = models.FloatField()
-
-    dedicated_team_planning_period = models.ForeignKey(
-        'DedicatedTeamPlanningPeriod', related_name="time_sheets_by_date", on_delete=models.CASCADE
-    )
-
-class DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate(models.Model):
-    id = models.AutoField(primary_key=True)
-    date = models.DateField()
-
-    time_spent_with_value_percent_cumsum = models.FloatField()
-    time_spent_without_value_percent_cumsum = models.FloatField()
-
-    dedicated_team_planning_period = models.ForeignKey(
-        'DedicatedTeamPlanningPeriod', related_name="time_spent_percent_with_value_and_without_value_by_date", on_delete=models.CASCADE
     )
 
 class TaskTimeSheetsByDate(models.Model):
@@ -586,6 +619,8 @@ ALL_ENTITIES = [
     PlanningPeriodTimeSheetsByDate,
     PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate,
     ProjectTeamPlanningPeriod,
+    ProjectTeamPlanningPeriodTimeSheetsByDate,
+    ProjectTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate,
     DedicatedTeamPlanningPeriod,
     DedicatedTeamPlanningPeriodTimeSheetsByDate,
     DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate,

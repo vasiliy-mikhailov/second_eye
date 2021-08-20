@@ -111,3 +111,15 @@ def propagate_dedicated_team_planning_period_id_into_task_time_sheets(task_time_
         on="task_id",
         suffixes=(None, ""),
     )
+
+def propagate_project_team_planning_period_id_into_task_time_sheets(task_time_sheets, tasks):
+    task_id_to_project_team_planning_period_id_mapping = tasks[["id", "project_team_planning_period_id"]].rename(
+        columns={"id": "task_id"}
+    )
+
+    return task_time_sheets.merge(
+        task_id_to_project_team_planning_period_id_mapping,
+        how="left",
+        on="task_id",
+        suffixes=(None, ""),
+    )

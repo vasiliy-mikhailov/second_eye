@@ -6,18 +6,21 @@ from .entities.tasks_transform import *
 from .entities.system_change_requests_transform import *
 from .entities.change_requests_transform import *
 from .entities.planning_periods_transform import *
+from .entities.planning_period_time_sheets_by_date_transform import *
+from .entities.planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
 from .entities.project_team_planning_periods_transform import *
+from .entities.project_team_planning_period_time_sheets_by_date_transform import *
+from .entities.project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
 from .entities.dedicated_team_planning_periods_transform import *
+from .entities.dedicated_team_planning_period_time_sheets_by_date_transform import *
+from .entities.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
 from .entities.dedicated_team_positions_transform import *
 from .entities.project_team_positions_transform import *
 from .entities.task_time_sheets_transform import *
 from .entities.change_request_time_sheets_by_date_transform import *
 from .entities.system_change_request_time_sheets_by_date_transform import *
 from .entities.task_time_sheets_by_date_transform import *
-from .entities.dedicated_team_planning_period_time_sheets_by_date_transform import *
-from .entities.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
-from .entities.planning_period_time_sheets_by_date_transform import *
-from .entities.planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
+
 
 def fix_broken_links(output_data):
     replace_broken_system_change_request_system_id_to_system_id_with_minus_one(
@@ -156,6 +159,11 @@ def calculate_time_sheets_inplace(output_data):
         project_teams=output_data.project_teams
     )
 
+    output_data.task_time_sheets = propagate_project_team_planning_period_id_into_task_time_sheets(
+        task_time_sheets=output_data.task_time_sheets,
+        tasks=output_data.tasks
+    )
+
     output_data.task_time_sheets = propagate_dedicated_team_planning_period_id_into_task_time_sheets(
         task_time_sheets=output_data.task_time_sheets,
         tasks=output_data.tasks
@@ -199,6 +207,14 @@ def calculate_time_sheets_inplace(output_data):
     )
 
     output_data.change_request_time_sheets_by_date = calculate_change_request_time_sheets_by_date(
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    output_data.project_team_planning_period_time_sheets_by_date = calculate_project_team_planning_period_time_sheets_by_date(
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    output_data.project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date = calculate_project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date(
         task_time_sheets=output_data.task_time_sheets
     )
 
@@ -435,6 +451,21 @@ class Transformer:
             change_requests=output_data.change_requests
         )
 
+        output_data.project_team_planning_periods = calculate_project_team_planning_periods_estimate_by_tasks_estimate(
+            project_team_planning_periods=output_data.project_team_planning_periods,
+            tasks=output_data.tasks
+        )
+
+        output_data.project_team_planning_periods = calculate_project_team_planning_periods_time_spent_by_tasks_time_spent(
+            project_team_planning_periods=output_data.project_team_planning_periods,
+            tasks=output_data.tasks
+        )
+
+        output_data.project_team_planning_periods = calculate_project_team_planning_periods_time_left_by_tasks_time_left(
+            project_team_planning_periods=output_data.project_team_planning_periods,
+            tasks=output_data.tasks
+        )
+
         output_data.dedicated_team_planning_periods = calculate_dedicated_team_planning_periods_from_change_requests_planning_period_id_and_dedicated_team(
             change_requests=output_data.change_requests
         )
@@ -452,6 +483,16 @@ class Transformer:
         output_data.dedicated_team_planning_periods = calculate_dedicated_team_planning_periods_time_left_by_tasks_time_left(
             dedicated_team_planning_periods=output_data.dedicated_team_planning_periods,
             tasks=output_data.tasks
+        )
+
+        output_data.project_team_planning_periods = propagate_dedicated_team_planning_period_id_by_dedicated_team_id_and_planning_period_id_into_project_team_planning_periods(
+            project_team_planning_periods=output_data.project_team_planning_periods,
+            dedicated_team_planning_periods=output_data.dedicated_team_planning_periods
+        )
+
+        output_data.tasks = propagate_project_team_planning_period_id_by_project_team_id_and_planning_period_id_into_tasks(
+            tasks=output_data.tasks,
+            project_team_planning_periods=output_data.project_team_planning_periods
         )
 
         output_data.tasks = propagate_dedicated_team_planning_period_id_by_dedicated_team_id_and_planning_period_id_into_tasks(

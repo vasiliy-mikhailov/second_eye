@@ -264,3 +264,14 @@ def propagate_dedicated_team_planning_period_id_by_dedicated_team_id_and_plannin
         on=["dedicated_team_id", "planning_period_id"],
         suffixes=(None, ""),
     )
+
+def propagate_project_team_planning_period_id_by_project_team_id_and_planning_period_id_into_tasks(tasks, project_team_planning_periods):
+    project_team_id_and_planning_period_id_to_project_team_planning_period_id_id_mapping = project_team_planning_periods[
+        ["id", "project_team_id", "planning_period_id"]].rename(columns={"id": "project_team_planning_period_id"})
+
+    return tasks.merge(
+        project_team_id_and_planning_period_id_to_project_team_planning_period_id_id_mapping,
+        how="left",
+        on=["project_team_id", "planning_period_id"],
+        suffixes=(None, ""),
+    )

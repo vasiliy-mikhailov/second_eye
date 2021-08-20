@@ -17,7 +17,7 @@ class TaskTimeSheetsExtractor:
                     lower(worklog.author) as "person_id"
                 from
                     jira60.worklog
-                    inner join jira60.jiraissue issue on (issue.id = worklog.issueid and issue.issuetype in (12904, 12703, 10603)) -- аналитика, разработка, тестирование
+                    inner join jira60.jiraissue issue on (issue.id = worklog.issueid and issue.issuetype in (12904, 12703, 10603, 12305)) -- аналитика, разработка, тестирование, текущая деятельность
                     inner join jira60.project project on issue.project=project.id
                 where
                     worklog.startdate <= sysdate

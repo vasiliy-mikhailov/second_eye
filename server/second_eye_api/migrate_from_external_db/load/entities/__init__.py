@@ -26,6 +26,8 @@ from .change_request_testing_time_sheets_by_date_loader import ChangeRequestTest
 from .change_request_time_sheets_by_date_loader import ChangeRequestTimeSheetsByDateLoader
 from .planning_periods_loader import PlanningPeriodsLoader
 from .project_team_planning_periods_loader import ProjectTeamPlanningPeriodsLoader
+from .project_team_planning_period_time_sheets_by_date_loader import ProjectTeamPlanningPeriodTimeSheetsByDateLoader
+from .project_team_planning_period_time_spent_with_value_and_without_value_by_date_loader import ProjectTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDateLoader
 from .dedicated_team_planning_period_loader import DedicatedTeamPlanningPeriodsLoader
 from .dedicated_team_planning_period_time_sheets_by_date_loader import DedicatedTeamPlanningPeriodTimeSheetsByDateLoader
 from .dedicated_team_planning_period_time_spent_with_value_and_without_value_by_date_loader import DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDateLoader
@@ -152,7 +154,21 @@ class EntitiesLoader:
         project_team_planning_periods_loader = ProjectTeamPlanningPeriodsLoader(project_team_planning_periods=output_data.project_team_planning_periods, output_database=output_database)
         project_team_planning_periods_loader.load()
 
-        dedicated_team_planning_period_time_sheets_by_date_loader = DedicatedTeamPlanningPeriodTimeSheetsByDateLoader(dedicated_team_planning_period_time_sheets_by_date=output_data.dedicated_team_planning_period_time_sheets_by_date, output_database=output_database)
+        project_team_planning_period_time_sheets_by_date_loader = ProjectTeamPlanningPeriodTimeSheetsByDateLoader(
+            project_team_planning_period_time_sheets_by_date=output_data.project_team_planning_period_time_sheets_by_date,
+            output_database=output_database)
+        project_team_planning_period_time_sheets_by_date_loader.load()
+
+        project_team_planning_period_time_spent_with_value_and_without_value_by_date_loader = ProjectTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDateLoader(
+            project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date=output_data.project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date,
+            output_database=output_database
+        )
+        project_team_planning_period_time_spent_with_value_and_without_value_by_date_loader.load()
+
+        dedicated_team_planning_period_time_sheets_by_date_loader = DedicatedTeamPlanningPeriodTimeSheetsByDateLoader(
+            dedicated_team_planning_period_time_sheets_by_date=output_data.dedicated_team_planning_period_time_sheets_by_date,
+            output_database=output_database
+        )
         dedicated_team_planning_period_time_sheets_by_date_loader.load()
 
         dedicated_team_planning_period_time_spent_with_value_and_without_value_by_date_loader = DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDateLoader(
