@@ -67,6 +67,9 @@ class EntitiesLoader:
         dedicated_team_planning_periods_loader = DedicatedTeamPlanningPeriodsLoader(dedicated_team_planning_periods=output_data.dedicated_team_planning_periods, output_database=output_database)
         dedicated_team_planning_periods_loader.load()
 
+        project_team_planning_periods_loader = ProjectTeamPlanningPeriodsLoader(project_team_planning_periods=output_data.project_team_planning_periods, output_database=output_database)
+        project_team_planning_periods_loader.load()
+
         change_requests_loader = ChangeRequestsLoader(change_requests=output_data.change_requests, output_database=output_database)
         change_requests_loader.load()
 
@@ -150,9 +153,6 @@ class EntitiesLoader:
 
         # task_time_sheets_loader = TaskTimeSheetsLoader(task_time_sheets=output_data.task_time_sheets, output_database=output_database)
         # task_time_sheets_loader.load()
-
-        project_team_planning_periods_loader = ProjectTeamPlanningPeriodsLoader(project_team_planning_periods=output_data.project_team_planning_periods, output_database=output_database)
-        project_team_planning_periods_loader.load()
 
         project_team_planning_period_time_sheets_by_date_loader = ProjectTeamPlanningPeriodTimeSheetsByDateLoader(
             project_team_planning_period_time_sheets_by_date=output_data.project_team_planning_period_time_sheets_by_date,

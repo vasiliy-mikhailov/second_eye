@@ -183,6 +183,10 @@ class ChangeRequest(models.Model):
         'DedicatedTeamPlanningPeriod', related_name='change_requests', on_delete=models.CASCADE
     )
 
+    project_team_planning_period = models.ForeignKey(
+        'ProjectTeamPlanningPeriod', related_name='change_requests', on_delete=models.CASCADE
+    )
+
     system_change_requests_analysis_estimate_sum = models.FloatField()
     system_change_requests_development_estimate_sum = models.FloatField()
     system_change_requests_testing_estimate_sum = models.FloatField()

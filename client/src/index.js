@@ -12,7 +12,8 @@ import {
 } from "react-router-dom";
 import PlanningPeriodsList from "./components/PlanningPeriodsList";
 import PlanningPeriodDetail from "./components/PlanningPeriodDetail";
-import DedicatedTeamInPlanningPeriodDetail from "./components/DedicatedTeamPlanningPeriodDetail"
+import DedicatedTeamPlanningPeriodDetail from "./components/DedicatedTeamPlanningPeriodDetail"
+import ProjectTeamPlanningPeriodDetail from "./components/ProjectTeamPlanningPeriodDetail"
 import ChangeRequestDetail from "./components/ChangeRequestDetail";
 import SystemChangeRequestDetail from "./components/SystemChangeRequestDetail";
 import {Box} from "@material-ui/core";
@@ -51,7 +52,8 @@ ReactDOM.render(
                         {/*</Route>*/}
                         <Route exact path="/" component={ PlanningPeriodsList } />
                         <Route exact path="/planningPeriods" component={ PlanningPeriodsList } />
-                        <Route path="/planningPeriods/:planningPeriodId/dedicatedTeams/:dedicatedTeamId" component={ DedicatedTeamInPlanningPeriodDetail } />
+                        <Route path="/planningPeriods/:planningPeriodId/dedicatedTeams/:dedicatedTeamId" component={ DedicatedTeamPlanningPeriodDetail } />
+                        <Route path="/planningPeriods/:planningPeriodId/projectTeams/:projectTeamId" component={ ProjectTeamPlanningPeriodDetail } />
                         <Route path="/planningPeriods/:id" component={ PlanningPeriodDetail } />
                         <Route path="/changeRequests/:id" component={ ChangeRequestDetail } />
                         <Route path="/systemChangeRequests/:id" component={ SystemChangeRequestDetail } />

@@ -7,12 +7,12 @@ import {Link as RouterLink} from "react-router-dom";
 import {CartesianGrid, Legend, ReferenceLine, Scatter, ScatterChart, XAxis, YAxis, ZAxis} from "recharts";
 import moment from "moment";
 
-const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql`
-    query DedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId($planningPeriodId: String!, $dedicatedTeamId: String!) {
-          dedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId(dedicatedTeamId: $dedicatedTeamId, planningPeriodId: $planningPeriodId) {
+const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
+    query ProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId($planningPeriodId: String!, $projectTeamId: String!) {
+          projectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId(projectTeamId: $projectTeamId, planningPeriodId: $planningPeriodId) {
                 id
                 estimate
-                dedicatedTeam {
+                projectTeam {
                     name
                 }
                 planningPeriod {
@@ -30,11 +30,6 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                     timeSpentCumsum
                 }
                 
-                projectTeams {
-                    id
-                    name
-                }
-                
                 changeRequests {
                     id
                     estimate
@@ -49,23 +44,23 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
     }
 `;
 
-class DedicatedTeamPlanningPeriodDetail extends Component {
+class ProjectTeamPlanningPeriodDetail extends Component {
     render() {
         if (this.props.data.loading) { return <div>Loading ...</div> }
+
         const planningPeriodId = this.props.match.params.planningPeriodId
 
-        const dedicatedTeamPlanningPeriod = this.props.data.dedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId
+        const projectTeamPlanningPeriod = this.props.data.projectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId
+        console.log(projectTeamPlanningPeriod)
+        const projectTeamName = projectTeamPlanningPeriod.projectTeam.name
+        const estimate = projectTeamPlanningPeriod.estimate
+        const planningPeriodName = projectTeamPlanningPeriod.planningPeriod.name
+        const planningPeriodStart = projectTeamPlanningPeriod.planningPeriod.start
+        const planningPeriodEnd = projectTeamPlanningPeriod.planningPeriod.end
+        const changeRequests = projectTeamPlanningPeriod.changeRequests
 
-        const dedicatedTeamName = dedicatedTeamPlanningPeriod.dedicatedTeam.name
-        const estimate = dedicatedTeamPlanningPeriod.estimate
-        const planningPeriodName = dedicatedTeamPlanningPeriod.planningPeriod.name
-        const planningPeriodStart = dedicatedTeamPlanningPeriod.planningPeriod.start
-        const planningPeriodEnd = dedicatedTeamPlanningPeriod.planningPeriod.end
-        const projectTeams = dedicatedTeamPlanningPeriod.projectTeams
-        const changeRequests = dedicatedTeamPlanningPeriod.changeRequests
-
-        const timeSheetsByDate = dedicatedTeamPlanningPeriod.timeSheetsByDate
-        const timeSpentPercentWithValueAndWithoutValueByDate = dedicatedTeamPlanningPeriod.timeSpentPercentWithValueAndWithoutValueByDate
+        const timeSheetsByDate = projectTeamPlanningPeriod.timeSheetsByDate
+        const timeSpentPercentWithValueAndWithoutValueByDate = projectTeamPlanningPeriod.timeSpentPercentWithValueAndWithoutValueByDate
 
         const today = (new Date()).getTime()
         const firstTimeSheetDate = timeSheetsByDate.length > 0 ? new Date(timeSheetsByDate[0].date).getTime() : null
@@ -87,7 +82,7 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
         return (
             <Box>
                 <Typography variant="body" noWrap>
-                    Выделенная команда { dedicatedTeamName }
+                    Проектная команда { projectTeamName }
                     <br />
                     Период планирования { planningPeriodName } ({ planningPeriodStart }-{ planningPeriodEnd })
                 </Typography>
@@ -180,33 +175,6 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                 </ScatterChart>
 
                 <Typography variant="body" noWrap>
-                    Проектные команды
-                </Typography>
-               <ul>
-                    { projectTeams
-                        .slice()
-.                       sort(function(a, b) {
-                            if (a.name > b.named) {
-                                return 1;
-                            }
-                            if (a.name == b.name) {
-                                return 0;
-                            }
-                            if (a.name < b.name) {
-                                return -1;
-                            }
-                        })
-                        .map(projectTeam => (
-                            <li key={ projectTeam.id }>
-                                <RouterLink to={ `/planningPeriods/${ planningPeriodId }/projectTeams/${ projectTeam.id }` }>
-                                { projectTeam.name }
-                                </RouterLink>
-                            </li>
-                        )
-                    )}
-                </ul>
-
-                <Typography variant="body" noWrap>
                     Заявки на доработку
                 </Typography>
                 <ul>
@@ -243,6 +211,6 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
     }
 }
 
-export default graphql(fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId, {
-    options: (props) => { return { variables: { planningPeriodId: props.match.params.planningPeriodId, dedicatedTeamId: props.match.params.dedicatedTeamId }}}
-})(DedicatedTeamPlanningPeriodDetail);
+export default graphql(fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId, {
+    options: (props) => { return { variables: { planningPeriodId: props.match.params.planningPeriodId, projectTeamId: props.match.params.projectTeamId }}}
+})(ProjectTeamPlanningPeriodDetail);

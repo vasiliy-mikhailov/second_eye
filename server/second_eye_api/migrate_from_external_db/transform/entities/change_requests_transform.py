@@ -224,5 +224,16 @@ def propagate_dedicated_team_planning_period_id_into_change_requests(change_requ
         suffixes=(None, ""),
     )
 
+def propagate_project_team_planning_period_id_into_change_requests(change_requests, project_team_planning_periods):
+    project_team_planning_period_id_to_project_team_id_mapping = project_team_planning_periods[
+        ["id", "project_team_id", "planning_period_id"]].rename(columns={"id": "project_team_planning_period_id"})
+
+    return change_requests.merge(
+        project_team_planning_period_id_to_project_team_id_mapping,
+        how="left",
+        on=["project_team_id", "planning_period_id"],
+        suffixes=(None, ""),
+    )
+
 
 

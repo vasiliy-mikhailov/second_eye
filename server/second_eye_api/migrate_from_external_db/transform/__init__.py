@@ -500,6 +500,11 @@ class Transformer:
             dedicated_team_planning_periods=output_data.dedicated_team_planning_periods
         )
 
+        output_data.change_requests = propagate_project_team_planning_period_id_into_change_requests(
+            change_requests=output_data.change_requests,
+            project_team_planning_periods=output_data.project_team_planning_periods
+        )
+
         output_data.change_requests = propagate_dedicated_team_planning_period_id_into_change_requests(
             change_requests=output_data.change_requests,
             dedicated_team_planning_periods=output_data.dedicated_team_planning_periods

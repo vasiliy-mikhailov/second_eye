@@ -38,7 +38,18 @@ class Query(graphene.ObjectType):
 
     dedicated_team_planning_periods = graphene.List(DedicatedTeamPlanningPeriodType)
 
-    dedicated_team_planning_period_by_planning_period_id_and_dedicated_team_id = graphene.Field(DedicatedTeamPlanningPeriodType, planning_period_id=graphene.String(), dedicated_team_id=graphene.String())
+    dedicated_team_planning_period_by_planning_period_id_and_dedicated_team_id = graphene.Field(
+        DedicatedTeamPlanningPeriodType,
+        planning_period_id=graphene.String(),
+        dedicated_team_id=graphene.String()
+    )
+
+    project_team_planning_period_by_planning_period_id_and_project_team_id = graphene.Field(
+        ProjectTeamPlanningPeriodType,
+        planning_period_id=graphene.String(),
+        project_team_id=graphene.String()
+    )
+
     change_requests_by_planning_period_id_and_dedicated_team_id = graphene.List(ChangeRequestType, planning_period_id=graphene.String(), dedicated_team_id=graphene.String())
 
     debug = graphene.Field(DjangoDebug, name='_debug')
@@ -102,6 +113,9 @@ class Query(graphene.ObjectType):
 
     def resolve_dedicated_team_planning_period_by_planning_period_id_and_dedicated_team_id(root, info, planning_period_id, dedicated_team_id):
         return DedicatedTeamPlanningPeriod.objects.get(planning_period_id=planning_period_id, dedicated_team_id=dedicated_team_id)
+
+    def resolve_project_team_planning_period_by_planning_period_id_and_project_team_id(root, info, planning_period_id, project_team_id):
+        return ProjectTeamPlanningPeriod.objects.get(planning_period_id=planning_period_id, project_team_id=project_team_id)
 
     def resolve_change_requests_by_planning_period_id_and_dedicated_team_id(root, info, planning_period_id, dedicated_team_id):
         return ChangeRequest.objects.filter(planning_period_id=planning_period_id, dedicated_team_id=dedicated_team_id)
