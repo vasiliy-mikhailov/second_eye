@@ -16,6 +16,7 @@ import DedicatedTeamPlanningPeriodDetail from "./components/DedicatedTeamPlannin
 import ProjectTeamPlanningPeriodDetail from "./components/ProjectTeamPlanningPeriodDetail"
 import ChangeRequestDetail from "./components/ChangeRequestDetail";
 import SystemChangeRequestDetail from "./components/SystemChangeRequestDetail";
+import CapacityAndQueue from "./components/CapacityAndQueue"
 import {Box} from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import { Integrations } from "@sentry/tracing";
@@ -51,6 +52,7 @@ ReactDOM.render(
                         {/*    <Redirect to="/planningPeriods/2021" />*/}
                         {/*</Route>*/}
                         <Route exact path="/" component={ PlanningPeriodsList } />
+                        <Route exact path="/capacityAndQueue" component={ CapacityAndQueue } />
                         <Route exact path="/planningPeriods" component={ PlanningPeriodsList } />
                         <Route path="/planningPeriods/:planningPeriodId/dedicatedTeams/:dedicatedTeamId" component={ DedicatedTeamPlanningPeriodDetail } />
                         <Route path="/planningPeriods/:planningPeriodId/projectTeams/:projectTeamId" component={ ProjectTeamPlanningPeriodDetail } />

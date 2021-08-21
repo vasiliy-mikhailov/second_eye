@@ -1,6 +1,3 @@
-import pandas as pd
-
-from second_eye_api.models import Skill
 from second_eye_api.migrate_from_external_db.transform.utils import *
 
 def calculate_companies_time_left_by_tasks_time_left(companies, tasks):
@@ -50,7 +47,7 @@ def calculate_companies_development_time_left_by_tasks_time_left(companies, task
         sum_up_by_column="company_id"
     )
 
-def calculate_companies_actual_developmen_capacity_by_task_time_sheets(companies, task_time_sheets):
+def calculate_companies_actual_development_capacity_by_task_time_sheets(companies, task_time_sheets):
     return calculate_entities_actual_development_capacity_by_task_time_sheets_summing_up_by_column(
         entities=companies,
         task_time_sheets=task_time_sheets,

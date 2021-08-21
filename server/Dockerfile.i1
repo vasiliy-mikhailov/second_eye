@@ -23,4 +23,6 @@ ENV NLS_LANG=AMERICAN_AMERICA.WE8ISO8859P1
 # copy project
 COPY . .
 
+RUN python.py makemigrations second-eye-api
+
 ENTRYPOINT ["python", "manage.py", "runserver", "0.0.0.0:8000"]

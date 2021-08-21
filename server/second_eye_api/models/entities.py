@@ -32,19 +32,19 @@ class DedicatedTeam(models.Model):
     )
 
     actual_change_request_capacity = models.FloatField()
-    effort = models.FloatField()
+    time_left = models.FloatField()
     queue_length = models.FloatField()
 
     actual_analysis_capacity = models.FloatField()
-    analysis_effort = models.FloatField()
+    analysis_time_left = models.FloatField()
     analysis_queue_length = models.FloatField()
 
     actual_development_capacity = models.FloatField()
-    development_effort = models.FloatField()
+    development_time_left = models.FloatField()
     development_queue_length = models.FloatField()
 
     actual_testing_capacity = models.FloatField()
-    testing_effort = models.FloatField()
+    testing_time_left = models.FloatField()
     testing_queue_length = models.FloatField()
 
     def __str__(self):
@@ -127,19 +127,19 @@ class ProjectTeam(models.Model):
     )
 
     actual_change_request_capacity = models.FloatField()
-    effort = models.FloatField()
+    time_left = models.FloatField()
     queue_length = models.FloatField()
 
     actual_analysis_capacity = models.FloatField()
-    analysis_effort = models.FloatField()
+    analysis_time_left = models.FloatField()
     analysis_queue_length = models.FloatField()
 
     actual_development_capacity = models.FloatField()
-    development_effort = models.FloatField()
+    development_time_left = models.FloatField()
     development_queue_length = models.FloatField()
 
     actual_testing_capacity = models.FloatField()
-    testing_effort = models.FloatField()
+    testing_time_left = models.FloatField()
     testing_queue_length = models.FloatField()
 
     def __str__(self):
@@ -267,20 +267,9 @@ class ChangeRequest(models.Model):
     time_left = models.FloatField()
 
     actual_change_request_capacity = models.FloatField()
-    effort = models.FloatField()
-    queue_length = models.FloatField()
-
     actual_analysis_capacity = models.FloatField()
-    analysis_effort = models.FloatField()
-    analysis_queue_length = models.FloatField()
-
     actual_development_capacity = models.FloatField()
-    development_effort = models.FloatField()
-    development_queue_length = models.FloatField()
-
     actual_testing_capacity = models.FloatField()
-    testing_effort = models.FloatField()
-    testing_queue_length = models.FloatField()
 
     def __str__(self):
         return self.name

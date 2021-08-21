@@ -297,7 +297,7 @@ def calculate_companies_actual_change_request_capacity_effort_and_queue_length(o
         tasks=output_data.tasks
     )
 
-    output_data.companies = calculate_companies_actual_developmen_capacity_by_task_time_sheets(
+    output_data.companies = calculate_companies_actual_development_capacity_by_task_time_sheets(
         companies=output_data.companies,
         task_time_sheets=output_data.task_time_sheets
     )
@@ -322,8 +322,6 @@ def calculate_dedicated_teams_actual_change_request_capacity_effort_and_queue_le
         tasks=output_data.tasks
     )
 
-    calculate_dedicated_teams_effort_by_time_left_inplace_(dedicated_teams=output_data.dedicated_teams)
-
     output_data.dedicated_teams = calculate_dedicated_teams_actual_change_request_capacity_by_task_time_sheets(
         dedicated_teams=output_data.dedicated_teams,
         task_time_sheets=output_data.task_time_sheets
@@ -335,8 +333,6 @@ def calculate_dedicated_teams_actual_change_request_capacity_effort_and_queue_le
         dedicated_teams=output_data.dedicated_teams,
         tasks=output_data.tasks
     )
-
-    calculate_dedicated_teams_analysis_effort_by_time_left_inplace_(dedicated_teams=output_data.dedicated_teams)
 
     output_data.dedicated_teams = calculate_dedicated_teams_actual_analysis_capacity_by_task_time_sheets(
         dedicated_teams=output_data.dedicated_teams,
@@ -350,9 +346,7 @@ def calculate_dedicated_teams_actual_change_request_capacity_effort_and_queue_le
         tasks=output_data.tasks
     )
 
-    calculate_dedicated_teams_development_effort_by_time_left_inplace_(dedicated_teams=output_data.dedicated_teams)
-
-    output_data.dedicated_teams = calculate_dedicated_teams_actual_developmen_capacity_by_task_time_sheets(
+    output_data.dedicated_teams = calculate_dedicated_teams_actual_development_capacity_by_task_time_sheets(
         dedicated_teams=output_data.dedicated_teams,
         task_time_sheets=output_data.task_time_sheets
     )
@@ -363,8 +357,6 @@ def calculate_dedicated_teams_actual_change_request_capacity_effort_and_queue_le
         dedicated_teams=output_data.dedicated_teams,
         tasks=output_data.tasks
     )
-
-    calculate_dedicated_teams_testing_effort_by_time_left_inplace_(dedicated_teams=output_data.dedicated_teams)
 
     output_data.dedicated_teams = calculate_dedicated_teams_actual_testing_capacity_by_task_time_sheets(
         dedicated_teams=output_data.dedicated_teams,
@@ -379,8 +371,6 @@ def calculate_project_teams_actual_change_request_capacity_effort_and_queue_leng
         tasks=output_data.tasks
     )
 
-    calculate_project_teams_effort_by_time_left_inplace_(project_teams=output_data.project_teams)
-
     output_data.project_teams = calculate_project_teams_actual_change_request_capacity_by_task_time_sheets(
         project_teams=output_data.project_teams,
         task_time_sheets=output_data.task_time_sheets
@@ -392,8 +382,6 @@ def calculate_project_teams_actual_change_request_capacity_effort_and_queue_leng
         project_teams=output_data.project_teams,
         tasks=output_data.tasks
     )
-
-    calculate_project_teams_analysis_effort_by_time_left_inplace_(project_teams=output_data.project_teams)
 
     output_data.project_teams = calculate_project_teams_actual_analysis_capacity_by_task_time_sheets(
         project_teams=output_data.project_teams,
@@ -407,9 +395,7 @@ def calculate_project_teams_actual_change_request_capacity_effort_and_queue_leng
         tasks=output_data.tasks
     )
 
-    calculate_project_teams_development_effort_by_time_left_inplace_(project_teams=output_data.project_teams)
-
-    output_data.project_teams = calculate_project_teams_actual_developmen_capacity_by_task_time_sheets(
+    output_data.project_teams = calculate_project_teams_actual_development_capacity_by_task_time_sheets(
         project_teams=output_data.project_teams,
         task_time_sheets=output_data.task_time_sheets
     )
@@ -421,8 +407,6 @@ def calculate_project_teams_actual_change_request_capacity_effort_and_queue_leng
         tasks=output_data.tasks
     )
 
-    calculate_project_teams_testing_effort_by_time_left_inplace_(project_teams=output_data.project_teams)
-
     output_data.project_teams = calculate_project_teams_actual_testing_capacity_by_task_time_sheets(
         project_teams=output_data.project_teams,
         task_time_sheets=output_data.task_time_sheets
@@ -431,41 +415,26 @@ def calculate_project_teams_actual_change_request_capacity_effort_and_queue_leng
     calculate_project_teams_testing_queue_length_inplace(project_teams=output_data.project_teams)
 
 def calculate_change_requests_actual_change_request_capacity_effort_and_queue_length(output_data):
-    calculate_change_requests_effort_by_time_left_inplace_(change_requests=output_data.change_requests)
-
     output_data.change_requests = calculate_change_requests_actual_change_request_capacity_by_task_time_sheets(
         change_requests=output_data.change_requests,
         task_time_sheets=output_data.task_time_sheets
     )
-
-    calculate_change_requests_queue_length_inplace(change_requests=output_data.change_requests)
-
-    calculate_change_requests_analysis_effort_by_time_left_inplace_(change_requests=output_data.change_requests)
 
     output_data.change_requests = calculate_change_requests_actual_analysis_capacity_by_task_time_sheets(
         change_requests=output_data.change_requests,
         task_time_sheets=output_data.task_time_sheets
     )
 
-    calculate_change_requests_analysis_queue_length_inplace(change_requests=output_data.change_requests)
-
-    calculate_change_requests_development_effort_by_time_left_inplace_(change_requests=output_data.change_requests)
-
-    output_data.change_requests = calculate_change_requests_actual_developmen_capacity_by_task_time_sheets(
+    output_data.change_requests = calculate_change_requests_actual_development_capacity_by_task_time_sheets(
         change_requests=output_data.change_requests,
         task_time_sheets=output_data.task_time_sheets
     )
-
-    calculate_change_requests_development_queue_length_inplace(change_requests=output_data.change_requests)
-
-    calculate_change_requests_testing_effort_by_time_left_inplace_(change_requests=output_data.change_requests)
 
     output_data.change_requests = calculate_change_requests_actual_testing_capacity_by_task_time_sheets(
         change_requests=output_data.change_requests,
         task_time_sheets=output_data.task_time_sheets
     )
 
-    calculate_change_requests_testing_queue_length_inplace(change_requests=output_data.change_requests)
 
 class Transformer:
     def __init__(self, input_data):
