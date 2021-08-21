@@ -12,16 +12,15 @@ def calculate_entities_time_left_by_tasks_time_left_filtering_by_skill_and_summi
         sum_up_by_column,
         skill
 ):
-    column_prefixes = {
-        Skill.ANALYSIS: "analysis_",
-        Skill.DEVELOPMENT: "development_",
-        Skill.TESTING: "testing"
+    time_left_column_names = {
+        Skill.ANALYSIS: "analysis_time_left",
+        Skill.DEVELOPMENT: "development_time_left",
+        Skill.TESTING: "testing_time_left"
     }
 
     tasks_filtered_by_skill = tasks if not skill else tasks[tasks["skill_id"] == skill]
 
-    time_left_column_prefix = "" if not skill else column_prefixes[skill]
-    time_left_column_name = "{}time_left".format(time_left_column_prefix)
+    time_left_column_name = "time_left" if not skill else time_left_column_names[skill]
 
     tasks_time_left_aggregated_by_column = tasks_filtered_by_skill.groupby(
         [sum_up_by_column]
