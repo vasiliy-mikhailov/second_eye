@@ -21,6 +21,28 @@ def propagate_state_category_id_into_tasks(tasks, states):
         suffixes=(None, ""),
     )
 
+def calculate_tasks_time_spent_by_task_time_sheets(tasks, task_time_sheets):
+    tasks_time_sheets_aggregated_by_task_id = task_time_sheets.groupby(
+        ["task_id"]
+    ).agg({
+        "time_spent": "sum"
+    }).reset_index().rename(
+        columns={
+            "task_id": "id",
+        },
+    )
+
+    tasks = tasks.merge(
+        tasks_time_sheets_aggregated_by_task_id,
+        how="left",
+        on="id",
+        suffixes=(False, ""),
+    )
+
+    tasks["time_spent"].fillna(0, inplace=True)
+
+    return tasks
+
 def calculate_tasks_estimate_using_time_spent_state_category_id_planned_estimate_and_preliminary_estimate_inplace(tasks):
     tasks['estimate'] = tasks.apply(lambda x:
         x['time_spent'] if x['state_category_id'] == StateCategory.DONE else (
@@ -273,5 +295,16 @@ def propagate_project_team_planning_period_id_by_project_team_id_and_planning_pe
         project_team_id_and_planning_period_id_to_project_team_planning_period_id_id_mapping,
         how="left",
         on=["project_team_id", "planning_period_id"],
+        suffixes=(None, ""),
+    )
+
+def propagate_system_change_requests_company_id_into_tasks(tasks, system_change_requests):
+    system_change_request_id_to_company_id_mapping = system_change_requests[
+        ["id", "company_id"]].rename(columns={"id": "system_change_request_id"})
+
+    return tasks.merge(
+        system_change_request_id_to_company_id_mapping,
+        how="left",
+        on="system_change_request_id",
         suffixes=(None, ""),
     )

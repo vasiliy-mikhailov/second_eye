@@ -1,4 +1,8 @@
 from second_eye_api.migrate_from_external_db.output_data import OutputData
+
+from .entities.company_transform import *
+from .entities.dedicated_teams_transform import *
+from .entities.project_team_transform import *
 from .utils import *
 from .entities.states_transform import *
 from .entities.function_components_transform import *
@@ -23,6 +27,11 @@ from .entities.task_time_sheets_by_date_transform import *
 
 
 def fix_broken_links(output_data):
+    output_data.task_time_sheets = remove_task_time_sheets_not_referencing_any_task_by_id(
+        tasks_time_sheets=output_data.task_time_sheets,
+        tasks=output_data.tasks
+    )
+
     replace_broken_system_change_request_system_id_to_system_id_with_minus_one(
         system_change_requests=output_data.system_change_requests,
         systems=output_data.systems
@@ -84,6 +93,24 @@ def propagate_state_category_into_change_requests_system_change_requests_tasks_a
         states=output_data.states
     )
 
+def propagate_dedicated_team_company_id_to_project_teams_change_requests_system_change_requests_and_tasks(output_data):
+    output_data.project_teams = propagate_dedicated_teams_company_id_into_project_teams(
+        project_teams=output_data.project_teams, dedicated_teams=output_data.dedicated_teams
+    )
+
+    output_data.change_requests = propagate_project_teams_company_id_into_change_requests(
+        change_requests=output_data.change_requests, project_teams=output_data.project_teams
+    )
+
+    output_data.system_change_requests = propagate_change_requests_company_id_into_system_change_requests(
+        system_change_requests=output_data.system_change_requests, change_requests=output_data.change_requests
+    )
+
+    output_data.tasks = propagate_system_change_requests_company_id_into_tasks(
+        tasks=output_data.tasks, system_change_requests=output_data.system_change_requests
+    )
+
+
 def propagate_project_team_dedicated_team_id_to_change_requests_system_change_requests_and_tasks(output_data):
     output_data.change_requests = propagate_project_teams_dedicated_team_id_into_change_requests(
         change_requests=output_data.change_requests, project_teams=output_data.project_teams
@@ -129,6 +156,12 @@ def propagate_change_request_has_value_to_system_change_requests_and_tasks(outpu
     )
 
 def calculate_time_sheets_inplace(output_data):
+    output_data.task_time_sheets = propagate_task_company_id_into_task_time_sheets(
+        task_time_sheets=output_data.task_time_sheets,
+        tasks=output_data.tasks
+    )
+
+
     output_data.task_time_sheets = propagate_task_skill_id_into_task_time_sheets(
         task_time_sheets=output_data.task_time_sheets,
         tasks=output_data.tasks
@@ -234,18 +267,217 @@ def calculate_time_sheets_inplace(output_data):
         task_time_sheets=output_data.task_time_sheets
     )
 
+def calculate_companies_actual_change_request_capacity_effort_and_queue_length(output_data):
+    output_data.companies = calculate_companies_time_left_by_tasks_time_left(
+        companies=output_data.companies,
+        tasks=output_data.tasks
+    )
+
+    output_data.companies = calculate_companies_actual_change_request_capacity_by_task_time_sheets(
+        companies=output_data.companies,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_companies_queue_length_inplace(companies=output_data.companies)
+
+    output_data.companies = calculate_companies_analysis_time_left_by_tasks_time_left(
+        companies=output_data.companies,
+        tasks=output_data.tasks
+    )
+
+    output_data.companies = calculate_companies_actual_analysis_capacity_by_task_time_sheets(
+        companies=output_data.companies,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_companies_analysis_queue_length_inplace(companies=output_data.companies)
+
+    output_data.companies = calculate_companies_development_time_left_by_tasks_time_left(
+        companies=output_data.companies,
+        tasks=output_data.tasks
+    )
+
+    output_data.companies = calculate_companies_actual_developmen_capacity_by_task_time_sheets(
+        companies=output_data.companies,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_companies_development_queue_length_inplace(companies=output_data.companies)
+
+    output_data.companies = calculate_companies_testing_time_left_by_tasks_time_left(
+        companies=output_data.companies,
+        tasks=output_data.tasks
+    )
+
+    output_data.companies = calculate_companies_actual_testing_capacity_by_task_time_sheets(
+        companies=output_data.companies,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_companies_testing_queue_length_inplace(companies=output_data.companies)
+
+def calculate_dedicated_teams_actual_change_request_capacity_effort_and_queue_length(output_data):
+    output_data.dedicated_teams = calculate_dedicated_teams_time_left_by_tasks_time_left(
+        dedicated_teams=output_data.dedicated_teams,
+        tasks=output_data.tasks
+    )
+
+    calculate_dedicated_teams_effort_by_time_left_inplace_(dedicated_teams=output_data.dedicated_teams)
+
+    output_data.dedicated_teams = calculate_dedicated_teams_actual_change_request_capacity_by_task_time_sheets(
+        dedicated_teams=output_data.dedicated_teams,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_dedicated_teams_queue_length_inplace(dedicated_teams=output_data.dedicated_teams)
+
+    output_data.dedicated_teams = calculate_dedicated_teams_analysis_time_left_by_tasks_time_left(
+        dedicated_teams=output_data.dedicated_teams,
+        tasks=output_data.tasks
+    )
+
+    calculate_dedicated_teams_analysis_effort_by_time_left_inplace_(dedicated_teams=output_data.dedicated_teams)
+
+    output_data.dedicated_teams = calculate_dedicated_teams_actual_analysis_capacity_by_task_time_sheets(
+        dedicated_teams=output_data.dedicated_teams,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_dedicated_teams_analysis_queue_length_inplace(dedicated_teams=output_data.dedicated_teams)
+
+    output_data.dedicated_teams = calculate_dedicated_teams_development_time_left_by_tasks_time_left(
+        dedicated_teams=output_data.dedicated_teams,
+        tasks=output_data.tasks
+    )
+
+    calculate_dedicated_teams_development_effort_by_time_left_inplace_(dedicated_teams=output_data.dedicated_teams)
+
+    output_data.dedicated_teams = calculate_dedicated_teams_actual_developmen_capacity_by_task_time_sheets(
+        dedicated_teams=output_data.dedicated_teams,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_dedicated_teams_development_queue_length_inplace(dedicated_teams=output_data.dedicated_teams)
+
+    output_data.dedicated_teams = calculate_dedicated_teams_testing_time_left_by_tasks_time_left(
+        dedicated_teams=output_data.dedicated_teams,
+        tasks=output_data.tasks
+    )
+
+    calculate_dedicated_teams_testing_effort_by_time_left_inplace_(dedicated_teams=output_data.dedicated_teams)
+
+    output_data.dedicated_teams = calculate_dedicated_teams_actual_testing_capacity_by_task_time_sheets(
+        dedicated_teams=output_data.dedicated_teams,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_dedicated_teams_testing_queue_length_inplace(dedicated_teams=output_data.dedicated_teams)
+
+def calculate_project_teams_actual_change_request_capacity_effort_and_queue_length(output_data):
+    output_data.project_teams = calculate_project_teams_time_left_by_tasks_time_left(
+        project_teams=output_data.project_teams,
+        tasks=output_data.tasks
+    )
+
+    calculate_project_teams_effort_by_time_left_inplace_(project_teams=output_data.project_teams)
+
+    output_data.project_teams = calculate_project_teams_actual_change_request_capacity_by_task_time_sheets(
+        project_teams=output_data.project_teams,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_project_teams_queue_length_inplace(project_teams=output_data.project_teams)
+
+    output_data.project_teams = calculate_project_teams_analysis_time_left_by_tasks_time_left(
+        project_teams=output_data.project_teams,
+        tasks=output_data.tasks
+    )
+
+    calculate_project_teams_analysis_effort_by_time_left_inplace_(project_teams=output_data.project_teams)
+
+    output_data.project_teams = calculate_project_teams_actual_analysis_capacity_by_task_time_sheets(
+        project_teams=output_data.project_teams,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_project_teams_analysis_queue_length_inplace(project_teams=output_data.project_teams)
+
+    output_data.project_teams = calculate_project_teams_development_time_left_by_tasks_time_left(
+        project_teams=output_data.project_teams,
+        tasks=output_data.tasks
+    )
+
+    calculate_project_teams_development_effort_by_time_left_inplace_(project_teams=output_data.project_teams)
+
+    output_data.project_teams = calculate_project_teams_actual_developmen_capacity_by_task_time_sheets(
+        project_teams=output_data.project_teams,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_project_teams_development_queue_length_inplace(project_teams=output_data.project_teams)
+
+    output_data.project_teams = calculate_project_teams_testing_time_left_by_tasks_time_left(
+        project_teams=output_data.project_teams,
+        tasks=output_data.tasks
+    )
+
+    calculate_project_teams_testing_effort_by_time_left_inplace_(project_teams=output_data.project_teams)
+
+    output_data.project_teams = calculate_project_teams_actual_testing_capacity_by_task_time_sheets(
+        project_teams=output_data.project_teams,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_project_teams_testing_queue_length_inplace(project_teams=output_data.project_teams)
+
+def calculate_change_requests_actual_change_request_capacity_effort_and_queue_length(output_data):
+    calculate_change_requests_effort_by_time_left_inplace_(change_requests=output_data.change_requests)
+
+    output_data.change_requests = calculate_change_requests_actual_change_request_capacity_by_task_time_sheets(
+        change_requests=output_data.change_requests,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_change_requests_queue_length_inplace(change_requests=output_data.change_requests)
+
+    calculate_change_requests_analysis_effort_by_time_left_inplace_(change_requests=output_data.change_requests)
+
+    output_data.change_requests = calculate_change_requests_actual_analysis_capacity_by_task_time_sheets(
+        change_requests=output_data.change_requests,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_change_requests_analysis_queue_length_inplace(change_requests=output_data.change_requests)
+
+    calculate_change_requests_development_effort_by_time_left_inplace_(change_requests=output_data.change_requests)
+
+    output_data.change_requests = calculate_change_requests_actual_developmen_capacity_by_task_time_sheets(
+        change_requests=output_data.change_requests,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_change_requests_development_queue_length_inplace(change_requests=output_data.change_requests)
+
+    calculate_change_requests_testing_effort_by_time_left_inplace_(change_requests=output_data.change_requests)
+
+    output_data.change_requests = calculate_change_requests_actual_testing_capacity_by_task_time_sheets(
+        change_requests=output_data.change_requests,
+        task_time_sheets=output_data.task_time_sheets
+    )
+
+    calculate_change_requests_testing_queue_length_inplace(change_requests=output_data.change_requests)
+
 class Transformer:
-    def __init__(self, input_data, settings):
+    def __init__(self, input_data):
         self.input_data = input_data
-        self.settings = settings
 
     def transform(self):
         input_data = self.input_data
-        settings = self.settings
 
         output_data = OutputData()
         output_data.skills = input_data.skills
         output_data.systems = input_data.systems
+        output_data.companies = input_data.companies
         output_data.dedicated_teams = input_data.dedicated_teams
         output_data.project_teams = input_data.project_teams
         output_data.state_categories = input_data.state_categories
@@ -279,6 +511,11 @@ class Transformer:
         )
 
         calculate_function_components_function_points_using_count_and_kind_function_points_inplace(function_components=output_data.function_components)
+
+        output_data.tasks = calculate_tasks_time_spent_by_task_time_sheets(
+            tasks=output_data.tasks,
+            task_time_sheets=output_data.task_time_sheets
+        )
 
         calculate_tasks_estimate_using_time_spent_state_category_id_planned_estimate_and_preliminary_estimate_inplace(tasks=output_data.tasks)
 
@@ -434,6 +671,8 @@ class Transformer:
         calculate_planning_periods_start_using_id_inplace(planning_periods=output_data.planning_periods)
         calculate_planning_periods_end_using_id_inplace(planning_periods=output_data.planning_periods)
 
+        propagate_dedicated_team_company_id_to_project_teams_change_requests_system_change_requests_and_tasks(output_data=output_data)
+
         propagate_project_team_dedicated_team_id_to_change_requests_system_change_requests_and_tasks(output_data=output_data)
 
         propagate_change_request_project_team_to_system_change_requests_and_tasks(output_data=output_data)
@@ -526,5 +765,13 @@ class Transformer:
         )
 
         calculate_time_sheets_inplace(output_data=output_data)
+
+        calculate_companies_actual_change_request_capacity_effort_and_queue_length(output_data=output_data)
+
+        calculate_dedicated_teams_actual_change_request_capacity_effort_and_queue_length(output_data=output_data)
+
+        calculate_project_teams_actual_change_request_capacity_effort_and_queue_length(output_data=output_data)
+
+        calculate_change_requests_actual_change_request_capacity_effort_and_queue_length(output_data=output_data)
 
         return output_data

@@ -1,8 +1,51 @@
 from django.db import models
 
+class Company(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=255)
+
+    actual_change_request_capacity = models.FloatField()
+    time_left = models.FloatField()
+    queue_length = models.FloatField()
+
+    actual_analysis_capacity = models.FloatField()
+    analysis_time_left = models.FloatField()
+    analysis_queue_length = models.FloatField()
+
+    actual_development_capacity = models.FloatField()
+    development_time_left = models.FloatField()
+    development_queue_length = models.FloatField()
+
+    actual_testing_capacity = models.FloatField()
+    testing_time_left = models.FloatField()
+    testing_queue_length = models.FloatField()
+
+    def __str__(self):
+        return self.name
+
 class DedicatedTeam(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255)
+
+    company = models.ForeignKey(
+        "Company", related_name="dedicated_teams", on_delete=models.CASCADE
+    )
+
+    actual_change_request_capacity = models.FloatField()
+    effort = models.FloatField()
+    queue_length = models.FloatField()
+
+    actual_analysis_capacity = models.FloatField()
+    analysis_effort = models.FloatField()
+    analysis_queue_length = models.FloatField()
+
+    actual_development_capacity = models.FloatField()
+    development_effort = models.FloatField()
+    development_queue_length = models.FloatField()
+
+    actual_testing_capacity = models.FloatField()
+    testing_effort = models.FloatField()
+    testing_queue_length = models.FloatField()
 
     def __str__(self):
         return self.name
@@ -82,6 +125,22 @@ class ProjectTeam(models.Model):
     dedicated_team = models.ForeignKey(
         'DedicatedTeam', related_name="project_teams", on_delete=models.CASCADE
     )
+
+    actual_change_request_capacity = models.FloatField()
+    effort = models.FloatField()
+    queue_length = models.FloatField()
+
+    actual_analysis_capacity = models.FloatField()
+    analysis_effort = models.FloatField()
+    analysis_queue_length = models.FloatField()
+
+    actual_development_capacity = models.FloatField()
+    development_effort = models.FloatField()
+    development_queue_length = models.FloatField()
+
+    actual_testing_capacity = models.FloatField()
+    testing_effort = models.FloatField()
+    testing_queue_length = models.FloatField()
 
     def __str__(self):
         return self.name
@@ -206,6 +265,22 @@ class ChangeRequest(models.Model):
     development_time_left = models.FloatField()
     testing_time_left = models.FloatField()
     time_left = models.FloatField()
+
+    actual_change_request_capacity = models.FloatField()
+    effort = models.FloatField()
+    queue_length = models.FloatField()
+
+    actual_analysis_capacity = models.FloatField()
+    analysis_effort = models.FloatField()
+    analysis_queue_length = models.FloatField()
+
+    actual_development_capacity = models.FloatField()
+    development_effort = models.FloatField()
+    development_queue_length = models.FloatField()
+
+    actual_testing_capacity = models.FloatField()
+    testing_effort = models.FloatField()
+    testing_queue_length = models.FloatField()
 
     def __str__(self):
         return self.name
@@ -602,6 +677,7 @@ class ChangeRequestTimeSheetsByDate(models.Model):
     )
 
 ALL_ENTITIES = [
+    Company,
     DedicatedTeam,
     ProjectTeam,
     StateCategory,

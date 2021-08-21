@@ -2,6 +2,7 @@ from second_eye_api.migrate_from_external_db.input_data import InputData
 from second_eye_api.migrate_from_external_db.extract.utils import run_tasks_in_parallel
 from .entities.skills_extractor import SkillsExtractor
 from .entities.systems_extractor import SystemsExtractor
+from .entities.companies_extractor import CompaniesExtractor
 from .entities.dedicated_teams_extractor import DedicatedTeamsExtractor
 from .entities.project_teams_extractor import ProjectTeamsExtractor
 from .entities.state_categories_extractor import StateCategoriesExtractor
@@ -20,24 +21,23 @@ from .entities.task_time_sheets_extractor import TaskTimeSheetsExtractor
 from .entities.planning_periods_extractor import PlaningPeriodsExtractor
 
 class Extractor:
-    def __init__(self, get_connection, settings):
+    def __init__(self, get_connection):
         self.get_connection = get_connection
-        self.settings = settings
 
     def extract(self):
         get_connection = self.get_connection
-        settings = self.settings
         input_data = InputData()
 
         skills_extractor = SkillsExtractor()
         systems_extractor = SystemsExtractor(get_connection=get_connection)
+        companies_extractor = CompaniesExtractor()
         dedicated_teams_extractor = DedicatedTeamsExtractor(get_connection=get_connection)
         project_teams_extractor = ProjectTeamsExtractor(get_connection=get_connection)
         state_categories_extractor = StateCategoriesExtractor()
         states_extractor = StatesExtractor(get_connection=get_connection)
         change_requests_extractor = ChangeRequestsExtractor(get_connection=get_connection)
         system_change_requests_extractor = SystemChangeRequestsExtractor(get_connection=get_connection)
-        tasks_extractor = TasksExtractor(get_connection=get_connection, last_period_number_of_days=settings.last_period_number_of_days)
+        tasks_extractor = TasksExtractor(get_connection=get_connection)
         function_component_kinds_extractor = FunctionComponentKindsExtractor()
         function_component_extractor = FunctionComponentsExtractor(get_connection=get_connection)
         persons_extractor = PersonsExtractor(get_connection=get_connection)
@@ -51,6 +51,7 @@ class Extractor:
         run_tasks_in_parallel([
             lambda: skills_extractor.extract(),
             lambda: systems_extractor.extract(),
+            lambda: companies_extractor.extract(),
             lambda: dedicated_teams_extractor.extract(),
             lambda: project_teams_extractor.extract(),
             lambda: state_categories_extractor.extract(),
@@ -72,6 +73,8 @@ class Extractor:
         input_data.skills = skills_extractor.data
 
         input_data.systems = systems_extractor.data
+
+        input_data.companies = companies_extractor.data
 
         input_data.dedicated_teams = dedicated_teams_extractor.data
 

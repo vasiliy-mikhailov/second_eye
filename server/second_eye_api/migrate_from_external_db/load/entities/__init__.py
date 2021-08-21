@@ -1,5 +1,6 @@
 from .skills_loader import SkillsLoader
 from .systems_loader import SystemsLoader
+from .companies_loader import CompaniesLoader
 from .dedicated_teams_loader import DedicatedTeamsLoader
 from .project_teams_loader import ProjectTeamsLoader
 from .state_categories_loader import StateCategoriessLoader
@@ -48,6 +49,9 @@ class EntitiesLoader:
 
         systems_loader = SystemsLoader(systems=output_data.systems, output_database=output_database)
         systems_loader.load()
+
+        companies_loader = CompaniesLoader(companies=output_data.companies, output_database=output_database)
+        companies_loader.load()
 
         dedicated_teams_loader = DedicatedTeamsLoader(dedicated_teams=output_data.dedicated_teams, output_database=output_database)
         dedicated_teams_loader.load()

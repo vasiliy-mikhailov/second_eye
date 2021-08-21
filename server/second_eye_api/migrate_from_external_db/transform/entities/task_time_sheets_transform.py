@@ -16,6 +16,17 @@ def replace_broken_task_time_sheet_person_id_to_person_id_with_minus_one(task_ti
         valid_list=valid_person_ids
     )
 
+def remove_task_time_sheets_not_referencing_any_task_by_id(tasks_time_sheets, tasks):
+    valid_task_ids = tasks[["id"]].rename(columns={"id": "task_id"})
+
+    return tasks_time_sheets.merge(
+        valid_task_ids,
+        how="inner",
+        on="task_id",
+        suffixes=(None, ""),
+    )
+
+
 def propagate_task_skill_id_into_task_time_sheets(task_time_sheets, tasks):
     task_id_to_skill_id_mapping = tasks[["id", "skill_id"]].rename(
         columns={"id": "task_id"}
@@ -47,6 +58,18 @@ def propagate_task_system_change_request_id_into_task_time_sheets(task_time_shee
 
     return task_time_sheets.merge(
         task_id_to_system_change_request_id_mapping,
+        how="left",
+        on="task_id",
+        suffixes=(None, ""),
+    )
+
+def propagate_task_company_id_into_task_time_sheets(task_time_sheets, tasks):
+    task_id_to_company_id_mapping = tasks[["id", "company_id"]].rename(
+        columns={"id": "task_id"}
+    )
+
+    return task_time_sheets.merge(
+        task_id_to_company_id_mapping,
         how="left",
         on="task_id",
         suffixes=(None, ""),

@@ -24,7 +24,7 @@ class PlanningPeriodsList extends Component {
 
         return (
             <Box>
-                <Typography variant="h3">
+                <Typography variant="body1">
                     Периоды
                 </Typography>
 

@@ -1,7 +1,6 @@
 import django.db
 import os
 from second_eye_api.migrate_from_external_db.migrate import migrate
-from second_eye_api.migrate_from_external_db.settings import Settings
 from threading import Thread
 import traceback
 import logging
@@ -33,9 +32,8 @@ def refill_internal_db():
     get_input_connection = get_connection_to_jira_db
     router = find_database_switching_router()
     output_database = router.database_for_write
-    settings = Settings(last_period_number_of_days=14)
 
-    migrate(get_input_connection=get_input_connection, output_database=output_database, settings=settings)
+    migrate(get_input_connection=get_input_connection, output_database=output_database)
 
     router.switch_databases()
 

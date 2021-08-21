@@ -10,7 +10,8 @@ class DedicatedTeamsExtractor:
             query = """
                 select 
                     id as "id",
-                    customvalue as "name"
+                    customvalue as "name",
+                    1 as "company_id"
                 from 
                     jira60.customfieldoption
                 where
@@ -19,7 +20,7 @@ class DedicatedTeamsExtractor:
             """
 
             data = pd.read_sql(query, connection)
-            dedicated_team_not_specified = pd.DataFrame([[-1, "Не указано"]], columns=["id", "name"])
+            dedicated_team_not_specified = pd.DataFrame([[-1, "Не указано", 1]], columns=["id", "name", "company_id"])
             data = data.append(
                 dedicated_team_not_specified,
                 sort=False)

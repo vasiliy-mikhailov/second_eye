@@ -344,3 +344,14 @@ def make_filler_system_change_requests_summing_up_to_change_request_estimate(sys
     )
 
     return system_change_requests
+
+def propagate_change_requests_company_id_into_system_change_requests(system_change_requests, change_requests):
+    change_request_id_to_company_id_mapping = change_requests[["id", "company_id"]].rename(
+        columns={"id": "change_request_id"})
+
+    return system_change_requests.merge(
+        change_request_id_to_company_id_mapping,
+        how="left",
+        on="change_request_id",
+        suffixes=(None, ""),
+    )

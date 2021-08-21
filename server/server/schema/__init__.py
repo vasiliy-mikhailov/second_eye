@@ -1,6 +1,7 @@
 import graphene_django_optimizer as gql_optimizer
 from graphene_django.debug import DjangoDebug
 from .change_request import *
+from .company import *
 from .dedicated_team import *
 from .function_component import *
 from .person import *
@@ -13,9 +14,11 @@ from .system import *
 from .system_change_request import *
 from .task import *
 from .team_load_output import *
+from second_eye_api.models.entities import *
 
 class Query(graphene.ObjectType):
     planning_periods = graphene.List(PlanningPeriodType)
+    companies = graphene.List(CompanyType)
     dedicated_teams = graphene.List(DedicatedTeamType)
     project_teams = graphene.List(ProjectTeamType)
     state_categories = graphene.List(StateCategoryType)
@@ -56,6 +59,9 @@ class Query(graphene.ObjectType):
 
     def resolve_planning_periods(root, info):
         return gql_optimizer.query(PlanningPeriod.objects.all(), info)
+
+    def resolve_companies(root, info):
+        return gql_optimizer.query(Company.objects.all(), info)
 
     def resolve_dedicated_teams(root, info):
         return gql_optimizer.query(DedicatedTeam.objects.all(), info)
