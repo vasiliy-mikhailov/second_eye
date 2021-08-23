@@ -25,6 +25,13 @@ class PlanningPeriodsList extends Component {
         return (
             <Box>
                 <Typography variant="body1">
+                    <RouterLink to={ `/capacityAndQueue` }>
+                        Очереди по командам
+                    </RouterLink>
+                </Typography>
+                <br />
+
+                <Typography variant="body1">
                     Периоды
                 </Typography>
 

@@ -1,0 +1,26 @@
+# pull official base image
+FROM prognoz-kkt.mcb.ru:5000/python/3.7.11-buster:latest
+
+# set work directory
+WORKDIR /usr/src/app
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+COPY ./docker-dependencies ./docker-dependencies
+
+RUN dpkg -i ./docker-dependencies/buster-dependencies/*
+
+RUN pip install ./docker-dependencies/python-packages/*
+
+RUN alien -i ./docker-dependencies/oracle-instant-client/oracle-instantclient18.5-basiclite-18.5.0.0.0-3.x86_64.rpm
+RUN alien -i ./docker-dependencies/oracle-instant-client/oracle-instantclient18.5-devel-18.5.0.0.0-3.x86_64.rpm
+
+ENV LD_LIBRARY_PATH="/usr/lib/oracle/18.5/client64/lib:${LD_LIBRARY_PATH}"
+ENV NLS_LANG=AMERICAN_AMERICA.WE8ISO8859P1
+
+# copy project
+COPY . .
+
+ENTRYPOINT ["python", "manage.py", "runserver", "0.0.0.0:8000"]

@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import {Box} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { DataGrid, GridToolbarContainer, GridToolbarExport, } from '@material-ui/data-grid';
 
 const fetchCapacityAndQueue = gql`
     query capacityAndQueue {
@@ -71,6 +72,14 @@ const fetchCapacityAndQueue = gql`
     }
 `;
 
+function ToolBarWithExport() {
+  return (
+    <GridToolbarContainer>
+      <GridToolbarExport />
+    </GridToolbarContainer>
+  );
+}
+
 class CapacityAndQueue extends Component {
     render() {
         if (this.props.data.loading) { return <div>Loading ...</div> }
@@ -82,6 +91,7 @@ class CapacityAndQueue extends Component {
         const companiesQueue = companies.slice().map(
             company => {
                 return {
+                    id: company.id,
                     name: company.name,
                     queueLength: Math.round(company.queueLength / 22),
                     analysisQueueLength: Math.round(company.analysisQueueLength / 22),
@@ -94,6 +104,7 @@ class CapacityAndQueue extends Component {
         const dedicatedTeamsQueue = dedicatedTeams.slice().map(
             dedicatedTeam => {
                 return {
+                    id: dedicatedTeam.id,
                     name: dedicatedTeam.name,
                     queueLength: Math.round(dedicatedTeam.queueLength / 22),
                     analysisQueueLength: Math.round(dedicatedTeam.analysisQueueLength / 22),
@@ -106,6 +117,7 @@ class CapacityAndQueue extends Component {
         const projectTeamsQueue = projectTeams.slice().map(
             projectTeam => {
                 return {
+                    id: projectTeam.id,
                     name: projectTeam.name + " : " + projectTeam.dedicatedTeam.name,
                     queueLength: Math.round(projectTeam.queueLength / 22),
                     analysisQueueLength: Math.round(projectTeam.analysisQueueLength / 22),
@@ -147,10 +159,90 @@ class CapacityAndQueue extends Component {
             }
         ).slice(10)
 
+        const topDedicatedTeamsWithCompanies = companiesQueue.concat(dedicatedTeamsQueue).sort(
+                        function(a, b) {
+                return Math.max(
+                    b.queueLength,
+                    b.analysisQueueLength,
+                    b.developmentQueueLength,
+                    b.testingQueueLength
+                ) - Math.max(
+                    a.queueLength,
+                    a.analysisQueueLength,
+                    a.developmentQueueLength,
+                    a.testingQueueLength
+                )
+            }
+        )
+
+        const topDedicatedTeamsWithCompaniesColumns = [
+            {
+                field: 'name',
+                headerName: 'Название',
+                flex: 1,
+            },
+            {
+                field: 'queueLength',
+                headerName: 'Очередь (мес)',
+                flex: 1,
+            },
+            {
+                field: 'analysisQueueLength',
+                headerName: 'Очередь аналитики (мес)',
+                flex: 1,
+            },
+            {
+                field: 'developmentQueueLength',
+                headerName: 'Очередь разработки (мес)',
+                flex: 1,
+            },
+            {
+                field: 'testingQueueLength',
+                headerName: 'Очередь тестирования (мес)',
+                flex: 1,
+            },
+        ];
+
         return (
             <Box>
                 <Typography variant="body1">
-                    Top-10 команд по длине очереди (месяцы)
+                    Выделенные команды (месяцы)
+                </Typography>
+                <BarChart
+                    width={1600}
+                    height={800}
+                    data={topDedicatedTeamsWithCompanies}
+                    margin={{
+                        top: 5,
+                        right: 30,
+                        left: 30,
+                        bottom: 400,
+                    }}
+                    barCategoryGap="10%"
+                    barGap="0%"
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" interval={0} angle={-90} textAnchor="end" fontSize={10} fontFamily={"Helvetica"} />
+                    <YAxis domain={['auto', 'auto']} />
+                    <Tooltip />
+                    <Legend layout="horizontal" verticalAlign="top" align="center" />
+                    <Bar dataKey="analysisQueueLength" fill="red" name={"Аналитика"} />
+                    <Bar dataKey="developmentQueueLength" fill="green" name={"Разработка"} />
+                    <Bar dataKey="testingQueueLength" fill="blue" name={"Тестирование"} />
+                </BarChart>
+
+                <div style={{ height: 400, width: '100%' }}>
+                    <DataGrid
+                        rows={topDedicatedTeamsWithCompanies}
+                        columns={topDedicatedTeamsWithCompaniesColumns}
+                        components={{
+                            Toolbar: ToolBarWithExport,
+                        }}
+                    />
+                </div>
+
+                <Typography variant="body1">
+                    Top-10 проектных команд (месяцы)
                 </Typography>
                 <BarChart
                     width={1600}
@@ -176,7 +268,7 @@ class CapacityAndQueue extends Component {
                 </BarChart>
 
                 <Typography variant="body1">
-                    Команды начиная с 11 по длине очереди (месяцы)
+                    Остальные проектные команды (месяцы)
                 </Typography>
                 <BarChart
                     width={1600}
