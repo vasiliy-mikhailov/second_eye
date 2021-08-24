@@ -203,6 +203,50 @@ class CapacityAndQueue extends Component {
             },
         ];
 
+        const topProjectTeams = projectTeamsQueue.sort(
+                        function(a, b) {
+                return Math.max(
+                    b.queueLength,
+                    b.analysisQueueLength,
+                    b.developmentQueueLength,
+                    b.testingQueueLength
+                ) - Math.max(
+                    a.queueLength,
+                    a.analysisQueueLength,
+                    a.developmentQueueLength,
+                    a.testingQueueLength
+                )
+            }
+        )
+
+        const topProjectTeamsColumns = [
+            {
+                field: 'name',
+                headerName: 'Название',
+                flex: 1,
+            },
+            {
+                field: 'queueLength',
+                headerName: 'Очередь (мес)',
+                flex: 1,
+            },
+            {
+                field: 'analysisQueueLength',
+                headerName: 'Очередь аналитики (мес)',
+                flex: 1,
+            },
+            {
+                field: 'developmentQueueLength',
+                headerName: 'Очередь разработки (мес)',
+                flex: 1,
+            },
+            {
+                field: 'testingQueueLength',
+                headerName: 'Очередь тестирования (мес)',
+                flex: 1,
+            },
+        ];
+
         return (
             <Box>
                 <Typography variant="body1">
@@ -292,6 +336,16 @@ class CapacityAndQueue extends Component {
                     <Bar dataKey="developmentQueueLength" fill="green" name={"Разработка"} />
                     <Bar dataKey="testingQueueLength" fill="blue" name={"Тестирование"} />
                 </BarChart>
+
+                <div style={{ height: 400, width: '100%' }}>
+                    <DataGrid
+                        rows={topProjectTeams}
+                        columns={topProjectTeamsColumns}
+                        components={{
+                            Toolbar: ToolBarWithExport,
+                        }}
+                    />
+                </div>
             </Box>
         );
     }

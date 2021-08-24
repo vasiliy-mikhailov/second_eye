@@ -1,6 +1,6 @@
 from second_eye_api.migrate_from_external_db.transform.utils import *
-from second_eye_api.models import Skill
-from second_eye_api.models import StateCategory
+from second_eye_api.schema.state_category import StateCategory
+from second_eye_api.schema.skill import Skill
 import pandas as pd
 
 def replace_broken_system_change_request_system_id_to_system_id_with_minus_one(system_change_requests, systems):

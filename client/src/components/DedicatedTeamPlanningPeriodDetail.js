@@ -8,7 +8,7 @@ import {CartesianGrid, Legend, ReferenceLine, Scatter, ScatterChart, XAxis, YAxi
 import moment from "moment";
 
 const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql`
-    query DedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId($planningPeriodId: String!, $dedicatedTeamId: String!) {
+    query DedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId($planningPeriodId: Int!, $dedicatedTeamId: Int!) {
           dedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId(dedicatedTeamId: $dedicatedTeamId, planningPeriodId: $planningPeriodId) {
                 id
                 estimate

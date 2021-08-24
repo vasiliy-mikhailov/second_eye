@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+import graphene_frame
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -83,19 +85,13 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    'db1': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db1.sqlite3',
-        'NAME': 'file:db1.sqlite3?mode=memory&cache=shared',
-    },
-    'db2': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db2.sqlite3',
-        'NAME': 'file:db2.sqlite3?mode=memory&cache=shared',
-    }
 }
 
-DATABASE_ROUTERS = ['server.second_eye_database_switching_router.SecondEyeDatabaseSwitchingRouter']
+import graphene_frame
+
+GRAPHENE_FRAME_DATA_STORE = graphene_frame.DataStore(
+    data_frames={}
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -144,7 +140,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GRAPHENE = {
     'SCHEMA': 'server.schema.schema', # Where your Graphene schema lives
-    'MIDDLEWARE': [
-        'graphene_django.debug.DjangoDebugMiddleware',
-    ],
 }

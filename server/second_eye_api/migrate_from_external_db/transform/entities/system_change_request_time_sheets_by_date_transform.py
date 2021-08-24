@@ -1,4 +1,4 @@
-from second_eye_api.models import Skill
+from second_eye_api.schema.skill import Skill
 
 def calculate_system_change_request_analysis_time_sheets_by_date(task_time_sheets):
     result = task_time_sheets[task_time_sheets["skill_id"] == Skill.ANALYSIS].copy()

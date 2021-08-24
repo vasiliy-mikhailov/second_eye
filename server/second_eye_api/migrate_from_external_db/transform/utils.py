@@ -1,5 +1,5 @@
 import pandas as pd
-from second_eye_api.models.entities import Skill
+from second_eye_api.schema.skill import Skill
 
 def replace_column_values_with_minus_one_if_not_in_valid_list(dataframe, column_name, valid_list):
     dataframe.loc[~dataframe[column_name].isin(

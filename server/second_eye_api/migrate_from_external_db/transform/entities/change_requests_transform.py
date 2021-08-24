@@ -1,4 +1,4 @@
-from second_eye_api.models import StateCategory
+from second_eye_api.schema.state_category import StateCategory
 import pandas as pd
 from second_eye_api.migrate_from_external_db.transform.utils import *
 

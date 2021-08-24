@@ -5,22 +5,7 @@ from threading import Thread
 import traceback
 import logging
 import time
-
-def find_database_switching_router():
-    switch_databases_method_name = 'switch_databases'
-
-    routers = django.db.router.routers
-
-    for router in routers:
-        try:
-            _ = getattr(router, switch_databases_method_name)
-
-            return router
-        except AttributeError:
-            # If the router doesn't have a method, skip to the next one.
-            pass
-
-    return None
+from django.conf import settings
 
 def get_connection_to_jira_db():
     import cx_Oracle
@@ -30,12 +15,8 @@ def get_connection_to_jira_db():
 
 def refill_internal_db():
     get_input_connection = get_connection_to_jira_db
-    router = find_database_switching_router()
-    output_database = router.database_for_write
 
-    migrate(get_input_connection=get_input_connection, output_database=output_database)
-
-    router.switch_databases()
+    settings.GRAPHENE_FRAME_DATA_STORE = migrate(get_input_connection=get_input_connection)
 
 def refill_internal_db_in_cycle():
     while (True):

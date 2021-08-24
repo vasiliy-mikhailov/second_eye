@@ -1,4 +1,4 @@
-from second_eye_api.models import StateCategory
+from second_eye_api.schema.state_category import StateCategory
 
 def calculate_state_category_for_states_inplace(states):
     STATE_NAME_TO_STATE_CATEGORY_ID_MAPPING = {
