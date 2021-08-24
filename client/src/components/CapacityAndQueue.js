@@ -120,6 +120,14 @@ class CapacityAndQueue extends Component {
                     id: projectTeam.id,
                     name: projectTeam.name + " : " + projectTeam.dedicatedTeam.name,
                     queueLength: Math.round(projectTeam.queueLength / 22),
+                    manDaysLeft: Math.round(projectTeam.timeLeft / 8 * 10) / 10,
+                    fte: Math.round(projectTeam.actualChangeRequestCapacity / 8 * 10) / 10,
+                    analysisFte: Math.round(projectTeam.actualAnalysisCapacity / 8 * 10) / 10,
+                    analysisManDaysLeft: Math.round(projectTeam.analysisTimeLeft / 8 * 10) / 10,
+                    developmentFte: Math.round(projectTeam.actualDevelopmentCapacity / 8 * 10) / 10,
+                    developmentManDaysLeft: Math.round(projectTeam.developmentTimeLeft / 8 * 10) / 10,
+                    testingFte: Math.round(projectTeam.actualTestingCapacity / 8 * 10) / 10,
+                    testingManDaysLeft: Math.round(projectTeam.testingTimeLeft / 8 * 10) / 10,
                     analysisQueueLength: Math.round(projectTeam.analysisQueueLength / 22),
                     developmentQueueLength: Math.round(projectTeam.developmentQueueLength / 22),
                     testingQueueLength: Math.round(projectTeam.testingQueueLength / 22)
@@ -231,8 +239,28 @@ class CapacityAndQueue extends Component {
                 flex: 1,
             },
             {
+                field: 'manDaysLeft',
+                headerName: 'Трудоемкость (чел дней)',
+                flex: 1,
+            },
+            {
+                field: 'fte',
+                headerName: 'Трудомощность FTE',
+                flex: 1,
+            },
+            {
                 field: 'analysisQueueLength',
                 headerName: 'Очередь аналитики (мес)',
+                flex: 1,
+            },
+            {
+                field: 'analysisManDaysLeft',
+                headerName: 'Трудоемкость аналитики (чел дней)',
+                flex: 1,
+            },
+            {
+                field: 'analysisFte',
+                headerName: 'Трудомощность аналитики FTE',
                 flex: 1,
             },
             {
@@ -241,8 +269,28 @@ class CapacityAndQueue extends Component {
                 flex: 1,
             },
             {
+                field: 'developmentManDaysLeft',
+                headerName: 'Трудоемкость разработки (чел дней)',
+                flex: 1,
+            },
+            {
+                field: 'developmentFte',
+                headerName: 'Трудомощность разработки FTE',
+                flex: 1,
+            },
+            {
                 field: 'testingQueueLength',
                 headerName: 'Очередь тестирования (мес)',
+                flex: 1,
+            },
+            {
+                field: 'testingManDaysLeft',
+                headerName: 'Трудоемкость тестирования (чел дней)',
+                flex: 1,
+            },
+            {
+                field: 'testingFte',
+                headerName: 'Трудомощность тестирования FTE',
                 flex: 1,
             },
         ];
