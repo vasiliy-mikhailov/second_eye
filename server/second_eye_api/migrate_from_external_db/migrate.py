@@ -1,3 +1,4 @@
+import pandas as pd
 from .extract import Extractor
 from .transform import Transformer
 import graphene_frame
@@ -7,7 +8,9 @@ from ..schema.change_request import \
 from ..schema.company import Company
 from ..schema.dedicated_team import \
     DedicatedTeam, DedicatedTeamPlanningPeriod, DedicatedTeamPlanningPeriodTimeSheetsByDate,\
-    DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate
+    DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate, \
+    DedicatedTeamPosition, DedicatedTeamPositionAbility
+from ..schema.person import Person
 from ..schema.planning_period import PlanningPeriod, PlanningPeriodTimeSheetsByDate, PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate
 from ..schema.project_team import \
     ProjectTeam, ProjectTeamPlanningPeriod, ProjectTeamPlanningPeriodTimeSheetsByDate, \
@@ -30,6 +33,10 @@ def migrate(get_input_connection):
     transformer = Transformer(input_data=input_data)
     output_data = transformer.transform()
 
+    pd.set_option('display.min_rows', None)
+    pd.set_option('display.max_columns', None)
+    print(output_data.dedicated_team_positions)
+
     print("done")
     return graphene_frame.DataStore(data_frames={
         ChangeRequest: output_data.change_requests,
@@ -42,6 +49,9 @@ def migrate(get_input_connection):
         DedicatedTeamPlanningPeriod: output_data.dedicated_team_planning_periods,
         DedicatedTeamPlanningPeriodTimeSheetsByDate: output_data.dedicated_team_planning_period_time_sheets_by_date,
         DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate: output_data.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date,
+        DedicatedTeamPosition: output_data.dedicated_team_positions,
+        DedicatedTeamPositionAbility: output_data.dedicated_team_position_abilities,
+        Person: output_data.persons,
         PlanningPeriod: output_data.planning_periods,
         PlanningPeriodTimeSheetsByDate: output_data.planning_period_time_sheets_by_date,
         PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate: output_data.planning_period_time_spent_percent_with_value_and_without_value_by_date,

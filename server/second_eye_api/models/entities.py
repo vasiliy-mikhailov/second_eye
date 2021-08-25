@@ -1,40 +1,5 @@
 
-#
-# class DedicatedTeamPosition(models.Model):
-#     id = models.IntegerField(primary_key=True)
-#     url = models.URLField(max_length=255)
-#     name = models.CharField(max_length=255)
-#     change_request_capacity = models.FloatField(blank=True, null=True)
-#
-#     dedicated_team = models.ForeignKey(
-#         'DedicatedTeam', related_name="positions", on_delete=models.CASCADE
-#     )
-#
-#     person = models.ForeignKey(
-#         'Person', related_name="dedicated_team_positions", on_delete=models.CASCADE, blank=True, null=True
-#     )
-#
-#     def __str__(self):
-#         return self.name
-#
-# class DedicatedTeamPositionAbility(models.Model):
-#     id = models.IntegerField(primary_key=True)
-#     dedicated_team_position = models.ForeignKey(
-#         'DedicatedTeamPosition', related_name='abilities', on_delete=models.CASCADE
-#     )
-#
-#     skill = models.ForeignKey(
-#         'Skill', related_name='dedicated_team_position_abilities', on_delete=models.CASCADE
-#     )
-#
-#     system = models.ForeignKey(
-#         'System', related_name='dedicated_team_position_abilities', on_delete=models.CASCADE
-#     )
-#
-#     def __str__(self):
-#         return '{} {}'.format(self.skill, self.system)
-#
-#
+
 
 #
 # class Task(models.Model):
@@ -142,14 +107,7 @@
 #
 #     def __str__(self):
 #         return self.name
-#
-# class Person(models.Model):
-#     id = models.CharField(max_length=255, primary_key=True)
-#     name = models.CharField(max_length=255)
-#
-#     def __str__(self):
-#         return self.name
-#
+
 # class ProjectTeamPositionAbility(models.Model):
 #     id = models.IntegerField(primary_key=True)
 #     project_team_position = models.ForeignKey(

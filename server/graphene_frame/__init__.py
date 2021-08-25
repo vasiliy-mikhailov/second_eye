@@ -290,6 +290,5 @@ class DataStore:
             data_frames = self.data_frames
             data_frame = data_frames[data_frame_object_type]
             indexed_data_frames[data_frame_object_type][field] = data_frame.set_index(field, drop=False)
-            print("made index")
 
         return indexed_data_frames[data_frame_object_type][field]

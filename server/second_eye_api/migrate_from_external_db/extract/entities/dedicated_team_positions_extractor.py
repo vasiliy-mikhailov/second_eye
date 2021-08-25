@@ -20,7 +20,7 @@ class DedicatedTeamPositionsExtractor:
                         when person_issue.project = 14200 then lower(outsource_person_cfv.stringValue)
                         when person_issue.project = 15306 then lower(insource_person_cfv.stringValue)
                     end as "person_id",
-                    team_cfv.stringValue as "dedicated_team_id"
+                    to_number(team_cfv.stringValue) as "dedicated_team_id"
                 from 
                     jira60.jiraissue position
                     left join jira60.customFieldValue incident_capacity_cfv on (incident_capacity_cfv.issue=position.id and incident_capacity_cfv.customfield=17114) --Часов на инциденты в день (план)

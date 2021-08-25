@@ -11,6 +11,8 @@ services:
       - 8000:8000
     volumes:
       - ./server:/usr/src/app
+    networks:
+      - second-eye-network
 
   second-eye-client:
     build:
@@ -25,5 +27,11 @@ services:
       - 3000:80
     stdin_open: true
     environment:
+      - NGINX_SECOND_EYE_API_URL=http://second-eye-server:8000/graphql
       - CHOKIDAR_USEPOLLING=true
       - CHOKIDAR_INTERVAL=1000
+    networks:
+      - second-eye-network
+
+  networks:
+    second-eye-network:

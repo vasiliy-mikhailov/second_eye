@@ -3,6 +3,9 @@ from second_eye_api.schema import company
 from second_eye_api.schema import project_team
 from second_eye_api.schema import planning_period
 from second_eye_api.schema import change_request
+from second_eye_api.schema import person
+from second_eye_api.schema import skill
+from second_eye_api.schema import system
 
 class DedicatedTeam(graphene_frame.DataFrameObjectType):
     class Fields:
@@ -26,6 +29,9 @@ class DedicatedTeam(graphene_frame.DataFrameObjectType):
         actual_testing_capacity = graphene_frame.Float()
         testing_time_left = graphene_frame.Float()
         testing_queue_length = graphene_frame.Float()
+
+        project_teams = graphene_frame.List(to_entity=lambda : project_team.ProjectTeam, to_field="dedicated_team_id")
+        positions = graphene_frame.List(to_entity=lambda: DedicatedTeamPosition, to_field="dedicated_team_id")
 
     def __str__(self):
         return self.name
@@ -74,3 +80,33 @@ class DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate(
         time_spent_without_value_percent_cumsum = graphene_frame.Float()
 
         planning_period = graphene_frame.Field(to_entity=lambda: DedicatedTeamPlanningPeriod)
+
+
+class DedicatedTeamPosition(graphene_frame.DataFrameObjectType):
+    class Fields:
+        id = graphene_frame.PrimaryKey(graphene_frame.Int())
+        url = graphene_frame.String()
+        name = graphene_frame.String()
+        change_request_capacity = graphene_frame.Float()
+
+        dedicated_team = graphene_frame.Field(to_entity=lambda: DedicatedTeam)
+
+        person = graphene_frame.Field(to_entity=lambda: person.Person)
+
+        abilities = graphene_frame.List(to_entity=lambda: DedicatedTeamPositionAbility, to_field="dedicated_team_position_id")
+
+    def __str__(self):
+        return self.name
+
+class DedicatedTeamPositionAbility(graphene_frame.DataFrameObjectType):
+    class Fields:
+        id = graphene_frame.PrimaryKey(graphene_frame.Int())
+        dedicated_team_position = graphene_frame.Field(to_entity=lambda: DedicatedTeamPosition)
+
+        skill = graphene_frame.Field(to_entity=lambda: skill.Skill)
+
+        system = graphene_frame.Field(to_entity=lambda: system.System)
+
+    def __str__(self):
+        return '{} {}'.format(self.skill, self.system)
+

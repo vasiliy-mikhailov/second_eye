@@ -5,6 +5,7 @@ import graphene_django_optimizer as gql_optimizer
 from second_eye_api.schema.change_request import ChangeRequest
 from second_eye_api.schema.company import Company
 from second_eye_api.schema.dedicated_team import DedicatedTeam, DedicatedTeamPlanningPeriod
+from second_eye_api.schema.person import Person
 from second_eye_api.schema.planning_period import PlanningPeriod
 from second_eye_api.schema.project_team import ProjectTeam, ProjectTeamPlanningPeriod
 from second_eye_api.schema.state import State
@@ -30,14 +31,14 @@ class Query(graphene.ObjectType):
     systems = graphene.List(System)
     # tasks = graphene.List(TaskType)
     # function_components = graphene.List(FunctionComponentType)
-    # persons = graphene.List(PersonType)
+    persons = graphene.List(Person)
     # task_time_sheets = graphene.List(TaskTimeSheetsType)
-    #
+
     planning_period_by_id = graphene.Field(PlanningPeriod, id=graphene.Int())
     change_request_by_id = graphene.Field(ChangeRequest, id=graphene.String())
     system_change_request_by_id = graphene.Field(SystemChangeRequest, id=graphene.String())
     # task_by_id = graphene.Field(TaskType, id=graphene.String())
-    #
+
     dedicated_team_planning_periods = graphene.List(DedicatedTeamPlanningPeriod)
 
     dedicated_team_planning_period_by_planning_period_id_and_dedicated_team_id = graphene.Field(
@@ -51,7 +52,7 @@ class Query(graphene.ObjectType):
         planning_period_id=graphene.Int(),
         project_team_id=graphene.Int()
     )
-    #
+
     # change_requests_by_planning_period_id_and_dedicated_team_id = graphene.List(ChangeRequestType, planning_period_id=graphene.String(), dedicated_team_id=graphene.String())
     #
     # debug = graphene.Field(DjangoDebug, name='_debug')
@@ -64,16 +65,16 @@ class Query(graphene.ObjectType):
 
     def resolve_dedicated_teams(root, info):
         return DedicatedTeam.all(data_store=get_data_store())
-    #
+
     def resolve_project_teams(root, info):
         return ProjectTeam.all(data_store=get_data_store())
-    #
+
     def resolve_state_categories(root, info):
         return StateCategory.all(data_store=get_data_store())
-    #
+
     def resolve_states(root, info):
         return State.all(data_store=get_data_store())
-    #
+
     def resolve_change_requests(root, info):
         return gql_optimizer.query(ChangeRequest.all(data_store=get_data_store()), info)
 
@@ -82,22 +83,19 @@ class Query(graphene.ObjectType):
 
     def resolve_skills(root, info):
         return Skill.all(data_store=get_data_store())
-    #
+
     def resolve_systems(root, info):
         return System.all(data_store=get_data_store())
-    #
+
     # def resolve_tasks(root, info):
     #     return Task.objects.all()
     #
     # def resolve_function_components(root, info):
     #     return gql_optimizer.query(FunctionComponent.objects.all(), info)
     #
-    # def resolve_persons(root, info):
-    #     return gql_optimizer.query(Person.objects.all(), info)
-    #
-    # def resolve_dedicated_teams_load(root, info):
-    #     return gql_optimizer.query(TeamLoadOutputPlanningPeriod.objects.all(), info)
-    #
+    def resolve_persons(root, info):
+        return Person.all(data_store=get_data_store())
+
     # def resolve_task_time_sheets(root, info):
     #     return gql_optimizer.query(TaskTimeSheets.objects.all(), info)
     #
