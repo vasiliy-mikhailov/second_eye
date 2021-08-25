@@ -33,5 +33,5 @@ services:
     networks:
       - second-eye-network
 
-  networks:
-    second-eye-network:
+networks:
+  second-eye-network:
