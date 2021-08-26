@@ -6,6 +6,7 @@ import {Box, Link} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
 import {CartesianGrid, Legend, ReferenceLine, Scatter, ScatterChart, XAxis, YAxis, ZAxis} from "recharts";
 import moment from "moment";
+import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
 
 const fetchPlanningPeriodById = gql`
     query PlanningPeriodByIdQuery($id: Int!) {
@@ -66,22 +67,22 @@ class PlanningPeriodDetail extends Component {
         const firstTimeSheetDate = timeSheetsByDate.length > 0 ? new Date(timeSheetsByDate[0].date).getTime() : null
         const lastTimeSheetDate = timeSheetsByDate.length > 0 ? new Date(timeSheetsByDate[timeSheetsByDate.length - 1].date).getTime() : null
 
-        const allEdgeDates = [today, planningPeriodStart, planningPeriodEnd]
-
-        if (firstTimeSheetDate) {
-            allEdgeDates.push(firstTimeSheetDate)
-        }
-
-        if (lastTimeSheetDate) {
-            allEdgeDates.push(lastTimeSheetDate)
-        }
-
-        const xAxisStart = Math.min(...allEdgeDates)
-
-        const xAxisEnd = Math.max(...allEdgeDates)
+        const xAxisStart = new Date(planningPeriodStart).getTime()
+        const xAxisEnd = new Date(planningPeriodEnd).getTime()
 
         return (
             <Box>
+                <TimeSheetsByDatePeriodChart
+                    planningPeriodStart={ planningPeriodStart }
+                    planningPeriodEnd={ planningPeriodEnd }
+                    title="Аналитика + Разработка + Тестирование"
+                    xAxisStart={ xAxisStart }
+                    xAxisEnd={ xAxisEnd }
+                    color="black"
+                    timeSheetsByDate={ timeSheetsByDate }
+                    estimate={ estimate }
+                />
+
                 <ScatterChart
                     width={1440}
                     height={200}
@@ -93,50 +94,7 @@ class PlanningPeriodDetail extends Component {
                     <XAxis
                         dataKey="date"
                         type="number"
-                        domain={[xAxisStart - 1000 * 60 * 60 * 24 * 28, xAxisEnd + 1000 * 60 * 60 * 24 * 28]}
-                        allowDataOverflow={true}
-                        tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
-                    />
-                    <YAxis
-                        type="number"
-                        dataKey="timeSpentCumsum"
-                        tickFormatter={ tick => {
-                            return tick.toLocaleString();
-                        }}
-                    />
-                    <ZAxis type="number" range={[1]} />
-                    <Legend/>
-
-
-                    <ReferenceLine x={ new Date(planningPeriodStart).getTime() } stroke="green" strokeDasharray="5 5" label="Начало периода" ifOverflow="extendDomain"/>
-
-                    <ReferenceLine x={ new Date(planningPeriodEnd).getTime() } stroke="red" strokeDasharray="5 5" label="Окончание периода" ifOverflow="extendDomain"/>
-
-                    <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label="Сегодня" ifOverflow="extendDomain"/>
-
-                    <ReferenceLine y={ estimate } stroke="black" strokeDasharray="5 5" ifOverflow="extendDomain" />
-                    <Scatter
-                        name="Списано всего"
-                        data= {
-                            timeSheetsByDate.map(item => {
-                                return { date: new Date(item.date).getTime(), timeSpentCumsum: item.timeSpentCumsum }
-                            })
-                        }
-                        line fill="black"
-                    />
-                </ScatterChart>
-                <ScatterChart
-                    width={1440}
-                    height={200}
-                    margin={{
-                        left: -5,
-                    }}
-                >
-                    <CartesianGrid />
-                    <XAxis
-                        dataKey="date"
-                        type="number"
-                        domain={[xAxisStart - 1000 * 60 * 60 * 24 * 28, xAxisEnd + 1000 * 60 * 60 * 24 * 28]}
+                        domain={ [dataMin => xAxisStart, dataMax => xAxisEnd] }
                         allowDataOverflow={true}
                         tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
                     />
@@ -149,11 +107,6 @@ class PlanningPeriodDetail extends Component {
                     />
                     <ZAxis type="number" range={[1]} />
                     <Legend/>
-
-
-                    <ReferenceLine x={ new Date(planningPeriodStart).getTime() } stroke="green" strokeDasharray="5 5" label="Начало периода" ifOverflow="extendDomain"/>
-
-                    <ReferenceLine x={ new Date(planningPeriodEnd).getTime() } stroke="red" strokeDasharray="5 5" label="Окончание периода" ifOverflow="extendDomain"/>
 
                     <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label="Сегодня" ifOverflow="extendDomain"/>
 
@@ -218,8 +171,8 @@ class PlanningPeriodDetail extends Component {
                         })
                         .map(changeRequest => (
                             <li key={ changeRequest.id }>
-                                { changeRequest.stateCategoryId !== 3 ? `Осталось ${ changeRequest.timeLeft } ч ` : '' }
-                                { changeRequest.estimate === 0 && changeRequest.stateCategoryId !== 3 ? `Оценка ${ changeRequest.estimate } ч ` : '' }
+                                { changeRequest.stateCategoryId !== 3 ? `Осталось ${ Math.round(changeRequest.timeLeft) } ч ` : '' }
+                                { changeRequest.estimate === 0 && changeRequest.stateCategoryId !== 3 ? `Оценка ${ Math.round(changeRequest.estimate) } ч ` : '' }
                                 { changeRequest.hasValue ? '' : 'Нет ценности ' }
 
                                 <RouterLink style={{ textDecoration: changeRequest.stateCategoryId === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${changeRequest.id}` }>

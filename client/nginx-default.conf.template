@@ -2,14 +2,18 @@ server {
 
   listen 80;
 
+  location /graphql/ {
+    proxy_pass ${NGINX_SECOND_EYE_SERVER}/graphql/;
+  }
+
+  location /static/graphene_django/ {
+    proxy_pass ${NGINX_SECOND_EYE_SERVER}/static/graphene_django/;
+  }
+
   location / {
     root   /usr/share/nginx/html;
     index  index.html index.htm;
     try_files $uri $uri/ /index.html;
-  }
-
-  location /graphql {
-    proxy_pass ${NGINX_SECOND_EYE_API_URL};
   }
 
   error_page   500 502 503 504  /50x.html;

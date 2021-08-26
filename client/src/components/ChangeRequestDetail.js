@@ -1,20 +1,11 @@
 import React, {Component} from "react";
-import {
-    ScatterChart,
-    CartesianGrid,
-    Legend,
-    XAxis,
-    YAxis,
-    ReferenceLine,
-    ZAxis, Scatter
-} from "recharts";
 import {gql} from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import {graphql} from '@apollo/client/react/hoc';
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
-import { Link as RouterLink, NavLink } from "react-router-dom"
-import { Box, Link } from "@material-ui/core";
-
+import {Link as RouterLink, NavLink} from "react-router-dom"
+import {Box, Link} from "@material-ui/core";
+import TimeSheetsByDateIssueChart from './TimeSheetsByDateIssueChart'
 
 const fetchChangeRequest = gql`
     query ChangeRequestByIdQuery($id: String!) {
@@ -81,8 +72,20 @@ class ChangeRequestDetail extends Component {
     render() {
         if (this.props.data.loading) { return <div>Loading ...</div> }
 
-        const plannedInstallDate = this.props.data.changeRequestById.plannedInstallDate ? new Date(this.props.data.changeRequestById.plannedInstallDate).getTime() : null
-        const timeSheetsByDate = this.props.data.changeRequestById.timeSheetsByDate
+        const changeRequest = this.props.data.changeRequestById
+
+        const plannedInstallDate = changeRequest.plannedInstallDate ? new Date(changeRequest.plannedInstallDate).getTime() : null
+        const timeSheetsByDate = changeRequest.timeSheetsByDate
+        const estimate = changeRequest.estimate
+
+        const analysisTimeSheetsByDate = changeRequest.analysisTimeSheetsByDate
+        const analysisEstimate = changeRequest.analysisEstimate
+
+        const developmentTimeSheetsByDate = changeRequest.developmentTimeSheetsByDate
+        const developmentEstimate = changeRequest.developmentEstimate
+
+        const testingTimeSheetsByDate = changeRequest.testingTimeSheetsByDate
+        const testingEstimate = changeRequest.testingEstimate
 
         const today = (new Date()).getTime()
         const firstTimeSheetDate = timeSheetsByDate.length > 0 ? new Date(timeSheetsByDate[0].date).getTime() : null
@@ -101,204 +104,69 @@ class ChangeRequestDetail extends Component {
             allEdgeDates.push(lastTimeSheetDate)
         }
 
-        const xAxisStart = Math.min(...allEdgeDates)
-        const xAxisEnd = Math.max(...allEdgeDates)
+        const xAxisStart = Math.min(...allEdgeDates) - 1000 * 60 * 60 * 24 * 28
+        const xAxisEnd = Math.max(...allEdgeDates) + 1000 * 60 * 60 * 24 * 28
 
         return (
             <Box>
                 <Typography variant="body1" noWrap>
                     <NavLink to={ this.props.location.pathname }>
-                        { this.props.data.changeRequestById.id }
+                        { changeRequest.id }
                     </NavLink> &nbsp;
-                    { this.props.data.changeRequestById.name } &nbsp;
-                    { this.props.data.changeRequestById.state.name } &nbsp;
-                    <Link href={ this.props.data.changeRequestById.url }>
+                    { changeRequest.name } &nbsp;
+                    { changeRequest.state.name } &nbsp;
+                    <Link href={ changeRequest.url }>
                         [ источник ]
                     </Link>
                     <br />
-                    Осталось { this.props.data.changeRequestById.timeLeft } ч ( { (this.props.data.changeRequestById.timeLeft / this.props.data.changeRequestById.estimate * 100).toFixed(2) }% ) <br />
-                    Сделано { this.props.data.changeRequestById.timeSpent } ч <br />
-                    Оценка { this.props.data.changeRequestById.estimate } ч <br />
+                    Осталось { Math.round(changeRequest.timeLeft) } ч ( { (changeRequest.timeLeft / changeRequest.estimate * 100).toFixed(2) }% ) <br />
+                    Сделано { Math.round(changeRequest.timeSpent) } ч <br />
+                    Оценка { Math.round(changeRequest.estimate) } ч <br />
                     Плановая дата установки { plannedInstallDate ? moment(plannedInstallDate).format("YYYY-MM-DD") : "не указана"} <br />
                 </Typography>
                 <br />
+                <TimeSheetsByDateIssueChart
+                    plannedInstallDate={ plannedInstallDate }
+                    title="Аналитика + Разработка + Тестирование"
+                    xAxisStart={ xAxisStart }
+                    xAxisEnd={ xAxisEnd }
+                    color="black"
+                    timeSheetsByDate={ timeSheetsByDate }
+                    estimate={ estimate }
+                />
 
-                <ScatterChart
-                    width={1440}
-                    height={200}
-                    margin={{
-                        left: -5,
-                    }}
-                >
-                    <CartesianGrid />
-                    <XAxis
-                        dataKey="date"
-                        type="number"
-                        domain={[xAxisStart - 1000 * 60 * 60 * 24 * 28, xAxisEnd + 1000 * 60 * 60 * 24 * 28]}
-                        allowDataOverflow={true}
-                        tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
-                    />
-                    <YAxis
-                        type="number"
-                        dataKey="timeSpentCumsum"
-                        tickFormatter={ tick => {
-                            return tick.toLocaleString();
-                        }}
-                    />
-                    <ZAxis type="number" range={[1]} />
-                    <Legend/>
+                <TimeSheetsByDateIssueChart
+                    plannedInstallDate={ plannedInstallDate }
+                    title="Аналитика"
+                    xAxisStart={ xAxisStart }
+                    xAxisEnd={ xAxisEnd }
+                    color="red"
+                    timeSheetsByDate={ analysisTimeSheetsByDate }
+                    estimate={ analysisEstimate }
+                />
 
-                    {
-                        (this.props.data.changeRequestById.plannedInstallDate) ?
-                            <ReferenceLine x={ new Date(this.props.data.changeRequestById.plannedInstallDate).getTime() } stroke="red" strokeDasharray="5 5" label="Плановая дата установки" ifOverflow="extendDomain"/> :
-                            ""
-                    }
+                <TimeSheetsByDateIssueChart
+                    plannedInstallDate={ plannedInstallDate }
+                    title="Разработка"
+                    xAxisStart={ xAxisStart }
+                    xAxisEnd={ xAxisEnd }
+                    color="green"
+                    timeSheetsByDate={ developmentTimeSheetsByDate }
+                    estimate={ developmentEstimate }
+                />
 
-                    <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label="Сегодня" ifOverflow="extendDomain"/>
-
-                    <ReferenceLine y={ this.props.data.changeRequestById.estimate } stroke="black" strokeDasharray="5 5" ifOverflow="extendDomain" />
-                    <Scatter
-                        name="Списано всего"
-                        data= {
-                            this.props.data.changeRequestById.timeSheetsByDate.map(item => {
-                                return { date: new Date(item.date).getTime(), timeSpentCumsum: item.timeSpentCumsum }
-                            })
-                        }
-                        line fill="black"
-                    />
-                </ScatterChart>
-                <ScatterChart
-                    width={1440}
-                    height={200}
-                    margin={{
-                        left: -5,
-                    }}
-                >
-                    <CartesianGrid />
-                    <XAxis
-                        dataKey="date"
-                        type="number"
-                        domain={[xAxisStart - 1000 * 60 * 60 * 24 * 28, xAxisEnd + 1000 * 60 * 60 * 24 * 28]}
-                        allowDataOverflow={true}
-                        tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
-                    />
-                    <YAxis
-                        type="number"
-                        dataKey="timeSpentCumsum"
-                        tickFormatter={ tick => {
-                            return tick.toLocaleString();
-                        }}
-                    />
-                    <ZAxis type="number" range={[1]} />
-                    <Legend/>
-                    {
-                        (this.props.data.changeRequestById.plannedInstallDate) ?
-                            <ReferenceLine x={ new Date(this.props.data.changeRequestById.plannedInstallDate).getTime() } stroke="red" strokeDasharray="5 5" label="Плановая дата установки" ifOverflow="extendDomain"/> :
-                            ""
-                    }
-
-                    <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label="Сегодня" ifOverflow="extendDomain"/>
-
-                    <ReferenceLine y={this.props.data.changeRequestById.analysisEstimate} stroke="red" strokeDasharray="5 5" ifOverflow="extendDomain" />
-                    <Scatter
-                        name="Списано аналитика"
-                        data= {
-                            this.props.data.changeRequestById.analysisTimeSheetsByDate.map(item => {
-                                return { date: new Date(item.date).getTime(), timeSpentCumsum: item.timeSpentCumsum }
-                            })
-                        }
-                        line fill="red"
-                    />
-                </ScatterChart>
-                 <ScatterChart
-                    width={1440}
-                    height={200}
-                    margin={{
-                        left: -5,
-                    }}
-                >
-                    <CartesianGrid />
-                    <XAxis
-                        dataKey="date"
-                        type="number"
-                        domain={[xAxisStart - 1000 * 60 * 60 * 24 * 28, xAxisEnd + 1000 * 60 * 60 * 24 * 28]}
-                        allowDataOverflow={true}
-                        tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
-                    />
-                    <YAxis
-                        type="number"
-                        dataKey="timeSpentCumsum"
-                        tickFormatter={ tick => {
-                            return tick.toLocaleString();
-                        }}
-                    />
-                    <ZAxis type="number" range={[1]} />
-                    <Legend/>
-                    {
-                        (this.props.data.changeRequestById.plannedInstallDate) ?
-                            <ReferenceLine x={ new Date(this.props.data.changeRequestById.plannedInstallDate).getTime() } stroke="red" strokeDasharray="5 5" label="Плановая дата установки" ifOverflow="extendDomain"/> :
-                            ""
-                    }
-
-                    <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label="Сегодня" ifOverflow="extendDomain"/>
-
-                    <ReferenceLine y={this.props.data.changeRequestById.developmentEstimate} stroke="green" strokeDasharray="5 5" ifOverflow="extendDomain" />
-                    <Scatter
-                        name="Списано разработка"
-                        data= {
-                            this.props.data.changeRequestById.developmentTimeSheetsByDate.map(item => {
-                                return { date: new Date(item.date).getTime(), timeSpentCumsum: item.timeSpentCumsum }
-                            })
-                        }
-                        line fill="green"
-                    />
-                </ScatterChart>
-                <ScatterChart
-                    width={1440}
-                    height={200}
-                    margin={{
-                        left: -5,
-                    }}
-                >
-                    <CartesianGrid />
-                    <XAxis
-                        dataKey="date"
-                        type="number"
-                        domain={[xAxisStart - 1000 * 60 * 60 * 24 * 28, xAxisEnd + 1000 * 60 * 60 * 24 * 28]}
-                        allowDataOverflow={true}
-                        tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
-                    />
-                    <YAxis
-                        type="number"
-                        dataKey="timeSpentCumsum"
-                        tickFormatter={ tick => {
-                            return tick.toLocaleString();
-                        }}
-                    />
-                    <ZAxis type="number" range={[1]} />
-                    <Legend/>
-                    {
-                        (this.props.data.changeRequestById.plannedInstallDate) ?
-                            <ReferenceLine x={ new Date(this.props.data.changeRequestById.plannedInstallDate).getTime() } stroke="red" strokeDasharray="5 5" label="Плановая дата установки" ifOverflow="extendDomain"/> :
-                            ""
-                    }
-
-                    <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label="Сегодня" ifOverflow="extendDomain"/>
-
-                    <ReferenceLine y={this.props.data.changeRequestById.testingEstimate} stroke="blue" strokeDasharray="5 5" ifOverflow="extendDomain" />
-                    <Scatter
-                        name="Списано тестирование"
-                        data= {
-                            this.props.data.changeRequestById.testingTimeSheetsByDate.map(item => {
-                                return { date: new Date(item.date).getTime(), timeSpentCumsum: item.timeSpentCumsum }
-                            })
-                        }
-                        line fill="blue"
-                    />
-                </ScatterChart>
+                <TimeSheetsByDateIssueChart
+                    plannedInstallDate={ plannedInstallDate }
+                    title="Тестирование"
+                    xAxisStart={ xAxisStart }
+                    xAxisEnd={ xAxisEnd }
+                    color="blue"
+                    timeSheetsByDate={ testingTimeSheetsByDate }
+                    estimate={ testingEstimate }
+                />
 
                 <ul>
-                    { this.props.data.changeRequestById.systemChangeRequests
+                    { changeRequest.systemChangeRequests
                         .slice()
                         .sort(function(a, b) {
                             if (a.stateCategory.id === 3 && b.stateCategory.id !== 3) {
@@ -315,8 +183,8 @@ class ChangeRequestDetail extends Component {
                         })
                         .map(systemChangeRequest => (
                             <li key={systemChangeRequest.id}>
-                                { systemChangeRequest.stateCategory.id !== 3 ? `Осталось ${systemChangeRequest.timeLeft} ч ` : '' }
-                                { systemChangeRequest.estimate === 0 && systemChangeRequest.stateCategory.id !== 3 ? `Оценка ${systemChangeRequest.estimate} ч ` : '' }
+                                { systemChangeRequest.stateCategory.id !== 3 ? `Осталось ${ Math.round(systemChangeRequest.timeLeft) } ч ` : '' }
+                                { systemChangeRequest.estimate === 0 && systemChangeRequest.stateCategory.id !== 3 ? `Оценка ${ Math.round(systemChangeRequest.estimate) } ч ` : '' }
 
                                 <RouterLink style={{ textDecoration: systemChangeRequest.stateCategory.id === 3 ? 'line-through' : 'none' }} to={ `/systemChangeRequests/${systemChangeRequest.id}` }>
                                     {systemChangeRequest.name}
