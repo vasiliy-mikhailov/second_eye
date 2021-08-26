@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import { Legend, ReferenceLine, Scatter, ScatterChart, XAxis, YAxis, ZAxis } from "recharts";
+import { Legend, Tooltip, ReferenceLine, LineChart, Line, XAxis, YAxis, ZAxis } from "recharts";
 import moment from 'moment';
 import { getEveryMonthTicksBetweenTwoDates } from '../utils'
 
@@ -16,9 +16,18 @@ class TimeSheetsByDatePeriodChart extends Component {
         const estimate = this.props.estimate
 
         return (
-                <ScatterChart
+                <LineChart
                     width={ 1440 }
-                    height={ 200 }
+                    height={ 300 }
+                    data={ timeSheetsByDate.map(item => {
+                            return { date: new Date(item.date).getTime(), timeSpentCumsum: Math.round(item.timeSpentCumsum) }
+                        }).filter(item => {
+                            return item.date >= xAxisStart
+                        })
+                    }
+                    margin={{
+                        top: 50
+                    }}
                 >
                     <XAxis
                         dataKey="date"
@@ -34,22 +43,24 @@ class TimeSheetsByDatePeriodChart extends Component {
                             return tick.toLocaleString();
                         }}
                     />
-                    <ZAxis type="number" range={ [1] } />
-                    <Legend/>
-
-                    <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label="Сегодня" />
-
-                    <ReferenceLine y={ estimate } stroke={ color } strokeDasharray="5 5" ifOverflow="extendDomain" label="Оценка" />
-
-                    <Scatter
-                        name={ title }
-                        data={ timeSheetsByDate.map(item => {
-                                return { date: new Date(item.date).getTime(), timeSpentCumsum: item.timeSpentCumsum }
-                            })
-                        }
-                        line fill={ color }
+                    <Tooltip
+                        labelFormatter={ (date) => moment(date).format('YYYY-MM-DD') }
                     />
-                </ScatterChart>
+                    <Legend />
+
+                    <ReferenceLine x={ new Date(planningPeriodEnd).getTime() } stroke="red" strokeDasharray="5 5" label={{ position: "left", value: "Конец" }} ifOverflow="extendDomain"/>
+
+                    <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label={{ position: "left", value: "Сегодня" }} ifOverflow="extendDomain"/>
+
+                    <ReferenceLine y={ estimate } stroke={ color } strokeDasharray="5 5" ifOverflow="extendDomain" label={{ position: 'top',  value: "Объем работ " + Math.round(estimate).toLocaleString() + " ч" }} />
+
+                    <Line
+                        name={ title }
+                        dataKey="timeSpentCumsum"
+                        stroke={ color }
+                        dot={false}
+                    />
+                </LineChart>
         );
     }
 }

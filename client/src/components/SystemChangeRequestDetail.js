@@ -105,9 +105,9 @@ class SystemChangeRequestDetail extends Component {
                         [ источник ]
                     </Link>
                     <br />
-                    Осталось { systemChangeRequest.timeLeft } ч ( { (systemChangeRequest.timeLeft / systemChangeRequest.estimate * 100).toFixed(2) }% ) <br />
-                    Сделано { systemChangeRequest.timeSpent } ч <br />
-                    Оценка { systemChangeRequest.estimate } ч <br />
+                    Осталось { Math.round(systemChangeRequest.timeLeft) } ч ( { (systemChangeRequest.timeLeft / systemChangeRequest.estimate * 100).toFixed(2) }% ) <br />
+                    Сделано { Math.round(systemChangeRequest.timeSpent) } ч <br />
+                    Оценка { Math.round(systemChangeRequest.estimate) } ч <br />
                 </Typography>
                 <br />
 

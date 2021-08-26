@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import { Legend, ReferenceLine, Scatter, ScatterChart, XAxis, YAxis, ZAxis } from "recharts";
+import { Legend, Tooltip, ReferenceLine, LineChart, Line, XAxis, YAxis, ZAxis } from "recharts";
 import moment from 'moment';
 import { getEveryMonthTicksBetweenTwoDates } from '../utils'
 
@@ -15,9 +15,18 @@ class TimeSheetsByDateIssueChart extends Component {
         const estimate = this.props.estimate
 
         return (
-                <ScatterChart
+                <LineChart
                     width={ 1440 }
-                    height={ 200 }
+                    height={ 300 }
+                    data={ timeSheetsByDate.map(item => {
+                            return { date: new Date(item.date).getTime(), timeSpentCumsum: Math.round(item.timeSpentCumsum) }
+                        }).filter(item => {
+                            return item.date >= xAxisStart
+                        })
+                    }
+                    margin={{
+                        top: 50
+                    }}
                 >
                     <XAxis
                         dataKey="date"
@@ -29,33 +38,32 @@ class TimeSheetsByDateIssueChart extends Component {
                     />
                     <YAxis
                         type="number"
-                        dataKey="timeSpentCumsum"
                         tickFormatter={ tick => {
                             return tick.toLocaleString();
                         }}
                     />
-                    <ZAxis type="number" range={ [1] } />
-                    <Legend/>
+                    <Tooltip
+                        labelFormatter={ (date) => moment(date).format('YYYY-MM-DD') }
+                    />
+                    <Legend />
 
                     {
                         (plannedInstallDate) ?
-                            <ReferenceLine x={ new Date(plannedInstallDate).getTime() } stroke="red" strokeDasharray="5 5" label="Плановая дата установки" ifOverflow="extendDomain"/> :
+                            <ReferenceLine x={ new Date(plannedInstallDate).getTime() } stroke="red" strokeDasharray="5 5" label={{ position: "right", value: "Плановая дата установки" }} ifOverflow="extendDomain"/> :
                             ""
                     }
 
-                    <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label="Сегодня" ifOverflow="extendDomain"/>
+                    <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label={{ position: "left", value: "Сегодня" }} ifOverflow="extendDomain"/>
 
-                    <ReferenceLine y={ estimate } stroke={ color } strokeDasharray="5 5" ifOverflow="extendDomain" label="Оценка" />
+                    <ReferenceLine y={ estimate } stroke={ color } strokeDasharray="5 5" ifOverflow="extendDomain" label={{ position: 'top',  value: "Объем работ " + Math.round(estimate).toLocaleString() + " ч" }} />
 
-                    <Scatter
+                    <Line
                         name={ title }
-                        data={ timeSheetsByDate.map(item => {
-                                return { date: new Date(item.date).getTime(), timeSpentCumsum: item.timeSpentCumsum }
-                            })
-                        }
-                        line fill={ color }
+                        dataKey="timeSpentCumsum"
+                        stroke={ color }
+                        dot={false}
                     />
-                </ScatterChart>
+                </LineChart>
         );
     }
 }
