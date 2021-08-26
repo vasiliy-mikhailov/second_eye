@@ -4,9 +4,9 @@ import { graphql } from '@apollo/client/react/hoc';
 import Typography from '@material-ui/core/Typography';
 import {Box, Link} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
-import {CartesianGrid, Legend, ReferenceLine, Scatter, ScatterChart, XAxis, YAxis, ZAxis} from "recharts";
 import moment from "moment";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
+import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
 
 const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql`
     query DedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId($planningPeriodId: Int!, $dedicatedTeamId: Int!) {
@@ -94,44 +94,15 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                     estimate={ estimate }
                 />
 
-                <ScatterChart
-                    width={1440}
-                    height={200}
-                    margin={{
-                        left: -5,
-                    }}
-                >
-                    <CartesianGrid />
-                    <XAxis
-                        dataKey="date"
-                        type="number"
-                        domain={[xAxisStart, xAxisEnd]}
-                        allowDataOverflow={true}
-                        tickFormatter={(date) => moment(date).format('YYYY-MM-DD')}
-                    />
-                    <YAxis
-                        type="number"
-                        dataKey="timeSpentWithoutValuePercentCumsum"
-                        tickFormatter={(tick) => {
-                            return `${ tick * 100 }%`;
-                        }}
-                    />
-                    <ZAxis type="number" range={[1]} />
-                    <Legend/>
-
-                    <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label="Сегодня" ifOverflow="extendDomain"/>
-
-                    <ReferenceLine y={ 1 } stroke="black" strokeDasharray="5 5" ifOverflow="extendDomain" />
-                    <Scatter
-                        name="Доля списаний на задачи без ценности"
-                        data= {
-                            timeSpentPercentWithValueAndWithoutValueByDate.map(item => {
-                                return { date: new Date(item.date).getTime(), timeSpentWithoutValuePercentCumsum: item.timeSpentWithoutValuePercentCumsum }
-                            })
-                        }
-                        line fill="black"
-                    />
-                </ScatterChart>
+                <ValueByDatePeriodChart
+                    planningPeriodStart={ planningPeriodStart }
+                    planningPeriodEnd={ planningPeriodEnd }
+                    title="Доля списаний на задачи без бизнес-ценности"
+                    xAxisStart={ xAxisStart }
+                    xAxisEnd={ xAxisEnd }
+                    color="black"
+                    timeSpentPercentWithValueAndWithoutValueByDate={ timeSpentPercentWithValueAndWithoutValueByDate }
+                />
 
                 <Typography variant="body" noWrap>
                     Проектные команды

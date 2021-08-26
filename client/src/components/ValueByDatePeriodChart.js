@@ -3,7 +3,7 @@ import { Legend, Tooltip, ReferenceLine, LineChart, Line, XAxis, YAxis, ZAxis } 
 import moment from 'moment';
 import { getEveryMonthTicksBetweenTwoDates } from '../utils'
 
-class TimeSheetsByDatePeriodChart extends Component {
+class ValueByDatePeriodChart extends Component {
     render() {
         const planningPeriodStart = this.props.planningPeriodStart
         const planningPeriodEnd = this.props.planningPeriodEnd
@@ -12,15 +12,14 @@ class TimeSheetsByDatePeriodChart extends Component {
         const xAxisStart = this.props.xAxisStart
         const xAxisEnd = this.props.xAxisEnd
         const color = this.props.color
-        const timeSheetsByDate = this.props.timeSheetsByDate
-        const estimate = this.props.estimate
+        const timeSpentPercentWithValueAndWithoutValueByDate = this.props.timeSpentPercentWithValueAndWithoutValueByDate
 
         return (
                 <LineChart
                     width={ 1440 }
                     height={ 300 }
-                    data={ timeSheetsByDate.map(item => {
-                            return { date: new Date(item.date).getTime(), timeSpentCumsum: Math.round(item.timeSpentCumsum) }
+                    data={ timeSpentPercentWithValueAndWithoutValueByDate.map(item => {
+                                return { date: new Date(item.date).getTime(), timeSpentWithoutValuePercentCumsum: item.timeSpentWithoutValuePercentCumsum }
                         }).filter(item => {
                             return item.date >= xAxisStart
                         })
@@ -40,7 +39,7 @@ class TimeSheetsByDatePeriodChart extends Component {
                         type="number"
                         dataKey="timeSpentCumsum"
                         tickFormatter={ tick => {
-                            return tick.toLocaleString();
+                            return Math.round(tick * 100) + " %";
                         }}
                     />
                     <Tooltip
@@ -52,17 +51,17 @@ class TimeSheetsByDatePeriodChart extends Component {
 
                     <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label={{ position: "left", value: "Сегодня" }} ifOverflow="extendDomain"/>
 
-                    <ReferenceLine y={ estimate } stroke={ color } strokeDasharray="5 5" ifOverflow="extendDomain" label={{ position: 'top',  value: "Объем работ " + Math.round(estimate).toLocaleString() + " ч" }} />
+                    <ReferenceLine y={ 1 } stroke={ color } strokeDasharray="5 5" ifOverflow="extendDomain" label={{ position: 'top',  value: "100%" }} />
 
                     <Line
                         name={ title }
-                        dataKey="timeSpentCumsum"
+                        dataKey="timeSpentWithoutValuePercentCumsum"
                         stroke={ color }
-                        dot={false}
+                        dot={ false }
                     />
                 </LineChart>
         );
     }
 }
 
-export default TimeSheetsByDatePeriodChart;
+export default ValueByDatePeriodChart;
