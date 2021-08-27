@@ -29,7 +29,10 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                 timeSheetsByDate {
                     date
                     timeSpentCumsum
+                    timeSpentCumsumPrediction
                 }
+                
+                timeSpentCumsumAtEndPrediction
                 
                 projectTeams {
                     id
@@ -67,10 +70,7 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
 
         const timeSheetsByDate = dedicatedTeamPlanningPeriod.timeSheetsByDate
         const timeSpentPercentWithValueAndWithoutValueByDate = dedicatedTeamPlanningPeriod.timeSpentPercentWithValueAndWithoutValueByDate
-
-        const today = (new Date()).getTime()
-        const firstTimeSheetDate = timeSheetsByDate.length > 0 ? new Date(timeSheetsByDate[0].date).getTime() : null
-        const lastTimeSheetDate = timeSheetsByDate.length > 0 ? new Date(timeSheetsByDate[timeSheetsByDate.length - 1].date).getTime() : null
+        const timeSpentCumsumAtEndPrediction = dedicatedTeamPlanningPeriod.timeSpentCumsumAtEndPrediction
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
@@ -84,7 +84,6 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                 </Typography>
 
                 <TimeSheetsByDatePeriodChart
-                    planningPeriodStart={ planningPeriodStart }
                     planningPeriodEnd={ planningPeriodEnd }
                     title="Аналитика + Разработка + Тестирование"
                     xAxisStart={ xAxisStart }
@@ -92,10 +91,10 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                     color="black"
                     timeSheetsByDate={ timeSheetsByDate }
                     estimate={ estimate }
+                    timeSpentCumsumAtEndPrediction={ timeSpentCumsumAtEndPrediction }
                 />
 
                 <ValueByDatePeriodChart
-                    planningPeriodStart={ planningPeriodStart }
                     planningPeriodEnd={ planningPeriodEnd }
                     title="Доля списаний на задачи без бизнес-ценности"
                     xAxisStart={ xAxisStart }

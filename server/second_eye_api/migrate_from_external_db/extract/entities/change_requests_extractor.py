@@ -37,7 +37,9 @@ class ChangeRequestsExtractor:
                                 label.issue,
                                 (ROW_NUMBER() OVER(PARTITION BY issue ORDER BY to_number(regexp_substr(label,'\dквартал(\d+)$', 1, 1, NULL, 1)) desc)) as rank
                             from 
-                                jira60.label                                
+                                jira60.label
+                            where
+                                regexp_like(label.label, '\dквартал(\d+)$')                               
                         ) year_label on (year_label.issue=issue.id and year_label.rank = 1) -- Первая метка с максимальным годом
                         left join jira60.customFieldValue issue_project_team on issue_project_team.issue = issue.id and issue_project_team.customfield=17127 and issue_project_team.parentkey is not null --'Команда проекта
                         left join jira60.customFieldValue issue_goal on issue_goal.issue = issue.id and issue_goal.customField=14622
@@ -48,9 +50,11 @@ class ChangeRequestsExtractor:
             change_requests = pd.read_sql(
                 query,
                 connection,
-              #  parse_dates={"planned_install_date"}
+                parse_dates={"planned_install_date"}
             )
             change_requests['project_team_id'].fillna(-1, inplace=True)
+            change_requests["planned_install_date"] = change_requests["planned_install_date"].dt.date
+
             change_request_not_specified = pd.DataFrame([[
                 -1,
                 "",

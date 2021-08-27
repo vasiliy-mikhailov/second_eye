@@ -200,7 +200,7 @@ def calculate_change_requests_time_left_using_analysis_development_and_testing_t
 
 def calculate_change_requests_planning_period_using_planning_period_id_planned_install_date_and_year_label_max_inplace(change_requests):
     change_requests["planning_period_id"] = change_requests.apply(lambda x:
-        pd.to_datetime(x["planned_install_date"]).year if not pd.isnull(x["planned_install_date"]) else (x["year_label_max"] if not pd.isnull(x["year_label_max"]) else - 1),
+        x["planned_install_date"].year if not pd.isnull(x["planned_install_date"]) else (x["year_label_max"] if not pd.isnull(x["year_label_max"]) else - 1),
         axis=1
     )
 

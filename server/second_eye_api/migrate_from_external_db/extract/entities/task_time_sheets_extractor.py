@@ -23,6 +23,7 @@ class TaskTimeSheetsExtractor:
                     worklog.startdate <= sysdate
             """
 
-            task_time_sheets = pd.read_sql(query, connection)
+            task_time_sheets = pd.read_sql(query, connection, parse_dates={"date"})
+            task_time_sheets["date"] = task_time_sheets["date"].dt.date
 
             self.data = task_time_sheets

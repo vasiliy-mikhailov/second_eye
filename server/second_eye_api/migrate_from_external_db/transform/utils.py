@@ -1,5 +1,7 @@
 import pandas as pd
+import numpy as np
 from second_eye_api.schema.skill import Skill
+from datetime import datetime, date, timedelta
 
 def replace_column_values_with_minus_one_if_not_in_valid_list(dataframe, column_name, valid_list):
     dataframe.loc[~dataframe[column_name].isin(
@@ -99,12 +101,12 @@ def calculate_entities_actual_capacity_by_task_time_sheets_filtering_by_skill_an
     ]
 
     number_of_days_in_period = 28
-    look_behind = 7
+    skip_days = 7
     work_days = 5
     week_days = 7
-    today = pd.to_datetime('today').normalize()
-    start = today - pd.to_timedelta("{}day".format(number_of_days_in_period + look_behind))
-    end = today - pd.to_timedelta("{}day".format(look_behind))
+    today = datetime.now().date()
+    start = today - timedelta(days=number_of_days_in_period + skip_days)
+    end = today - timedelta(days=skip_days)
 
     tasks_time_sheets_filtered_by_skill = task_time_sheets if not skill else task_time_sheets[
         task_time_sheets["skill_id"] == skill
@@ -192,3 +194,18 @@ def calculate_entities_actual_testing_capacity_by_task_time_sheets_summing_up_by
         sum_up_by_column=sum_up_by_column,
         skill=Skill.TESTING
     )
+
+def linear_polyfit(x, y):
+    try:
+        non_nan_indexes = np.isfinite(x) & np.isfinite(y)
+        non_nan_x, non_nan_y = x[non_nan_indexes], y[non_nan_indexes]
+        result = np.polyfit(non_nan_x, non_nan_y, 1, w=y).tolist()
+        return result
+    except:
+        return [float("nan"), float("nan")]
+
+def normalize(x, min_x, max_x):
+    if not pd.isnull(min_x) and not pd.isnull(max_x) and min_x != max_x:
+        return (x - min_x) / (max_x - min_x)
+    else:
+        return 0

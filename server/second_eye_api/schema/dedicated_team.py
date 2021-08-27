@@ -52,6 +52,8 @@ class DedicatedTeamPlanningPeriod(graphene_frame.DataFrameObjectType):
 
         time_sheets_by_date = graphene_frame.List(to_entity=lambda: DedicatedTeamPlanningPeriodTimeSheetsByDate, to_field="dedicated_team_planning_period_id")
 
+        time_spent_cumsum_at_end_prediction = graphene_frame.Float()
+
         time_spent_percent_with_value_and_without_value_by_date = graphene_frame.List(
             to_entity=lambda: DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate,
             to_field = "dedicated_team_planning_period_id"
@@ -68,6 +70,7 @@ class DedicatedTeamPlanningPeriodTimeSheetsByDate(graphene_frame.DataFrameObject
 
         time_spent = graphene_frame.Float()
         time_spent_cumsum = graphene_frame.Float()
+        time_spent_cumsum_prediction = graphene_frame.Float()
 
         planning_period = graphene_frame.Field(to_entity=lambda: DedicatedTeamPlanningPeriod)
 

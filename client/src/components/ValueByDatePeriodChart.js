@@ -1,11 +1,10 @@
 import React, {Component} from "react";
-import { Legend, Tooltip, ReferenceLine, LineChart, Line, XAxis, YAxis, ZAxis } from "recharts";
+import { Legend, Tooltip, ReferenceLine, LineChart, Line, XAxis, YAxis } from "recharts";
 import moment from 'moment';
 import { getEveryMonthTicksBetweenTwoDates } from '../utils'
 
 class ValueByDatePeriodChart extends Component {
     render() {
-        const planningPeriodStart = this.props.planningPeriodStart
         const planningPeriodEnd = this.props.planningPeriodEnd
         const today = (new Date()).getTime()
         const title = this.props.title

@@ -7,8 +7,7 @@ import '@fontsource/roboto';
 import {
     BrowserRouter as Router,
     Switch,
-    Route,
-    Redirect
+    Route
 } from "react-router-dom";
 import PlanningPeriodsList from "./components/PlanningPeriodsList";
 import PlanningPeriodDetail from "./components/PlanningPeriodDetail";

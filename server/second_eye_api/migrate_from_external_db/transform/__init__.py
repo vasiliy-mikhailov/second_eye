@@ -247,12 +247,33 @@ def calculate_time_sheets_inplace(output_data):
         task_time_sheets=output_data.task_time_sheets
     )
 
+    output_data.project_team_planning_period_time_sheets_by_date = propagate_project_team_planning_period_planning_period_start_into_project_team_planning_period_time_sheets_by_date(
+        project_team_planning_period_time_sheets_by_date=output_data.project_team_planning_period_time_sheets_by_date,
+        project_team_planning_periods=output_data.project_team_planning_periods
+    )
+
+    output_data.project_team_planning_period_time_sheets_by_date = propagate_project_team_planning_period_planning_period_end_into_project_team_planning_period_time_sheets_by_date(
+        project_team_planning_period_time_sheets_by_date=output_data.project_team_planning_period_time_sheets_by_date,
+        project_team_planning_periods=output_data.project_team_planning_periods
+    )
+
+
     output_data.project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date = calculate_project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date(
         task_time_sheets=output_data.task_time_sheets
     )
 
     output_data.dedicated_team_planning_period_time_sheets_by_date = calculate_dedicated_team_planning_period_time_sheets_by_date(
         task_time_sheets=output_data.task_time_sheets
+    )
+
+    output_data.dedicated_team_planning_period_time_sheets_by_date = propagate_dedicated_team_planning_period_planning_period_start_into_dedicated_team_planning_period_time_sheets_by_date(
+        dedicated_team_planning_period_time_sheets_by_date=output_data.dedicated_team_planning_period_time_sheets_by_date,
+        dedicated_team_planning_periods=output_data.dedicated_team_planning_periods
+    )
+
+    output_data.dedicated_team_planning_period_time_sheets_by_date = propagate_dedicated_team_planning_period_planning_period_end_into_dedicated_team_planning_period_time_sheets_by_date(
+        dedicated_team_planning_period_time_sheets_by_date=output_data.dedicated_team_planning_period_time_sheets_by_date,
+        dedicated_team_planning_periods=output_data.dedicated_team_planning_periods
     )
 
     output_data.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date = calculate_dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date(
@@ -263,9 +284,20 @@ def calculate_time_sheets_inplace(output_data):
         task_time_sheets=output_data.task_time_sheets
     )
 
+    output_data.planning_period_time_sheets_by_date = propagate_planning_periods_start_into_planning_period_time_sheets_by_date(
+        planning_period_time_sheets_by_date=output_data.planning_period_time_sheets_by_date,
+        planning_periods=output_data.planning_periods
+    )
+
+    output_data.planning_period_time_sheets_by_date = propagate_planning_periods_end_into_planning_period_time_sheets_by_date(
+        planning_period_time_sheets_by_date=output_data.planning_period_time_sheets_by_date,
+        planning_periods=output_data.planning_periods
+    )
+
     output_data.planning_period_time_spent_percent_with_value_and_without_value_by_date = calculate_planning_period_time_spent_percent_with_value_and_without_value_by_date(
         task_time_sheets=output_data.task_time_sheets
     )
+
 
 def calculate_companies_actual_change_request_capacity_effort_and_queue_length(output_data):
     output_data.companies = calculate_companies_time_left_by_tasks_time_left(
@@ -435,6 +467,55 @@ def calculate_change_requests_actual_change_request_capacity_effort_and_queue_le
         task_time_sheets=output_data.task_time_sheets
     )
 
+def make_planning_period_predictions(output_data):
+    output_data.planning_periods = calculate_planning_periods_time_sheets_by_date_model_by_time_sheets_planning_period_start_and_planning_period_end_and_date_and_time_spent_cumsum(
+        planning_periods=output_data.planning_periods,
+        planning_period_time_sheets_by_date=output_data.planning_period_time_sheets_by_date
+    )
+
+    calculate_planning_period_time_spent_cumsum_at_end_prediction_by_m_and_b_inplace(
+        planning_periods=output_data.planning_periods
+    )
+
+    output_data.planning_period_time_sheets_by_date = calculate_planning_period_time_spent_cumsum_prediction_by_planning_periods_m_and_b(
+        planning_period_time_sheets_by_date=output_data.planning_period_time_sheets_by_date,
+        planning_periods=output_data.planning_periods
+    )
+
+def make_dedicated_team_planning_period_predictions(output_data):
+    output_data.dedicated_team_planning_periods = calculate_dedicated_team_planning_periods_time_sheets_by_date_model_by_time_sheets_planning_period_start_and_planning_period_end_and_date_and_time_spent_cumsum(
+        dedicated_team_planning_periods=output_data.dedicated_team_planning_periods,
+        dedicated_team_planning_period_time_sheets_by_date=output_data.dedicated_team_planning_period_time_sheets_by_date
+    )
+
+    calculate_dedicated_team_planning_period_time_spent_cumsum_at_end_prediction_by_m_and_b_inplace(
+        dedicated_team_planning_periods=output_data.dedicated_team_planning_periods
+    )
+
+    output_data.dedicated_team_planning_period_time_sheets_by_date = calculate_dedicated_team_planning_period_time_spent_cumsum_prediction_by_dedicated_team_planning_periods_m_and_b(
+        dedicated_team_planning_period_time_sheets_by_date=output_data.dedicated_team_planning_period_time_sheets_by_date,
+        dedicated_team_planning_periods=output_data.dedicated_team_planning_periods
+    )
+
+def make_project_team_planning_period_predictions(output_data):
+    output_data.project_team_planning_periods = calculate_project_team_planning_periods_time_sheets_by_date_model_by_time_sheets_planning_period_start_and_planning_period_end_and_date_and_time_spent_cumsum(
+        project_team_planning_periods=output_data.project_team_planning_periods,
+        project_team_planning_period_time_sheets_by_date=output_data.project_team_planning_period_time_sheets_by_date
+    )
+
+    calculate_project_team_planning_period_time_spent_cumsum_at_end_prediction_by_m_and_b_inplace(
+        project_team_planning_periods=output_data.project_team_planning_periods
+    )
+
+    output_data.project_team_planning_period_time_sheets_by_date = calculate_project_team_planning_period_time_spent_cumsum_prediction_by_project_team_planning_periods_m_and_b(
+        project_team_planning_period_time_sheets_by_date=output_data.project_team_planning_period_time_sheets_by_date,
+        project_team_planning_periods=output_data.project_team_planning_periods
+    )
+
+def make_predictions(output_data):
+    make_planning_period_predictions(output_data=output_data)
+    make_dedicated_team_planning_period_predictions(output_data=output_data)
+    make_project_team_planning_period_predictions(output_data=output_data)
 
 class Transformer:
     def __init__(self, input_data):
@@ -693,9 +774,29 @@ class Transformer:
             tasks=output_data.tasks
         )
 
+        output_data.dedicated_team_planning_periods = propagate_planning_periods_start_into_dedicated_team_planning_periods(
+            dedicated_team_planning_periods=output_data.dedicated_team_planning_periods,
+            planning_periods=output_data.planning_periods
+        )
+
+        output_data.dedicated_team_planning_periods = propagate_planning_periods_end_into_dedicated_team_planning_periods(
+            dedicated_team_planning_periods=output_data.dedicated_team_planning_periods,
+            planning_periods=output_data.planning_periods
+        )
+
         output_data.project_team_planning_periods = propagate_dedicated_team_planning_period_id_by_dedicated_team_id_and_planning_period_id_into_project_team_planning_periods(
             project_team_planning_periods=output_data.project_team_planning_periods,
             dedicated_team_planning_periods=output_data.dedicated_team_planning_periods
+        )
+
+        output_data.project_team_planning_periods = propagate_planning_periods_start_into_project_team_planning_periods(
+            project_team_planning_periods=output_data.project_team_planning_periods,
+            planning_periods=output_data.planning_periods
+        )
+
+        output_data.project_team_planning_periods = propagate_planning_periods_end_into_project_team_planning_periods(
+            project_team_planning_periods=output_data.project_team_planning_periods,
+            planning_periods=output_data.planning_periods
         )
 
         output_data.tasks = propagate_project_team_planning_period_id_by_project_team_id_and_planning_period_id_into_tasks(
@@ -734,6 +835,8 @@ class Transformer:
         )
 
         calculate_time_sheets_inplace(output_data=output_data)
+
+        make_predictions(output_data=output_data)
 
         calculate_companies_actual_change_request_capacity_effort_and_queue_length(output_data=output_data)
 

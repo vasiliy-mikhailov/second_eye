@@ -1,11 +1,10 @@
 import React, {Component} from "react";
-import { Legend, Tooltip, ReferenceLine, LineChart, Line, XAxis, YAxis, ZAxis } from "recharts";
+import { Legend, Tooltip, ReferenceLine, LineChart, Line, XAxis, YAxis } from "recharts";
 import moment from 'moment';
 import { getEveryMonthTicksBetweenTwoDates } from '../utils'
 
 class TimeSheetsByDatePeriodChart extends Component {
     render() {
-        const planningPeriodStart = this.props.planningPeriodStart
         const planningPeriodEnd = this.props.planningPeriodEnd
         const today = (new Date()).getTime()
         const title = this.props.title
@@ -13,17 +12,30 @@ class TimeSheetsByDatePeriodChart extends Component {
         const xAxisEnd = this.props.xAxisEnd
         const color = this.props.color
         const timeSheetsByDate = this.props.timeSheetsByDate
+        const timeSpentCumsumAtEndPrediction = this.props.timeSpentCumsumAtEndPrediction
         const estimate = this.props.estimate
+
+
+        console.log(xAxisEnd, timeSpentCumsumAtEndPrediction)
 
         return (
                 <LineChart
                     width={ 1440 }
                     height={ 300 }
                     data={ timeSheetsByDate.map(item => {
-                            return { date: new Date(item.date).getTime(), timeSpentCumsum: Math.round(item.timeSpentCumsum) }
+                            return {
+                                date: new Date(item.date).getTime(),
+                                timeSpentCumsum: Math.round(item.timeSpentCumsum),
+                                timeSpentCumsumPrediction: Math.round(item.timeSpentCumsumPrediction)
+                            }
                         }).filter(item => {
                             return item.date >= xAxisStart
-                        })
+                        }).concat([{
+                                date: xAxisEnd,
+                                timeSpentCumsum: null,
+                                timeSpentCumsumPrediction: Math.round(timeSpentCumsumAtEndPrediction)
+                            }]
+                        )
                     }
                     margin={{
                         top: 50
@@ -59,6 +71,14 @@ class TimeSheetsByDatePeriodChart extends Component {
                         dataKey="timeSpentCumsum"
                         stroke={ color }
                         dot={false}
+                    />
+
+                    <Line
+                        name={ "Тренд" }
+                        dataKey="timeSpentCumsumPrediction"
+                        stroke={ color }
+                        dot={false}
+                        strokeDasharray="1 5"
                     />
                 </LineChart>
         );

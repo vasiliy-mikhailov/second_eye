@@ -4,7 +4,6 @@ import { graphql } from '@apollo/client/react/hoc';
 import Typography from '@material-ui/core/Typography';
 import {Box, Link} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
-import {CartesianGrid, Legend, ReferenceLine, Scatter, ScatterChart, XAxis, YAxis, ZAxis} from "recharts";
 import moment from "moment";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
 import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
@@ -30,7 +29,10 @@ const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
                 timeSheetsByDate {
                     date
                     timeSpentCumsum
+                    timeSpentCumsumPrediction
                 }
+                
+                timeSpentCumsumAtEndPrediction
                 
                 changeRequests {
                     id
@@ -50,8 +52,6 @@ class ProjectTeamPlanningPeriodDetail extends Component {
     render() {
         if (this.props.data.loading) { return <div>Loading ...</div> }
 
-        const planningPeriodId = this.props.match.params.planningPeriodId
-
         const projectTeamPlanningPeriod = this.props.data.projectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId
         const projectTeamName = projectTeamPlanningPeriod.projectTeam.name
         const estimate = projectTeamPlanningPeriod.estimate
@@ -62,10 +62,7 @@ class ProjectTeamPlanningPeriodDetail extends Component {
 
         const timeSheetsByDate = projectTeamPlanningPeriod.timeSheetsByDate
         const timeSpentPercentWithValueAndWithoutValueByDate = projectTeamPlanningPeriod.timeSpentPercentWithValueAndWithoutValueByDate
-
-        const today = (new Date()).getTime()
-        const firstTimeSheetDate = timeSheetsByDate.length > 0 ? new Date(timeSheetsByDate[0].date).getTime() : null
-        const lastTimeSheetDate = timeSheetsByDate.length > 0 ? new Date(timeSheetsByDate[timeSheetsByDate.length - 1].date).getTime() : null
+        const timeSpentCumsumAtEndPrediction = projectTeamPlanningPeriod.timeSpentCumsumAtEndPrediction
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
@@ -79,7 +76,6 @@ class ProjectTeamPlanningPeriodDetail extends Component {
                 </Typography>
 
                 <TimeSheetsByDatePeriodChart
-                    planningPeriodStart={ planningPeriodStart }
                     planningPeriodEnd={ planningPeriodEnd }
                     title="Аналитика + Разработка + Тестирование"
                     xAxisStart={ xAxisStart }
@@ -87,10 +83,10 @@ class ProjectTeamPlanningPeriodDetail extends Component {
                     color="black"
                     timeSheetsByDate={ timeSheetsByDate }
                     estimate={ estimate }
+                    timeSpentCumsumAtEndPrediction={ timeSpentCumsumAtEndPrediction }
                 />
 
                 <ValueByDatePeriodChart
-                    planningPeriodStart={ planningPeriodStart }
                     planningPeriodEnd={ planningPeriodEnd }
                     title="Доля списаний на задачи без бизнес-ценности"
                     xAxisStart={ xAxisStart }

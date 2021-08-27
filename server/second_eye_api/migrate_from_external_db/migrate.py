@@ -33,10 +33,6 @@ def migrate(get_input_connection):
     transformer = Transformer(input_data=input_data)
     output_data = transformer.transform()
 
-    pd.set_option('display.min_rows', None)
-    pd.set_option('display.max_columns', None)
-    print(output_data.dedicated_team_positions)
-
     print("done")
     return graphene_frame.DataStore(data_frames={
         ChangeRequest: output_data.change_requests,

@@ -31,7 +31,10 @@ const fetchPlanningPeriodById = gql`
             timeSheetsByDate {
                 date
                 timeSpentCumsum
+                timeSpentCumsumPrediction
             }
+            
+            timeSpentCumsumAtEndPrediction
             
             changeRequests {
                 id
@@ -53,7 +56,6 @@ class PlanningPeriodDetail extends Component {
         const planningPeriodId = this.props.match.params.id
         const planningPeriod = this.props.data.planningPeriodById
         const estimate = planningPeriod.estimate
-        const planningPeriodName = planningPeriod.name
         const planningPeriodStart = planningPeriod.start
         const planningPeriodEnd = planningPeriod.end
 
@@ -62,10 +64,7 @@ class PlanningPeriodDetail extends Component {
 
         const timeSheetsByDate = planningPeriod.timeSheetsByDate
         const timeSpentPercentWithValueAndWithoutValueByDate = planningPeriod.timeSpentPercentWithValueAndWithoutValueByDate
-
-        const today = (new Date()).getTime()
-        const firstTimeSheetDate = timeSheetsByDate.length > 0 ? new Date(timeSheetsByDate[0].date).getTime() : null
-        const lastTimeSheetDate = timeSheetsByDate.length > 0 ? new Date(timeSheetsByDate[timeSheetsByDate.length - 1].date).getTime() : null
+        const timeSpentCumsumAtEndPrediction = planningPeriod.timeSpentCumsumAtEndPrediction
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
@@ -73,7 +72,6 @@ class PlanningPeriodDetail extends Component {
         return (
             <Box>
                 <TimeSheetsByDatePeriodChart
-                    planningPeriodStart={ planningPeriodStart }
                     planningPeriodEnd={ planningPeriodEnd }
                     title="Аналитика + Разработка + Тестирование"
                     xAxisStart={ xAxisStart }
@@ -81,10 +79,10 @@ class PlanningPeriodDetail extends Component {
                     color="black"
                     timeSheetsByDate={ timeSheetsByDate }
                     estimate={ estimate }
+                    timeSpentCumsumAtEndPrediction={ timeSpentCumsumAtEndPrediction }
                 />
 
                 <ValueByDatePeriodChart
-                    planningPeriodStart={ planningPeriodStart }
                     planningPeriodEnd={ planningPeriodEnd }
                     title="Доля списаний на задачи без бизнес-ценности"
                     xAxisStart={ xAxisStart }
