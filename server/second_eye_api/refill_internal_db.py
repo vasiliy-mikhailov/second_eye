@@ -8,12 +8,28 @@ import time
 from django.conf import settings
 
 def get_connection_to_jira_db():
+    pool = settings.pool
+
+    connection = pool.acquire()
+
+    return connection
+
+def refill_internal_db():
     import cx_Oracle
     dsn = "Jira-db1.mcb.ru/orcl"
 
-    return cx_Oracle.connect(user='jiraro', password='jiraro', dsn=dsn, encoding='UTF-8')
+    settings.pool = cx_Oracle.SessionPool(
+        user='jiraro',
+        password='jiraro',
+        dsn=dsn,
+        encoding='UTF-8',
+        min=2,
+        max=15,
+        increment=1,
+        getmode=cx_Oracle.SPOOL_ATTRVAL_WAIT,
+        threaded=True
+    )
 
-def refill_internal_db():
     get_input_connection = get_connection_to_jira_db
 
     settings.GRAPHENE_FRAME_DATA_STORE = migrate(get_input_connection=get_input_connection)
