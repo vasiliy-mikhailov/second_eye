@@ -308,9 +308,9 @@ class Transformer:
 
         output_data = OutputData()
         output_data.change_requests = data_source.tables[entities.ChangeRequest].data_frame
-        output_data.change_request_analysis_time_sheets_by_date = data_source.tables[entities.ChangeRequestAnalysisTimeSheetByDate]
-        output_data.change_request_development_time_sheets_by_date = data_source.tables[entities.ChangeRequestDevelopmentTimeSheetByDate]
-        output_data.change_request_testing_time_sheets_by_date = data_source.tables[entities.ChangeRequestTestingTimeSheetByDate]
+        output_data.change_request_analysis_time_sheets_by_date = data_source.tables[entities.ChangeRequestAnalysisTimeSheetByDate].data_frame
+        output_data.change_request_development_time_sheets_by_date = data_source.tables[entities.ChangeRequestDevelopmentTimeSheetByDate].data_frame
+        output_data.change_request_testing_time_sheets_by_date = data_source.tables[entities.ChangeRequestTestingTimeSheetByDate].data_frame
         output_data.change_request_time_sheets_by_date = data_source.tables[entities.ChangeRequestTimeSheetByDate].data_frame
         output_data.companies = data_source.tables[entities.Company].data_frame
         output_data.dedicated_team_planning_periods = data_source.tables[entities.DedicatedTeamPlanningPeriod].data_frame
@@ -329,9 +329,9 @@ class Transformer:
         output_data.state_categories = data_source.tables[entities.StateCategory].data_frame
         output_data.systems = data_source.tables[entities.System].data_frame
         output_data.system_change_requests = data_source.tables[entities.SystemChangeRequest].data_frame
-        output_data.system_change_request_analysis_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestAnalysisTimeSheetByDate]
-        output_data.system_change_request_development_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestDevelopmentTimeSheetByDate]
-        output_data.system_change_request_testing_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestTestingTimeSheetByDate]
+        output_data.system_change_request_analysis_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestAnalysisTimeSheetByDate].data_frame
+        output_data.system_change_request_development_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestDevelopmentTimeSheetByDate].data_frame
+        output_data.system_change_request_testing_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestTestingTimeSheetByDate].data_frame
         output_data.system_change_request_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestTimeSheetByDate].data_frame
         output_data.task_analysis_time_sheets_by_date = data_source.tables[entities.TaskAnalysisTimeSheetByDate].data_frame
         output_data.task_development_time_sheets_by_date = data_source.tables[entities.TaskDevelopmentTimeSheetByDate].data_frame
