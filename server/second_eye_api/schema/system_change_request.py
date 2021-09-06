@@ -1,11 +1,12 @@
 import graphene_frame
-from second_eye_api.schema import system
-from second_eye_api.schema import state
-from second_eye_api.schema import state_category
-from second_eye_api.schema import dedicated_team
-from second_eye_api.schema import project_team
-from second_eye_api.schema import change_request
-from second_eye_api.schema import planning_period
+from . import system
+from . import state
+from . import state_category
+from . import dedicated_team
+from . import project_team
+from . import change_request
+from . import planning_period
+from . import task
 
 class SystemChangeRequest(graphene_frame.DataFrameObjectType):
     class Fields:
@@ -58,6 +59,11 @@ class SystemChangeRequest(graphene_frame.DataFrameObjectType):
         time_left = graphene_frame.Float()
 
         is_filler = graphene_frame.Boolean()
+
+        tasks = graphene_frame.List(
+            to_entity=lambda: task.Task,
+            to_field='system_change_request_id'
+        )
 
         analysis_time_sheets_by_date = graphene_frame.List(
             to_entity=lambda: SystemChangeRequestAnalysisTimeSheetsByDate,

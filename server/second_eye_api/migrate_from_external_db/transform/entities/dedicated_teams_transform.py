@@ -1,12 +1,5 @@
 from second_eye_api.migrate_from_external_db.transform.utils import *
 
-def calculate_dedicated_teams_time_left_by_tasks_time_left(dedicated_teams, tasks):
-    return calculate_entities_time_left_by_tasks_time_left_summing_up_by_column(
-        entities=dedicated_teams,
-        tasks=tasks,
-        sum_up_by_column="dedicated_team_id"
-    )
-
 def calculate_dedicated_teams_actual_change_request_capacity_by_task_time_sheets(dedicated_teams, task_time_sheets):
     return calculate_entities_actual_change_request_capacity_by_task_time_sheets_summing_up_by_column(
         entities=dedicated_teams,
@@ -18,13 +11,6 @@ def calculate_dedicated_teams_queue_length_inplace(dedicated_teams):
     dedicated_teams["queue_length"] = dedicated_teams.apply(lambda x:
         x["time_left"] / x["actual_change_request_capacity"] if x["actual_change_request_capacity"] > 0 else 0,
         axis=1
-    )
-
-def calculate_dedicated_teams_analysis_time_left_by_tasks_time_left(dedicated_teams, tasks):
-    return calculate_entities_analysis_time_left_by_tasks_time_left_summing_up_by_column(
-        entities=dedicated_teams,
-        tasks=tasks,
-        sum_up_by_column="dedicated_team_id"
     )
 
 def calculate_dedicated_teams_actual_analysis_capacity_by_task_time_sheets(dedicated_teams, task_time_sheets):
@@ -40,13 +26,6 @@ def calculate_dedicated_teams_analysis_queue_length_inplace(dedicated_teams):
         axis=1
     )
 
-def calculate_dedicated_teams_development_time_left_by_tasks_time_left(dedicated_teams, tasks):
-    return calculate_entities_development_time_left_by_tasks_time_left_summing_up_by_column(
-        entities=dedicated_teams,
-        tasks=tasks,
-        sum_up_by_column="dedicated_team_id"
-    )
-
 def calculate_dedicated_teams_actual_development_capacity_by_task_time_sheets(dedicated_teams, task_time_sheets):
     return calculate_entities_actual_development_capacity_by_task_time_sheets_summing_up_by_column(
         entities=dedicated_teams,
@@ -58,13 +37,6 @@ def calculate_dedicated_teams_development_queue_length_inplace(dedicated_teams):
     dedicated_teams["development_queue_length"] = dedicated_teams.apply(lambda x:
         x["development_time_left"] / x["actual_development_capacity"] if x["actual_development_capacity"] > 0 else 0,
         axis=1
-    )
-
-def calculate_dedicated_teams_testing_time_left_by_tasks_time_left(dedicated_teams, tasks):
-    return calculate_entities_testing_time_left_by_tasks_time_left_summing_up_by_column(
-        entities=dedicated_teams,
-        tasks=tasks,
-        sum_up_by_column="dedicated_team_id"
     )
 
 def calculate_dedicated_teams_actual_testing_capacity_by_task_time_sheets(dedicated_teams, task_time_sheets):

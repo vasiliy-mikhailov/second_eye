@@ -121,7 +121,8 @@ class ProjectTeamPlanningPeriodDetail extends Component {
                                 { changeRequest.hasValue ? '' : 'Нет ценности ' }
 
                                 <RouterLink style={{ textDecoration: changeRequest.stateCategory.id === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${changeRequest.id}` }>
-                                { changeRequest.name }
+                                    { changeRequest.id } &nbsp;
+                                    { changeRequest.name }
                                 </RouterLink>
                             </li>
                         )

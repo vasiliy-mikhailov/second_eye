@@ -9,7 +9,7 @@ class PlaningPeriodsExtractor:
         with get_connection() as connection:
             query = """
                 select distinct
-                    id as "id"
+                    to_number(id) as "id"
                 from (
                     select
                         nvl(extract(year from planned_install_date_cfv.datevalue), -1) as id
@@ -20,7 +20,7 @@ class PlaningPeriodsExtractor:
                         issue.issuetype=11900 --заявка на доработку ПО
                     union all
                     select
-                        nvl(to_number(regexp_substr(label,'\dкв(\d+)$', 1, 1, NULL, 1)), -1) as id
+                        nvl(to_number(regexp_substr(label,'\dквартал(\d+)$', 1, 1, NULL, 1)), -1) as id
                     from 
                         jira60.jiraissue issue 
                         left join jira60.label year_label on year_label.issue=issue.id

@@ -59,7 +59,7 @@ class TasksExtractor:
             tasks = pd.read_sql(query, connection)
 
             task_not_specified = pd.DataFrame([[
-                -1,
+                "-1",
                 "",
                 "Не указано",
                 -1,

@@ -23,6 +23,7 @@ from ..schema.system_change_request import \
     SystemChangeRequest, SystemChangeRequestTimeSheetsByDate, \
     SystemChangeRequestAnalysisTimeSheetsByDate, \
     SystemChangeRequestDevelopmentTimeSheetsByDate, SystemChangeRequestTestingTimeSheetsByDate
+from ..schema.task import Task
 
 def migrate(get_input_connection):
     print("extract")
@@ -64,4 +65,5 @@ def migrate(get_input_connection):
         SystemChangeRequestAnalysisTimeSheetsByDate: output_data.system_change_request_analysis_time_sheets_by_date,
         SystemChangeRequestDevelopmentTimeSheetsByDate: output_data.system_change_request_development_time_sheets_by_date,
         SystemChangeRequestTestingTimeSheetsByDate: output_data.system_change_request_testing_time_sheets_by_date,
+        Task: output_data.tasks,
     })

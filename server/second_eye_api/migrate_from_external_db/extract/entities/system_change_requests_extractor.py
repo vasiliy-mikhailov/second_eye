@@ -51,7 +51,7 @@ class SystemChangeRequestsExtractor:
             system_change_requests['system_id'].fillna(-1, inplace=True)
 
             system_change_request_not_specified = pd.DataFrame([[
-                -1,
+                "-1",
                 "",
                 "Не указано",
                 -1,
@@ -61,8 +61,8 @@ class SystemChangeRequestsExtractor:
                 0,
                 0,
                 0,
-                -1,
-                -1,
+                "-1",
+                "-1",
             ]], columns=[
                 "id",
                 "url",

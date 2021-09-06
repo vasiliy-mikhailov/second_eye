@@ -187,7 +187,8 @@ class ChangeRequestDetail extends Component {
                                 { systemChangeRequest.estimate === 0 && systemChangeRequest.stateCategory.id !== 3 ? `Оценка ${ Math.round(systemChangeRequest.estimate) } ч ` : '' }
 
                                 <RouterLink style={{ textDecoration: systemChangeRequest.stateCategory.id === 3 ? 'line-through' : 'none' }} to={ `/systemChangeRequests/${systemChangeRequest.id}` }>
-                                    {systemChangeRequest.name}
+                                    { systemChangeRequest.id } &nbsp;
+                                    { systemChangeRequest.name }
                                 </RouterLink>
                             </li>
                         )

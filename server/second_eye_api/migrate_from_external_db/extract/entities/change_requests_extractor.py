@@ -56,14 +56,14 @@ class ChangeRequestsExtractor:
             change_requests["planned_install_date"] = change_requests["planned_install_date"].dt.date
 
             change_request_not_specified = pd.DataFrame([[
-                -1,
+                "-1",
                 "",
                 "Не указано",
                 0,
                 0,
                 0,
                 0,
-                -1,
+                "-1",
                 None,
                 -1,
                 -1,

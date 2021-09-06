@@ -18,7 +18,7 @@ class StatesExtractor:
             states = pd.read_sql(query, connection)
 
             state_not_specified = pd.DataFrame([[
-                -1,
+                "-1",
                 "Не указано",
             ]], columns=[
                 "id",
