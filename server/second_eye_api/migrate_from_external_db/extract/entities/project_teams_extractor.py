@@ -27,6 +27,8 @@ class ProjectTeamsExtractor:
             )
             project_teams = project_teams.append(
                 project_team_not_specified,
-                sort=False)
+                sort=False,
+                ignore_index=True
+            )
 
             self.data = project_teams

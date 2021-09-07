@@ -79,7 +79,8 @@ class SystemChangeRequestsExtractor:
             ])
 
             system_change_requests = system_change_requests.append(
-                system_change_request_not_specified
+                system_change_request_not_specified,
+                ignore_index=True
             )
 
             system_change_requests.rename(columns={

@@ -79,7 +79,8 @@ class TasksExtractor:
             ])
 
             tasks = tasks.append(
-                task_not_specified
+                task_not_specified,
+                ignore_index=True
             )
 
             self.data = tasks

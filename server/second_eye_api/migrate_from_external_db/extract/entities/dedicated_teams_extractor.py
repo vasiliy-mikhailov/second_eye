@@ -23,6 +23,8 @@ class DedicatedTeamsExtractor:
             dedicated_team_not_specified = pd.DataFrame([[-1, "Не указано", 1]], columns=["id", "name", "company_id"])
             data = data.append(
                 dedicated_team_not_specified,
-                sort=False)
+                sort=False,
+                ignore_index=True
+            )
 
             self.data = data

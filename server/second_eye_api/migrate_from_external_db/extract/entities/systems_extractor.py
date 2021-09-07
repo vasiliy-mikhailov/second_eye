@@ -25,6 +25,8 @@ class SystemsExtractor:
             )
             systems = systems.append(
                 system_not_specified,
-                sort=False)
+                sort=False,
+                ignore_index=True
+            )
 
             self.data = systems

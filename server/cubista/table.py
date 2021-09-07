@@ -1,7 +1,7 @@
 import pandas as pd
-
 import cubista
 from .exceptions import FieldDoesNotExist
+import time
 
 class Table:
     class Fields:
@@ -87,7 +87,13 @@ class Table:
 
         for field_to_evaluate in fields_to_evaluate:
             if field_to_evaluate.is_ready_to_be_evaluated():
+                start = time.time()
+
                 field_to_evaluate.evaluate()
+                end = time.time()
+                duration = end - start
+                if duration > 1:
+                    print("{} {}".format(duration, field_to_evaluate))
 
 class AggregatedTable(Table):
     class Aggregation:

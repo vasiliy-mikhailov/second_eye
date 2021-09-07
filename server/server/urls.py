@@ -20,7 +20,6 @@ from second_eye_api.refill_internal_db import refill_internal_db_in_cycle_in_bac
 import sys
 from graphene_django.views import GraphQLView
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("graphql/", csrf_exempt(GraphQLView.as_view(graphiql=True))),

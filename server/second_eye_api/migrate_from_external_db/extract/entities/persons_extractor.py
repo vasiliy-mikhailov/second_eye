@@ -25,7 +25,8 @@ class PersonsExtractor:
             person_not_specified = pd.DataFrame([["-1", "Не указано", False]], columns=["id", "name", "is_active"])
             persons = persons.append(
                 person_not_specified,
-                sort=False
+                sort=False,
+                ignore_index=True
             )
 
             self.data = persons

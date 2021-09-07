@@ -83,7 +83,8 @@ class ChangeRequestsExtractor:
                 "has_value"
             ])
             change_requests = change_requests.append(
-                change_request_not_specified
+                change_request_not_specified,
+                ignore_index=True
             )
 
             self.data = change_requests

@@ -26,7 +26,8 @@ class StatesExtractor:
             ])
 
             states = states.append(
-                state_not_specified
+                state_not_specified,
+                ignore_index=True
             )
 
             self.data = states
