@@ -88,7 +88,7 @@ class SystemPlanningPeriod(cubista.AggregatedTable):
 
 class SystemPlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
-        source = lambda: system_change_request.SystemChangeRequestTimeSheetByDate
+        source = lambda: system_change_request.SystemChangeqRequestTimeSheetByDate
         sort_by: [str] = ["date"]
         group_by: [str] = ["system_id", "system_planning_period_id", "date"]
         filter = None
