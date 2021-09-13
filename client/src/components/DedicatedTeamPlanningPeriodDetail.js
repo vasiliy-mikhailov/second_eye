@@ -9,49 +9,49 @@ import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
 import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
 
 const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql`
-    query DedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId($planningPeriodId: Int!, $dedicatedTeamId: Int!) {
-          dedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId(dedicatedTeamId: $dedicatedTeamId, planningPeriodId: $planningPeriodId) {
-                id
-                estimate
-                effortPerFunctionPoint
-                dedicatedTeam {
-                    name
-                }
-                planningPeriod {
-                    name
-                    start
-                    end
-                }
-                timeSpentPercentWithValueAndWithoutValueByDate {
-                    date
-                    timeSpentWithoutValuePercentCumsum
-                    timeSpentWithValuePercentCumsum
-                }
-                timeSheetsByDate {
-                    date
-                    timeSpentCumsum
-                    timeSpentCumsumPrediction
-                }
-                
-                timeSpentCumsumAtEndPrediction
-                
-                projectTeams {
-                    id
-                    name
-                }
-                
-                changeRequests {
+        query DedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId($planningPeriodId: Int!, $dedicatedTeamId: Int!) {
+              dedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId(dedicatedTeamId: $dedicatedTeamId, planningPeriodId: $planningPeriodId) {
                     id
                     estimate
-                    timeLeft
-                    hasValue
-                    name
-                    stateCategory {
-                        id
+                    effortPerFunctionPoint
+                    dedicatedTeam {
+                        name
                     }
-                }
-          }
-    }
+                    planningPeriod {
+                        name
+                        start
+                        end
+                    }
+                    timeSpentPercentWithValueAndWithoutValueByDate {
+                        date
+                        timeSpentWithoutValuePercentCumsum
+                        timeSpentWithValuePercentCumsum
+                    }
+                    timeSheetsByDate {
+                        date
+                        timeSpentCumsum
+                        timeSpentCumsumPrediction
+                    }
+                    
+                    timeSpentCumsumAtEndPrediction
+                    
+                    projectTeams {
+                        id
+                        name
+                    }
+                    
+                    changeRequests {
+                        id
+                        estimate
+                        timeLeft
+                        hasValue
+                        name
+                        stateCategory {
+                            id
+                        }
+                    }
+              }
+        }
 `;
 
 class DedicatedTeamPlanningPeriodDetail extends Component {
@@ -173,5 +173,5 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
 }
 
 export default graphql(fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId, {
-    options: (props) => { return { variables: { planningPeriodId: props.match.params.planningPeriodId, systemId: props.match.params.dedicatedTeamId }}}
+    options: (props) => { return { variables: { planningPeriodId: props.match.params.planningPeriodId, dedicatedTeamId: props.match.params.dedicatedTeamId }}}
 })(DedicatedTeamPlanningPeriodDetail);
