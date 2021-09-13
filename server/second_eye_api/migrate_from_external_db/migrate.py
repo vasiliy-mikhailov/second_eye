@@ -18,7 +18,7 @@ from ..schema.project_team import \
 from ..schema.state import State
 from ..schema.state_category import StateCategory
 from ..schema.skill import Skill
-from ..schema.system import System
+from ..schema.system import *
 from ..schema.system_change_request import \
     SystemChangeRequest, SystemChangeRequestTimeSheetsByDate, \
     SystemChangeRequestAnalysisTimeSheetsByDate, \
@@ -65,5 +65,7 @@ def migrate(get_input_connection):
         SystemChangeRequestAnalysisTimeSheetsByDate: output_data.system_change_request_analysis_time_sheets_by_date,
         SystemChangeRequestDevelopmentTimeSheetsByDate: output_data.system_change_request_development_time_sheets_by_date,
         SystemChangeRequestTestingTimeSheetsByDate: output_data.system_change_request_testing_time_sheets_by_date,
+        SystemPlanningPeriod: output_data.system_planning_periods,
+        SystemPlanningPeriodTimeSheetsByDate: output_data.system_planning_period_time_sheets_by_date,
         Task: output_data.tasks,
     })

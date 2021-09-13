@@ -4,6 +4,10 @@ from . import change_request
 from . import state
 from . import task
 import pandas as pd
+from . import person
+from . import function_component
+from . import dedicated_team
+from . import project_team
 
 class SystemChangeRequest(cubista.Table):
     class Fields:
@@ -11,6 +15,7 @@ class SystemChangeRequest(cubista.Table):
         url = cubista.StringField()
         name = cubista.StringField()
         system_id = cubista.ForeignKeyField(foreign_table=lambda: system.System, default=-1, nulls=False)
+        system_has_function_points = cubista.PullByForeignPrimaryKeyField(lambda: system.System, related_field_name="system_id", pulled_field_name="has_function_points")
         analysis_preliminary_estimate = cubista.FloatField(nulls=True)
         development_preliminary_estimate = cubista.FloatField(nulls=True)
         testing_preliminary_estimate = cubista.FloatField(nulls=True)
@@ -19,13 +24,43 @@ class SystemChangeRequest(cubista.Table):
         testing_planned_estimate = cubista.FloatField(nulls=True)
         state_id = cubista.ForeignKeyField(foreign_table=lambda: state.State, default=-1, nulls=False)
         state_category_id = cubista.PullByForeignPrimaryKeyField(lambda: state.State, related_field_name="state_id", pulled_field_name="category_id")
+        is_cancelled = cubista.PullByForeignPrimaryKeyField(lambda: state.State, related_field_name="state_id", pulled_field_name="is_cancelled")
         change_request_id = cubista.ForeignKeyField(foreign_table=lambda: change_request.ChangeRequest, default="-1", nulls=False)
         project_team_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="project_team_id")
         dedicated_team_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="dedicated_team_id")
         company_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="company_id")
+        change_request_is_cancelled = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: change_request.ChangeRequest,
+            related_field_name="change_request_id",
+            pulled_field_name="is_cancelled"
+        )
 
         has_value = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="has_value")
         planning_period_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="planning_period_id")
+
+        dedicated_team_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: dedicated_team.DedicatedTeamPlanningPeriod,
+            related_field_names=["dedicated_team_id", "planning_period_id"],
+            foreign_field_names=["dedicated_team_id", "planning_period_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        project_team_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team.ProjectTeamPlanningPeriod,
+            related_field_names=["project_team_id", "planning_period_id"],
+            foreign_field_names=["project_team_id", "planning_period_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        system_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: system.SystemPlanningPeriod,
+            related_field_names=["system_id", "planning_period_id"],
+            foreign_field_names=["system_id", "planning_period_id"],
+            pulled_field_name="id",
+            default=-1
+        )
 
         analysis_tasks_estimate_sum = cubista.AggregatedForeignField(
             foreign_table=lambda: task.Task,
@@ -76,6 +111,14 @@ class SystemChangeRequest(cubista.Table):
             foreign_table=lambda: task.Task,
             foreign_field_name="system_change_request_id",
             aggregated_field_name="testing_time_spent",
+            aggregate_function="sum",
+            default=0
+        )
+
+        management_time_spent = cubista.AggregatedForeignField(
+            foreign_table=lambda: SystemChangeRequestTimeSheet,
+            foreign_field_name="system_change_request_id",
+            aggregated_field_name="time_spent",
             aggregate_function="sum",
             default=0
         )
@@ -152,6 +195,37 @@ class SystemChangeRequest(cubista.Table):
             source_fields=["testing_estimate", "testing_time_spent"]
         )
 
+        child_function_points = cubista.AggregatedForeignField(
+            foreign_table=lambda: task.Task,
+            foreign_field_name="system_change_request_id",
+            aggregated_field_name="function_points",
+            aggregate_function="sum",
+            default=0
+        )
+
+        function_points = cubista.CalculatedField(
+            lambda_expression=lambda x: 0 if x["is_cancelled"] or x["change_request_is_cancelled"] or not x["system_has_function_points"] else x["child_function_points"],
+            source_fields=["is_cancelled", "child_function_points", "system_has_function_points", "change_request_is_cancelled"]
+        )
+
+        function_points_effort = cubista.CalculatedField(
+            lambda_expression=lambda x: 0 if x["is_cancelled"] or x["change_request_is_cancelled"] or not x["system_has_function_points"] else x["analysis_estimate"] + x["development_estimate"] + x["management_time_spent"],
+            source_fields=["analysis_estimate", "development_estimate", "management_time_spent", "system_has_function_points", "is_cancelled", "change_request_is_cancelled"]
+        )
+
+        effort_per_function_point = cubista.CalculatedField(
+            lambda_expression=lambda x: 0 if not x["system_has_function_points"] or x["function_points"] == 0 else x["function_points_effort"] / x["function_points"],
+            source_fields=["function_points_effort", "function_points", "system_has_function_points"]
+        )
+
+class SystemChangeRequestTimeSheet(cubista.Table):
+    class Fields:
+        id = cubista.IntField(primary_key=True, unique=True)
+        system_change_request_id = cubista.ForeignKeyField(foreign_table=lambda: SystemChangeRequest, default="-1", nulls=False)
+        date = cubista.DateField(nulls=False)
+        time_spent = cubista.FloatField(nulls=False)
+        person_id = cubista.ForeignKeyField(foreign_table=lambda: person.Person, default="-1", nulls=False)
+
 class SystemChangeRequestTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
         source = lambda: task.TaskTimeSheetByDate
@@ -170,6 +244,16 @@ class SystemChangeRequestTimeSheetByDate(cubista.AggregatedTable):
             foreign_table=lambda: SystemChangeRequest,
             related_field_name="system_change_request_id",
             pulled_field_name="change_request_id"
+        )
+        system_id = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: SystemChangeRequest,
+            related_field_name="system_change_request_id",
+            pulled_field_name="system_id"
+        )
+        system_planning_period_id = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: SystemChangeRequest,
+            related_field_name="system_change_request_id",
+            pulled_field_name="system_planning_period_id"
         )
 
 class SystemChangeRequestAnalysisTimeSheetByDate(cubista.AggregatedTable):

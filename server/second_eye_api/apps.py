@@ -19,5 +19,3 @@ class SecondEyeApiConfig(AppConfig):
 
     def ready(self):
         self.migrate(db='default')
-        self.migrate(db='db1')
-        self.migrate(db='db2')

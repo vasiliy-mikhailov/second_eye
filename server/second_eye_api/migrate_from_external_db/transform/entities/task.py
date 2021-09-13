@@ -6,6 +6,8 @@ from . import person
 import pandas as pd
 from . import dedicated_team
 from . import project_team
+from . import function_component
+from . import system
 
 class Task(cubista.Table):
     class Fields:
@@ -17,8 +19,13 @@ class Task(cubista.Table):
         planned_estimate = cubista.FloatField(nulls=True)
         state_id = cubista.ForeignKeyField(foreign_table=lambda: state.State, default=-1, nulls=False)
         state_category_id = cubista.PullByForeignPrimaryKeyField(lambda: state.State, related_field_name="state_id", pulled_field_name="category_id")
+        is_cancelled = cubista.PullByForeignPrimaryKeyField(lambda: state.State, related_field_name="state_id", pulled_field_name="is_cancelled")
         system_change_request_id = cubista.ForeignKeyField(
-            foreign_table=lambda: system_change_request.SystemChangeRequest, default="-1", nulls=False)
+            foreign_table=lambda: system_change_request.SystemChangeRequest,
+            default="-1",
+            nulls=False
+        )
+
         change_request_id = cubista.PullByForeignPrimaryKeyField(
             foreign_table=lambda: system_change_request.SystemChangeRequest, related_field_name="system_change_request_id", pulled_field_name="change_request_id")
         project_team_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: system_change_request.SystemChangeRequest, related_field_name="system_change_request_id", pulled_field_name="project_team_id")
@@ -29,9 +36,29 @@ class Task(cubista.Table):
         has_value = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: system_change_request.SystemChangeRequest, related_field_name="system_change_request_id", pulled_field_name="has_value")
 
         system_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: system_change_request.SystemChangeRequest, related_field_name="system_change_request_id", pulled_field_name="system_id")
+        system_has_function_points = cubista.PullByForeignPrimaryKeyField(lambda: system.System, related_field_name="system_id", pulled_field_name="has_function_points")
 
         planning_period_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: system_change_request.SystemChangeRequest, related_field_name="system_change_request_id", pulled_field_name="planning_period_id")
+            foreign_table=lambda: system_change_request.SystemChangeRequest,
+            related_field_name="system_change_request_id",
+            pulled_field_name="planning_period_id"
+        )
+
+        dedicated_team_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: dedicated_team.DedicatedTeamPlanningPeriod,
+            related_field_names=["dedicated_team_id", "planning_period_id"],
+            foreign_field_names=["dedicated_team_id", "planning_period_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        project_team_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team.ProjectTeamPlanningPeriod,
+            related_field_names=["project_team_id", "planning_period_id"],
+            foreign_field_names=["project_team_id", "planning_period_id"],
+            pulled_field_name="id",
+            default=-1
+        )
 
         time_spent = cubista.AggregatedForeignField(foreign_table=lambda: TaskTimeSheet, foreign_field_name="task_id", aggregated_field_name="time_spent", aggregate_function="sum", default=0)
 
@@ -127,6 +154,19 @@ class Task(cubista.Table):
             foreign_field_names=["project_team_id", "planning_period_id"],
             pulled_field_name="id",
             default=-1
+        )
+
+        child_function_points = cubista.AggregatedForeignField(
+            foreign_table=lambda: function_component.FunctionComponent,
+            foreign_field_name="task_id",
+            aggregated_field_name="function_points",
+            aggregate_function="sum",
+            default=0
+        )
+
+        function_points = cubista.CalculatedField(
+            lambda_expression=lambda x: 0 if x["is_cancelled"] or not x["system_has_function_points"] else x["child_function_points"],
+            source_fields=["is_cancelled", "child_function_points", "system_has_function_points"]
         )
 
 class TaskTimeSheet(cubista.Table):

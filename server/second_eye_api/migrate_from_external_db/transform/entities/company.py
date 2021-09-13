@@ -1,5 +1,6 @@
 import cubista
 from . import dedicated_team
+from . import function_component
 
 class Company(cubista.Table):
     class Fields:
@@ -26,6 +27,14 @@ class Company(cubista.Table):
             foreign_table=lambda: dedicated_team.DedicatedTeam,
             foreign_field_name="company_id",
             aggregated_field_name="testing_time_spent",
+            aggregate_function="sum",
+            default=0
+        )
+
+        management_time_spent = cubista.AggregatedForeignField(
+            foreign_table=lambda: dedicated_team.DedicatedTeam,
+            foreign_field_name="company_id",
+            aggregated_field_name="management_time_spent",
             aggregate_function="sum",
             default=0
         )
@@ -82,4 +91,12 @@ class Company(cubista.Table):
         testing_time_left = cubista.CalculatedField(lambda_expression=lambda x:
             x["testing_estimate"] - x["testing_time_spent"],
             source_fields=["testing_estimate", "testing_time_spent"]
+        )
+
+        function_points = cubista.AggregatedForeignField(
+            foreign_table=lambda: dedicated_team.DedicatedTeam,
+            foreign_field_name="company_id",
+            aggregated_field_name="function_points",
+            aggregate_function="sum",
+            default=0
         )

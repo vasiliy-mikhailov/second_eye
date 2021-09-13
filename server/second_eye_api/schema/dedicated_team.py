@@ -33,6 +33,10 @@ class DedicatedTeam(graphene_frame.DataFrameObjectType):
         project_teams = graphene_frame.List(to_entity=lambda : project_team.ProjectTeam, to_field="dedicated_team_id")
         positions = graphene_frame.List(to_entity=lambda: DedicatedTeamPosition, to_field="dedicated_team_id")
 
+        function_points = graphene_frame.Float()
+        function_points_effort = graphene_frame.Float()
+        effort_per_function_point = graphene_frame.Float()
+
     def __str__(self):
         return self.name
 
@@ -62,6 +66,10 @@ class DedicatedTeamPlanningPeriod(graphene_frame.DataFrameObjectType):
         estimate = graphene_frame.Float()
         time_spent = graphene_frame.Float()
         time_left = graphene_frame.Float()
+
+        function_points = graphene_frame.Float()
+        function_points_effort = graphene_frame.Float()
+        effort_per_function_point = graphene_frame.Float()
 
 class DedicatedTeamPlanningPeriodTimeSheetsByDate(graphene_frame.DataFrameObjectType):
     class Fields:

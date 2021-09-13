@@ -19,6 +19,7 @@ from .entities.dedicated_team_position_abilities_extractor import DedicatedTeamP
 from .entities.project_team_position_abilities_extractor import ProjectTeamPositionAbilitiesExtractor
 from .entities.task_time_sheets_extractor import TaskTimeSheetsExtractor
 from .entities.planning_periods_extractor import PlaningPeriodsExtractor
+from .entities.system_change_requests_time_sheets_extractor import SystemChangeRequestsTimeSheetsExtractor
 
 class Extractor:
     def __init__(self, get_connection):
@@ -47,6 +48,7 @@ class Extractor:
         project_team_position_abilities_extractor = ProjectTeamPositionAbilitiesExtractor(get_connection=get_connection)
         task_time_sheets_extractor = TaskTimeSheetsExtractor(get_connection=get_connection)
         planning_periods_extractor = PlaningPeriodsExtractor(get_connection=get_connection)
+        system_change_request_time_sheets_extractor = SystemChangeRequestsTimeSheetsExtractor(get_connection=get_connection)
 
         run_tasks_in_parallel([
             lambda: skills_extractor.extract(),
@@ -68,6 +70,7 @@ class Extractor:
             lambda: project_team_position_abilities_extractor.extract(),
             lambda: task_time_sheets_extractor.extract(),
             lambda: planning_periods_extractor.extract(),
+            lambda: system_change_request_time_sheets_extractor.extract(),
         ])
 
         input_data.skills = skills_extractor.data
@@ -107,5 +110,7 @@ class Extractor:
         input_data.task_time_sheets = task_time_sheets_extractor.data
 
         input_data.planning_periods = planning_periods_extractor.data
+
+        input_data.system_change_request_time_sheets = system_change_request_time_sheets_extractor.data
 
         return input_data

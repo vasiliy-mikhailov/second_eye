@@ -17,6 +17,8 @@ class ChangeRequestsExtractor:
                         dev_express_estimate_cv.numbervalue as "development_express_estimate",
                         testing_hours_express_cv.numbervalue as "testing_express_estimate",
                         issue.issuestatus as "state_id",
+                        to_char(install_date_cfv.datevalue, 'YYYY-MM-DD') as "install_date",
+                        resolutiondate as "resolution_date",
                         to_char(planned_install_date_cfv.datevalue, 'YYYY-MM-DD') as "planned_install_date",
                         nvl(year_label.year, -1) as "year_label_max",
                         to_number(issue_project_team.stringvalue) as "project_team_id",
@@ -30,7 +32,8 @@ class ChangeRequestsExtractor:
                         left join jira60.customfieldvalue analysis_hours_express_cv on (analysis_hours_express_cv.issue = issue.id and analysis_hours_express_cv.customfield = 14809)
                         left join jira60.customfieldvalue dev_express_estimate_cv on (dev_express_estimate_cv.issue = issue.id and dev_express_estimate_cv.customfield = 14810)
                         left join jira60.customfieldvalue testing_hours_express_cv on (testing_hours_express_cv.issue = issue.id and testing_hours_express_cv.customfield = 14811)
-                        left join jira60.customfieldvalue planned_install_date_cfv on planned_install_date_cfv.issue=issue.id and planned_install_date_cfv.customfield=14615 
+                        left join jira60.customfieldvalue planned_install_date_cfv on planned_install_date_cfv.issue=issue.id and planned_install_date_cfv.customfield=14615
+                        left join jira60.customfieldvalue install_date_cfv on install_date_cfv.issue=issue.id and install_date_cfv.customfield=14619 
                         left join (
                             select
                                 to_number(regexp_substr(label,'\dквартал(\d+)$', 1, 1, NULL, 1)) as year,
@@ -50,9 +53,12 @@ class ChangeRequestsExtractor:
             change_requests = pd.read_sql(
                 query,
                 connection,
-                parse_dates={"planned_install_date"}
+                parse_dates={"install_date", "resolution_date", "planned_install_date"}
             )
             change_requests['project_team_id'].fillna(-1, inplace=True)
+
+            change_requests["install_date"] = change_requests["install_date"].dt.date
+            change_requests["resolution_date"] = change_requests["resolution_date"].dt.date
             change_requests["planned_install_date"] = change_requests["planned_install_date"].dt.date
 
             change_request_not_specified = pd.DataFrame([[

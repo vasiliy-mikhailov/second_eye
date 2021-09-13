@@ -92,6 +92,7 @@ class Table:
                 field_to_evaluate.evaluate()
                 end = time.time()
                 duration = end - start
+                print(field_to_evaluate)
                 if duration > 1:
                     print("{} {}".format(duration, field_to_evaluate))
 

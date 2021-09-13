@@ -5,6 +5,8 @@ from . import dedicated_team
 from . import change_request
 from . import planning_period
 from . import task
+from . import function_component
+import datetime
 
 class ProjectTeam(cubista.Table):
     class Fields:
@@ -33,6 +35,14 @@ class ProjectTeam(cubista.Table):
             foreign_table=lambda: change_request.ChangeRequest,
             foreign_field_name="project_team_id",
             aggregated_field_name="testing_time_spent",
+            aggregate_function="sum",
+            default=0
+        )
+
+        management_time_spent = cubista.AggregatedForeignField(
+            foreign_table=lambda: change_request.ChangeRequest,
+            foreign_field_name="project_team_id",
+            aggregated_field_name="management_time_spent",
             aggregate_function="sum",
             default=0
         )
@@ -91,6 +101,26 @@ class ProjectTeam(cubista.Table):
             source_fields=["testing_estimate", "testing_time_spent"]
         )
 
+        function_points = cubista.AggregatedForeignField(
+            foreign_table=lambda: change_request.ChangeRequest,
+            foreign_field_name="project_team_id",
+            aggregated_field_name="function_points",
+            aggregate_function="sum",
+            default=0
+        )
+
+        function_points_effort = cubista.AggregatedForeignField(
+            foreign_table=lambda: change_request.ChangeRequest,
+            foreign_field_name="project_team_id",
+            aggregated_field_name="function_points_effort",
+            aggregate_function="sum",
+            default=0
+        )
+
+        effort_per_function_point = cubista.CalculatedField(
+            lambda_expression=lambda x: 0 if x["function_points"] == 0 else x["function_points_effort"] / x["function_points"],
+            source_fields=["function_points_effort", "function_points"]
+        )
 
 class ProjectTeamPosition(cubista.Table):
     class Fields:
@@ -122,9 +152,21 @@ class ProjectTeamPlanningPeriod(cubista.AggregatedTable):
             related_field_name="project_team_id",
             pulled_field_name="dedicated_team_id"
         )
+        analysis_estimate = cubista.AggregatedTableAggregateField(source="analysis_estimate", aggregate_function="sum")
+        development_estimate = cubista.AggregatedTableAggregateField(source="development_estimate", aggregate_function="sum")
+        testing_estimate = cubista.AggregatedTableAggregateField(source="testing_estimate", aggregate_function="sum")
         estimate = cubista.AggregatedTableAggregateField(source="estimate", aggregate_function="sum")
+
+        management_time_spent = cubista.AggregatedTableAggregateField(source="management_time_spent", aggregate_function="sum")
         time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
         time_left = cubista.AggregatedTableAggregateField(source="time_left", aggregate_function="sum")
+
+        function_points = cubista.AggregatedTableAggregateField(source="function_points", aggregate_function="sum")
+        function_points_effort = cubista.AggregatedTableAggregateField(source="function_points", aggregate_function="sum")
+        effort_per_function_point = cubista.CalculatedField(
+            lambda_expression=lambda x: 0 if x["function_points"] == 0 else x["function_points_effort"] / x["function_points"],
+            source_fields=["function_points_effort", "function_points"]
+        )
 
         planning_period_start = cubista.PullByForeignPrimaryKeyField(
             foreign_table=lambda: planning_period.PlanningPeriod,
@@ -156,8 +198,43 @@ class ProjectTeamPlanningperiodTimeSheetByDate(cubista.AggregatedTable):
 
     class Fields:
         id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
+
         project_team_planning_period_id = cubista.AggregatedTableGroupField(source="project_team_planning_period_id")
         date = cubista.AggregatedTableGroupField(source="date")
+
         time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
         time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["project_team_planning_period_id"], sort_by=["date"])
+
+        dedicated_team_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team.ProjectTeamPlanningPeriod,
+            related_field_names=["project_team_planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="dedicated_team_planning_period_id",
+            default=-1
+        )
+
+        planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: change_request.ChangeRequest,
+            related_field_names=["project_team_planning_period_id"],
+            foreign_field_names=["project_team_planning_period_id"],
+            pulled_field_name="planning_period_id",
+            default=-1
+        )
+
+        planning_period_start = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="start",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+
+        planning_period_end = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="end",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+
 

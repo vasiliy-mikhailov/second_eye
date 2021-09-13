@@ -21,7 +21,7 @@ class FunctionComponentsExtractor:
                         when '23969' then 4 -- сообщение
                         when '23970' then 5 -- интерфейс
                     end "kind_id",
-                    function_component_count_cv.numberValue as "count"
+                    nvl(function_component_count_cv.numberValue, 1) as "count"
                 from
                     jira60.jiraissue function_component
                     inner join jira60.project project on function_component.project=project.id

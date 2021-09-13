@@ -26,6 +26,10 @@ class ProjectTeam(graphene_frame.DataFrameObjectType):
         testing_time_left = graphene_frame.Float()
         testing_queue_length = graphene_frame.Float()
 
+        function_points = graphene_frame.Float()
+        function_points_effort = graphene_frame.Float()
+        effort_per_function_point = graphene_frame.Float()
+
     def __str__(self):
         return self.name
 
@@ -50,6 +54,10 @@ class ProjectTeamPlanningPeriod(graphene_frame.DataFrameObjectType):
         estimate = graphene_frame.Float()
         time_spent = graphene_frame.Float()
         time_left = graphene_frame.Float()
+
+        function_points = graphene_frame.Float()
+        function_points_effort = graphene_frame.Float()
+        effort_per_function_point = graphene_frame.Float()
 
 
 class ProjectTeamPlanningPeriodTimeSheetsByDate(graphene_frame.DataFrameObjectType):

@@ -90,6 +90,10 @@ class ChangeRequest(graphene_frame.DataFrameObjectType):
             to_field='change_request_id'
         )
 
+        function_points = graphene_frame.Float()
+        function_points_effort = graphene_frame.Float()
+        effort_per_function_point = graphene_frame.Float()
+
     def __str__(self):
         return self.name
 

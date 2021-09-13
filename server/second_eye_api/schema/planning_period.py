@@ -1,8 +1,9 @@
 import graphene_frame
 import graphene
-from second_eye_api.schema import change_request
-from second_eye_api.schema import project_team
-from second_eye_api.schema import dedicated_team
+from . import change_request
+from . import project_team
+from . import dedicated_team
+from . import system
 
 class PlanningPeriod(graphene_frame.DataFrameObjectType):
     class Fields:
@@ -25,6 +26,13 @@ class PlanningPeriod(graphene_frame.DataFrameObjectType):
             through_field="planning_period_id"
         )
 
+        systems = graphene_frame.ManyToMany(
+            to_entity=lambda: system.System,
+            to_field="system_id",
+            through_entity=lambda: system.SystemPlanningPeriod,
+            through_field="planning_period_id"
+        )
+
         estimate = graphene_frame.Float()
         time_spent = graphene_frame.Float()
         time_left = graphene_frame.Float()
@@ -39,6 +47,10 @@ class PlanningPeriod(graphene_frame.DataFrameObjectType):
             to_entity=lambda: PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate,
             to_field = "planning_period_id"
         )
+
+        function_points = graphene_frame.Float()
+        function_points_effort = graphene_frame.Float()
+        effort_per_function_point = graphene_frame.Float()
 
     def __str__(self):
         return self.name

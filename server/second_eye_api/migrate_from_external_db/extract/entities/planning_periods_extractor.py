@@ -11,7 +11,7 @@ class PlaningPeriodsExtractor:
                 select distinct
                     to_number(id) as "id"
                 from (
-                    select
+                    select distinct
                         nvl(extract(year from planned_install_date_cfv.datevalue), -1) as id
                     from 
                         jira60.jiraissue issue
@@ -19,13 +19,20 @@ class PlaningPeriodsExtractor:
                     where 
                         issue.issuetype=11900 --заявка на доработку ПО
                     union all
-                    select
+                    select distinct
+                        nvl(extract(year from resolutiondate), -1) as id
+                    from 
+                        jira60.jiraissue issue
+                    where 
+                        issue.issuetype=11900 --заявка на доработку ПО
+                    union all
+                    select distinct
                         nvl(to_number(regexp_substr(label,'\dквартал(\d+)$', 1, 1, NULL, 1)), -1) as id
                     from 
                         jira60.jiraissue issue 
                         left join jira60.label year_label on year_label.issue=issue.id
                     where 
-                        issue.issuetype=11900 --заявка на доработку ПО
+                        issue.issuetype=11900 --заявка на доработку ПО                    
                     union all
                     select
                         -1

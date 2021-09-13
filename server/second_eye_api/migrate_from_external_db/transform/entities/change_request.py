@@ -5,6 +5,7 @@ import pandas as pd
 from . import system_change_request
 from . import dedicated_team
 from . import task
+from . import function_component
 
 class ChangeRequest(cubista.Table):
     class Fields:
@@ -17,6 +18,7 @@ class ChangeRequest(cubista.Table):
         testing_express_estimate = cubista.FloatField(nulls=True)
         state_id = cubista.ForeignKeyField(foreign_table=lambda: state.State, default=-1, nulls=False)
         state_category_id = cubista.PullByForeignPrimaryKeyField(lambda: state.State, related_field_name="state_id", pulled_field_name="category_id")
+        is_cancelled = cubista.PullByForeignPrimaryKeyField(lambda: state.State, related_field_name="state_id", pulled_field_name="is_cancelled")
         planned_install_date = cubista.DateField(nulls=True)
         year_label_max = cubista.IntField(nulls=True)
         has_value = cubista.IntField()
@@ -25,8 +27,30 @@ class ChangeRequest(cubista.Table):
         company_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: project_team.ProjectTeam, related_field_name="project_team_id", pulled_field_name="company_id")
 
         planning_period_id = cubista.CalculatedField(
-            lambda_expression=lambda x: x["planned_install_date"].year if not pd.isnull(x["planned_install_date"]) else (x["year_label_max"] if not pd.isnull(x["year_label_max"]) else - 1),
-            source_fields=["planned_install_date", "year_label_max"]
+            lambda_expression=lambda x: x["install_date"].year if not pd.isnull(x["install_date"]) else (
+                x["resolution_date"].year if not pd.isnull(x["resolution_date"]) else (
+                    x["planned_install_date"].year if not pd.isnull(x["planned_install_date"]) else (
+                        x["year_label_max"] if not pd.isnull(x["year_label_max"]) else -1
+                    )
+                )
+            ),
+            source_fields=["install_date", "resolution_date", "planned_install_date", "year_label_max"]
+        )
+
+        dedicated_team_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: dedicated_team.DedicatedTeamPlanningPeriod,
+            related_field_names=["dedicated_team_id", "planning_period_id"],
+            foreign_field_names=["dedicated_team_id", "planning_period_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        project_team_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team.ProjectTeamPlanningPeriod,
+            related_field_names=["project_team_id", "planning_period_id"],
+            foreign_field_names=["project_team_id", "planning_period_id"],
+            pulled_field_name="id",
+            default=-1
         )
 
         system_change_requests_analysis_estimate_sum = cubista.AggregatedForeignField(
@@ -78,6 +102,14 @@ class ChangeRequest(cubista.Table):
             foreign_table=lambda: system_change_request.SystemChangeRequest,
             foreign_field_name="change_request_id",
             aggregated_field_name="testing_time_spent",
+            aggregate_function="sum",
+            default=0
+        )
+
+        management_time_spent = cubista.AggregatedForeignField(
+            foreign_table=lambda: system_change_request.SystemChangeRequest,
+            foreign_field_name="change_request_id",
+            aggregated_field_name="management_time_spent",
             aggregate_function="sum",
             default=0
         )
@@ -148,20 +180,35 @@ class ChangeRequest(cubista.Table):
             source_fields=["testing_estimate", "testing_time_spent"]
         )
 
-        dedicated_team_planning_period_id = cubista.PullByRelatedField(
-            foreign_table=lambda: dedicated_team.DedicatedTeamPlanningPeriod,
-            related_field_names=["dedicated_team_id", "planning_period_id"],
-            foreign_field_names=["dedicated_team_id", "planning_period_id"],
-            pulled_field_name="id",
-            default=-1
+        child_function_points = cubista.AggregatedForeignField(
+            foreign_table=lambda: system_change_request.SystemChangeRequest,
+            foreign_field_name="change_request_id",
+            aggregated_field_name="function_points",
+            aggregate_function="sum",
+            default=0
         )
 
-        project_team_planning_period_id = cubista.PullByRelatedField(
-            foreign_table=lambda: project_team.ProjectTeamPlanningPeriod,
-            related_field_names=["project_team_id", "planning_period_id"],
-            foreign_field_names=["project_team_id", "planning_period_id"],
-            pulled_field_name="id",
-            default=-1
+        function_points = cubista.CalculatedField(
+            lambda_expression=lambda x: 0 if x["is_cancelled"] else x["child_function_points"],
+            source_fields=["is_cancelled", "child_function_points"]
+        )
+
+        child_function_points_effort = cubista.AggregatedForeignField(
+            foreign_table=lambda: system_change_request.SystemChangeRequest,
+            foreign_field_name="change_request_id",
+            aggregated_field_name="function_points_effort",
+            aggregate_function="sum",
+            default=0
+        )
+
+        function_points_effort = cubista.CalculatedField(
+            lambda_expression=lambda x: 0 if x["is_cancelled"] else x["child_function_points_effort"],
+            source_fields=["is_cancelled", "child_function_points_effort"]
+        )
+
+        effort_per_function_point = cubista.CalculatedField(
+            lambda_expression=lambda x: 0 if x["function_points"] == 0 else x["function_points_effort"] / x["function_points"],
+            source_fields=["function_points_effort", "function_points"]
         )
 
 class ChangeRequestTimeSheetByDate(cubista.AggregatedTable):
@@ -178,6 +225,11 @@ class ChangeRequestTimeSheetByDate(cubista.AggregatedTable):
         date = cubista.AggregatedTableGroupField(source="date")
         time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
         time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["change_request_id"], sort_by=["date"])
+        planning_period_id = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: ChangeRequest,
+            related_field_name="change_request_id",
+            pulled_field_name="planning_period_id"
+        )
         project_team_id = cubista.PullByForeignPrimaryKeyField(
             foreign_table=lambda: ChangeRequest,
             related_field_name="change_request_id",

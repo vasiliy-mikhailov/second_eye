@@ -46,6 +46,14 @@ class PlanningPeriod(cubista.Table):
             default=0
         )
 
+        management_time_spent = cubista.AggregatedForeignField(
+            foreign_table=lambda: change_request.ChangeRequest,
+            foreign_field_name="planning_period_id",
+            aggregated_field_name="management_time_spent",
+            aggregate_function="sum",
+            default=0
+        )
+
         time_spent = cubista.CalculatedField(
             lambda_expression=lambda x: x["analysis_time_spent"] + x["development_time_spent"] + x["testing_time_spent"],
             source_fields=["analysis_time_spent", "development_time_spent", "testing_time_spent"]
@@ -98,4 +106,25 @@ class PlanningPeriod(cubista.Table):
         testing_time_left = cubista.CalculatedField(lambda_expression=lambda x:
             x["testing_estimate"] - x["testing_time_spent"],
             source_fields=["testing_estimate", "testing_time_spent"]
+        )
+
+        function_points = cubista.AggregatedForeignField(
+            foreign_table=lambda: change_request.ChangeRequest,
+            foreign_field_name="planning_period_id",
+            aggregated_field_name="function_points",
+            aggregate_function="sum",
+            default=0
+        )
+
+        function_points_effort = cubista.AggregatedForeignField(
+            foreign_table=lambda: change_request.ChangeRequest,
+            foreign_field_name="planning_period_id",
+            aggregated_field_name="function_points_effort",
+            aggregate_function="sum",
+            default=0
+        )
+
+        effort_per_function_point = cubista.CalculatedField(
+            lambda_expression=lambda x: 0 if x["function_points"] == 0 else x["function_points_effort"] / x["function_points"],
+            source_fields=["function_points_effort", "function_points"]
         )

@@ -33,6 +33,11 @@ class State(cubista.Table):
         'Не согласовано ДИБ': lambda: StateCategory.DONE
     }
 
+    CANCELLED_STATES = [
+        "Отменено",
+        "Не согласовано ДИБ"
+    ]
+
     class Fields:
         id = cubista.StringField(primary_key=True, unique=True)
         name = cubista.StringField()
@@ -42,6 +47,10 @@ class State(cubista.Table):
                 if x["name"] in State.STATE_NAME_TO_STATE_CATEGORY_ID_MAPPING
                 else -1
             ,
+            source_fields=["name"]
+        )
+        is_cancelled = cubista.CalculatedField(
+            lambda_expression=lambda x: x["name"] in State.CANCELLED_STATES,
             source_fields=["name"]
         )
 
