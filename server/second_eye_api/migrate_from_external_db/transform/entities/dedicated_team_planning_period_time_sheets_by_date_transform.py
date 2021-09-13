@@ -5,11 +5,12 @@ def calculate_dedicated_team_planning_period_time_spent_cumsum_prediction_by_ded
         dedicated_team_planning_periods
 ):
     dedicated_team_planning_periods_reduced_to_id_m_and_b = dedicated_team_planning_periods[["id", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]]
+    dedicated_team_planning_periods_reduced_to_id_m_and_b.set_index(["id"], inplace=True)
     result = dedicated_team_planning_period_time_sheets_by_date.merge(
         dedicated_team_planning_periods_reduced_to_id_m_and_b,
         how="left",
         left_on="dedicated_team_planning_period_id",
-        right_on="id",
+        right_index=True,
         suffixes=(None, "")
     )
 

@@ -16,8 +16,14 @@ const fetchPlanningPeriodById = gql`
             start
             end
             estimate
+            effortPerFunctionPoint
             
             dedicatedTeams {
+                id
+                name
+            }
+            
+            systems {
                 id
                 name
             }
@@ -56,10 +62,12 @@ class PlanningPeriodDetail extends Component {
         const planningPeriodId = this.props.match.params.id
         const planningPeriod = this.props.data.planningPeriodById
         const estimate = planningPeriod.estimate
+        const effortPerFunctionPoint = planningPeriod.effortPerFunctionPoint
         const planningPeriodStart = planningPeriod.start
         const planningPeriodEnd = planningPeriod.end
 
         const dedicatedTeams = planningPeriod.dedicatedTeams
+        const systems = planningPeriod.systems
         const changeRequests = planningPeriod.changeRequests
 
         const timeSheetsByDate = planningPeriod.timeSheetsByDate
@@ -71,6 +79,11 @@ class PlanningPeriodDetail extends Component {
 
         return (
             <Box>
+                <Typography variant="body" noWrap>
+                    Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка
+                </Typography>
+
+
                 <TimeSheetsByDatePeriodChart
                     planningPeriodEnd={ planningPeriodEnd }
                     title="Аналитика + Разработка + Тестирование"
@@ -113,6 +126,34 @@ class PlanningPeriodDetail extends Component {
                             <li key={ dedicatedTeam.id }>
                                 <RouterLink to={ `/planningPeriods/${planningPeriodId}/dedicatedTeams/${dedicatedTeam.id}` }>
                                 { dedicatedTeam.name }
+                                </RouterLink>
+                            </li>
+                        )
+                    )}
+                </ul>
+
+                <Typography variant="body1" noWrap>
+                    Системы
+                </Typography>
+
+               <ul>
+                    { systems
+                        .slice()
+                        .sort(function(a, b) {
+                            if (a.name > b.name) {
+                                return 1;
+                            }
+                            if (a.name === b.name) {
+                                return 0;
+                            }
+                            if (a.name < b.name) {
+                                return -1;
+                            }
+                        })
+                        .map(system => (
+                            <li key={ system.id }>
+                                <RouterLink to={ `/planningPeriods/${planningPeriodId}/systems/${system.id}` }>
+                                { system.name }
                                 </RouterLink>
                             </li>
                         )

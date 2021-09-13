@@ -8,14 +8,13 @@ import moment from "moment";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
 import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
 
-const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
-    query ProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId($planningPeriodId: Int!, $projectTeamId: Int!) {
-          projectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId(projectTeamId: $projectTeamId, planningPeriodId: $planningPeriodId) {
+const fetchSystemPlanningPeriodByPlanningPeriodIdAndSystemId = gql`
+    query SystemPlanningPeriodByPlanningPeriodIdAndSystemId($planningPeriodId: Int!, $systemId: Int!) {
+          systemPlanningPeriodByPlanningPeriodIdAndSystemId(systemId: $systemId, planningPeriodId: $planningPeriodId) {
                 id
                 estimate
                 effortPerFunctionPoint
-                
-                projectTeam {
+                system {
                     name
                 }
                 planningPeriod {
@@ -23,20 +22,14 @@ const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
                     start
                     end
                 }
-                timeSpentPercentWithValueAndWithoutValueByDate {
-                    date
-                    timeSpentWithoutValuePercentCumsum
-                    timeSpentWithValuePercentCumsum
-                }
+
                 timeSheetsByDate {
                     date
                     timeSpentCumsum
                     timeSpentCumsumPrediction
                 }
                 
-                timeSpentCumsumAtEndPrediction
-                
-                changeRequests {
+                systemChangeRequests {
                     id
                     estimate
                     timeLeft
@@ -50,22 +43,24 @@ const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
     }
 `;
 
-class ProjectTeamPlanningPeriodDetail extends Component {
+class SystemPlanningPeriodDetail extends Component {
     render() {
         if (this.props.data.loading) { return <div>Loading ...</div> }
+        const planningPeriodId = this.props.match.params.planningPeriodId
 
-        const projectTeamPlanningPeriod = this.props.data.projectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId
-        const projectTeamName = projectTeamPlanningPeriod.projectTeam.name
-        const estimate = projectTeamPlanningPeriod.estimate
-        const effortPerFunctionPoint = projectTeamPlanningPeriod.effortPerFunctionPoint
-        const planningPeriodName = projectTeamPlanningPeriod.planningPeriod.name
-        const planningPeriodStart = projectTeamPlanningPeriod.planningPeriod.start
-        const planningPeriodEnd = projectTeamPlanningPeriod.planningPeriod.end
-        const changeRequests = projectTeamPlanningPeriod.changeRequests
+        const systemPlanningPeriod = this.props.data.systemPlanningPeriodByPlanningPeriodIdAndSystemId
 
-        const timeSheetsByDate = projectTeamPlanningPeriod.timeSheetsByDate
-        const timeSpentPercentWithValueAndWithoutValueByDate = projectTeamPlanningPeriod.timeSpentPercentWithValueAndWithoutValueByDate
-        const timeSpentCumsumAtEndPrediction = projectTeamPlanningPeriod.timeSpentCumsumAtEndPrediction
+        const systemName = systemPlanningPeriod.system.name
+        const estimate = systemPlanningPeriod.estimate
+        const effortPerFunctionPoint = systemPlanningPeriod.effortPerFunctionPoint
+        const planningPeriodName = systemPlanningPeriod.planningPeriod.name
+        const planningPeriodStart = systemPlanningPeriod.planningPeriod.start
+        const planningPeriodEnd = systemPlanningPeriod.planningPeriod.end
+        const projectTeams = systemPlanningPeriod.projectTeams
+        const systemChangeRequests = systemPlanningPeriod.systemChangeRequests
+
+        const timeSheetsByDate = systemPlanningPeriod.timeSheetsByDate
+        const timeSpentCumsumAtEndPrediction = 0
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
@@ -73,7 +68,7 @@ class ProjectTeamPlanningPeriodDetail extends Component {
         return (
             <Box>
                 <Typography variant="body" noWrap>
-                    Проектная команда { projectTeamName }
+                    Система { systemName }
                     <br />
                     Период планирования { planningPeriodName } ({ planningPeriodStart }-{ planningPeriodEnd })
                     <br />
@@ -91,20 +86,11 @@ class ProjectTeamPlanningPeriodDetail extends Component {
                     timeSpentCumsumAtEndPrediction={ timeSpentCumsumAtEndPrediction }
                 />
 
-                <ValueByDatePeriodChart
-                    planningPeriodEnd={ planningPeriodEnd }
-                    title="Доля списаний на задачи без бизнес-ценности"
-                    xAxisStart={ xAxisStart }
-                    xAxisEnd={ xAxisEnd }
-                    color="black"
-                    timeSpentPercentWithValueAndWithoutValueByDate={ timeSpentPercentWithValueAndWithoutValueByDate }
-                />
-
                 <Typography variant="body" noWrap>
                     Заявки на доработку
                 </Typography>
                 <ul>
-                    { changeRequests
+                    { systemChangeRequests
                         .slice()
 .                       sort(function(a, b) {
                             if (a.stateCategory.id === 3 && b.stateCategory.id !== 3) {
@@ -119,15 +105,15 @@ class ProjectTeamPlanningPeriodDetail extends Component {
 
                             return b.timeLeft - a.timeLeft
                         })
-                        .map(changeRequest => (
-                            <li key={ changeRequest.id }>
-                                { changeRequest.stateCategory.id !== 3 ? `Осталось ${ Math.round(changeRequest.timeLeft) } ч ` : '' }
-                                { changeRequest.estimate === 0 && changeRequest.stateCategory.id !== 3 ? `Оценка ${ Math.round(changeRequest.estimate) } ч ` : '' }
-                                { changeRequest.hasValue ? '' : 'Нет ценности ' }
+                        .map(systemChangeRequest => (
+                            <li key={ systemChangeRequest.id }>
+                                { systemChangeRequest.stateCategory.id !== 3 ? `Осталось ${ Math.round(systemChangeRequest.timeLeft) } ч ` : '' }
+                                { systemChangeRequest.estimate === 0 && systemChangeRequest.stateCategory.id !== 3 ? `Оценка ${ Math.round(systemChangeRequest.estimate) } ч ` : '' }
+                                { systemChangeRequest.hasValue ? '' : 'Нет ценности ' }
 
-                                <RouterLink style={{ textDecoration: changeRequest.stateCategory.id === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${changeRequest.id}` }>
-                                    { changeRequest.id } &nbsp;
-                                    { changeRequest.name }
+                                <RouterLink style={{ textDecoration: systemChangeRequest.stateCategory.id === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${systemChangeRequest.id}` }>
+                                    { systemChangeRequest.id } &nbsp;
+                                    { systemChangeRequest.name }
                                 </RouterLink>
                             </li>
                         )
@@ -138,6 +124,6 @@ class ProjectTeamPlanningPeriodDetail extends Component {
     }
 }
 
-export default graphql(fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId, {
-    options: (props) => { return { variables: { planningPeriodId: props.match.params.planningPeriodId, projectTeamId: props.match.params.projectTeamId }}}
-})(ProjectTeamPlanningPeriodDetail);
+export default graphql(fetchSystemPlanningPeriodByPlanningPeriodIdAndSystemId, {
+    options: (props) => { return { variables: { planningPeriodId: props.match.params.planningPeriodId, systemId: props.match.params.systemId }}}
+})(SystemPlanningPeriodDetail);

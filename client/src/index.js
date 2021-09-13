@@ -19,6 +19,7 @@ import CapacityAndQueue from "./components/CapacityAndQueue"
 import {Box} from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import { Integrations } from "@sentry/tracing";
+import SystemPlanningPeriodDetail from "./components/SystemPlanningPeriodDetail";
 
 import {
   ApolloClient,
@@ -55,6 +56,7 @@ ReactDOM.render(
                         <Route exact path="/planningPeriods" component={ PlanningPeriodsList } />
                         <Route path="/planningPeriods/:planningPeriodId/dedicatedTeams/:dedicatedTeamId" component={ DedicatedTeamPlanningPeriodDetail } />
                         <Route path="/planningPeriods/:planningPeriodId/projectTeams/:projectTeamId" component={ ProjectTeamPlanningPeriodDetail } />
+                        <Route path="/planningPeriods/:planningPeriodId/systems/:systemId" component={ SystemPlanningPeriodDetail } />
                         <Route path="/planningPeriods/:id" component={ PlanningPeriodDetail } />
                         <Route path="/changeRequests/:id" component={ ChangeRequestDetail } />
                         <Route path="/systemChangeRequests/:id" component={ SystemChangeRequestDetail } />

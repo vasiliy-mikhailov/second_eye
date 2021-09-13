@@ -13,6 +13,7 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
           dedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId(dedicatedTeamId: $dedicatedTeamId, planningPeriodId: $planningPeriodId) {
                 id
                 estimate
+                effortPerFunctionPoint
                 dedicatedTeam {
                     name
                 }
@@ -62,6 +63,7 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
 
         const dedicatedTeamName = dedicatedTeamPlanningPeriod.dedicatedTeam.name
         const estimate = dedicatedTeamPlanningPeriod.estimate
+        const effortPerFunctionPoint = dedicatedTeamPlanningPeriod.effortPerFunctionPoint
         const planningPeriodName = dedicatedTeamPlanningPeriod.planningPeriod.name
         const planningPeriodStart = dedicatedTeamPlanningPeriod.planningPeriod.start
         const planningPeriodEnd = dedicatedTeamPlanningPeriod.planningPeriod.end
@@ -81,6 +83,8 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                     Выделенная команда { dedicatedTeamName }
                     <br />
                     Период планирования { planningPeriodName } ({ planningPeriodStart }-{ planningPeriodEnd })
+                    <br />
+                    Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка
                 </Typography>
 
                 <TimeSheetsByDatePeriodChart
@@ -169,5 +173,5 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
 }
 
 export default graphql(fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId, {
-    options: (props) => { return { variables: { planningPeriodId: props.match.params.planningPeriodId, dedicatedTeamId: props.match.params.dedicatedTeamId }}}
+    options: (props) => { return { variables: { planningPeriodId: props.match.params.planningPeriodId, systemId: props.match.params.dedicatedTeamId }}}
 })(DedicatedTeamPlanningPeriodDetail);

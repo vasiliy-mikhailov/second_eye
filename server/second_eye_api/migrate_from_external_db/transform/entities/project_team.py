@@ -162,7 +162,7 @@ class ProjectTeamPlanningPeriod(cubista.AggregatedTable):
         time_left = cubista.AggregatedTableAggregateField(source="time_left", aggregate_function="sum")
 
         function_points = cubista.AggregatedTableAggregateField(source="function_points", aggregate_function="sum")
-        function_points_effort = cubista.AggregatedTableAggregateField(source="function_points", aggregate_function="sum")
+        function_points_effort = cubista.AggregatedTableAggregateField(source="function_points_effort", aggregate_function="sum")
         effort_per_function_point = cubista.CalculatedField(
             lambda_expression=lambda x: 0 if x["function_points"] == 0 else x["function_points_effort"] / x["function_points"],
             source_fields=["function_points_effort", "function_points"]
