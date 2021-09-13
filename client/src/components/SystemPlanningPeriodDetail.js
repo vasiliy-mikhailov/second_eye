@@ -6,7 +6,6 @@ import {Box, Link} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
 import moment from "moment";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
-import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
 
 const fetchSystemPlanningPeriodByPlanningPeriodIdAndSystemId = gql`
     query SystemPlanningPeriodByPlanningPeriodIdAndSystemId($planningPeriodId: Int!, $systemId: Int!) {
@@ -22,6 +21,36 @@ const fetchSystemPlanningPeriodByPlanningPeriodIdAndSystemId = gql`
                     start
                     end
                 }
+                
+                analysisTimeSheetsByDate {
+                    date
+                    timeSpentCumsum
+                    timeSpentCumsumPrediction
+                }
+                
+                analysisTimeSpentCumsumAtEndPrediction
+                
+                analysisEstimate
+                
+                developmentTimeSheetsByDate {
+                    date
+                    timeSpentCumsum
+                    timeSpentCumsumPrediction
+                }
+                
+                developmentTimeSpentCumsumAtEndPrediction
+                
+                developmentEstimate
+                
+                testingTimeSheetsByDate {
+                    date
+                    timeSpentCumsum
+                    timeSpentCumsumPrediction
+                }
+                
+                testingTimeSpentCumsumAtEndPrediction
+                
+                testingEstimate
 
                 timeSheetsByDate {
                     date
@@ -58,8 +87,19 @@ class SystemPlanningPeriodDetail extends Component {
         const planningPeriodName = systemPlanningPeriod.planningPeriod.name
         const planningPeriodStart = systemPlanningPeriod.planningPeriod.start
         const planningPeriodEnd = systemPlanningPeriod.planningPeriod.end
-        const projectTeams = systemPlanningPeriod.projectTeams
         const systemChangeRequests = systemPlanningPeriod.systemChangeRequests
+
+        const analysisTimeSheetsByDate = systemPlanningPeriod.analysisTimeSheetsByDate
+        const analysisTimeSpentCumsumAtEndPrediction = systemPlanningPeriod.analysisTimeSpentCumsumAtEndPrediction
+        const analysisEstimate = systemPlanningPeriod.analysisEstimate
+
+        const developmentTimeSheetsByDate = systemPlanningPeriod.developmentTimeSheetsByDate
+        const developmentTimeSpentCumsumAtEndPrediction = systemPlanningPeriod.developmentTimeSpentCumsumAtEndPrediction
+        const developmentEstimate = systemPlanningPeriod.developmentEstimate
+
+        const testingTimeSheetsByDate = systemPlanningPeriod.testingTimeSheetsByDate
+        const testingTimeSpentCumsumAtEndPrediction = systemPlanningPeriod.testingTimeSpentCumsumAtEndPrediction
+        const testingEstimate = systemPlanningPeriod.testingEstimate
 
         const timeSheetsByDate = systemPlanningPeriod.timeSheetsByDate
         const timeSpentCumsumAtEndPrediction = systemPlanningPeriod.timeSpentCumsumAtEndPrediction
@@ -86,6 +126,39 @@ class SystemPlanningPeriodDetail extends Component {
                     timeSheetsByDate={ timeSheetsByDate }
                     estimate={ estimate }
                     timeSpentCumsumAtEndPrediction={ timeSpentCumsumAtEndPrediction }
+                />
+
+                <TimeSheetsByDatePeriodChart
+                    planningPeriodEnd={ planningPeriodEnd }
+                    title="Аналитика"
+                    xAxisStart={ xAxisStart }
+                    xAxisEnd={ xAxisEnd }
+                    color="black"
+                    timeSheetsByDate={ analysisTimeSheetsByDate }
+                    estimate={ analysisEstimate }
+                    timeSpentCumsumAtEndPrediction={ analysisTimeSpentCumsumAtEndPrediction }
+                />
+
+                <TimeSheetsByDatePeriodChart
+                    planningPeriodEnd={ planningPeriodEnd }
+                    title="Разработка"
+                    xAxisStart={ xAxisStart }
+                    xAxisEnd={ xAxisEnd }
+                    color="black"
+                    timeSheetsByDate={ developmentTimeSheetsByDate }
+                    estimate={ developmentEstimate }
+                    timeSpentCumsumAtEndPrediction={ developmentTimeSpentCumsumAtEndPrediction }
+                />
+
+                <TimeSheetsByDatePeriodChart
+                    planningPeriodEnd={ planningPeriodEnd }
+                    title="Тестирование"
+                    xAxisStart={ xAxisStart }
+                    xAxisEnd={ xAxisEnd }
+                    color="black"
+                    timeSheetsByDate={ testingTimeSheetsByDate }
+                    estimate={ testingEstimate }
+                    timeSpentCumsumAtEndPrediction={ testingTimeSpentCumsumAtEndPrediction }
                 />
 
                 <Typography variant="body" noWrap>

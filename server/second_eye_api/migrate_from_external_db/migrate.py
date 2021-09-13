@@ -67,5 +67,8 @@ def migrate(get_input_connection):
         SystemChangeRequestTestingTimeSheetsByDate: output_data.system_change_request_testing_time_sheets_by_date,
         SystemPlanningPeriod: output_data.system_planning_periods,
         SystemPlanningPeriodTimeSheetsByDate: output_data.system_planning_period_time_sheets_by_date,
+        SystemPlanningPeriodAnalysisTimeSheetsByDate: output_data.system_planning_period_analysis_time_sheets_by_date,
+        SystemPlanningPeriodDevelopmentTimeSheetsByDate: output_data.system_planning_period_development_time_sheets_by_date,
+        SystemPlanningPeriodTestingTimeSheetsByDate: output_data.system_planning_period_testing_time_sheets_by_date,
         Task: output_data.tasks,
     })

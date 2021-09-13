@@ -216,6 +216,48 @@ def make_system_planning_period_predictions(output_data):
         system_planning_periods=output_data.system_planning_periods
     )
 
+    output_data.system_planning_periods = calculate_system_planning_periods_analysis_time_sheets_by_date_model_by_time_sheets_planning_period_start_and_planning_period_end_and_date_and_time_spent_cumsum(
+        system_planning_periods=output_data.system_planning_periods,
+        system_planning_period_analysis_time_sheets_by_date=output_data.system_planning_period_analysis_time_sheets_by_date
+    )
+
+    calculate_system_planning_period_analysis_time_spent_cumsum_at_end_prediction_by_m_and_b_inplace(
+        system_planning_periods=output_data.system_planning_periods
+    )
+
+    output_data.system_planning_period_analysis_time_sheets_by_date = calculate_system_planning_period_analysis_time_spent_cumsum_prediction_by_system_planning_periods_m_and_b(
+        system_planning_period_analysis_time_sheets_by_date=output_data.system_planning_period_analysis_time_sheets_by_date,
+        system_planning_periods=output_data.system_planning_periods
+    )
+
+    output_data.system_planning_periods = calculate_system_planning_periods_development_time_sheets_by_date_model_by_time_sheets_planning_period_start_and_planning_period_end_and_date_and_time_spent_cumsum(
+        system_planning_periods=output_data.system_planning_periods,
+        system_planning_period_development_time_sheets_by_date=output_data.system_planning_period_development_time_sheets_by_date
+    )
+
+    calculate_system_planning_period_development_time_spent_cumsum_at_end_prediction_by_m_and_b_inplace(
+        system_planning_periods=output_data.system_planning_periods
+    )
+
+    output_data.system_planning_period_development_time_sheets_by_date = calculate_system_planning_period_development_time_spent_cumsum_prediction_by_system_planning_periods_m_and_b(
+        system_planning_period_development_time_sheets_by_date=output_data.system_planning_period_development_time_sheets_by_date,
+        system_planning_periods=output_data.system_planning_periods
+    )
+
+    output_data.system_planning_periods = calculate_system_planning_periods_testing_time_sheets_by_date_model_by_time_sheets_planning_period_start_and_planning_period_end_and_date_and_time_spent_cumsum(
+        system_planning_periods=output_data.system_planning_periods,
+        system_planning_period_testing_time_sheets_by_date=output_data.system_planning_period_testing_time_sheets_by_date
+    )
+
+    calculate_system_planning_period_testing_time_spent_cumsum_at_end_prediction_by_m_and_b_inplace(
+        system_planning_periods=output_data.system_planning_periods
+    )
+
+    output_data.system_planning_period_testing_time_sheets_by_date = calculate_system_planning_period_testing_time_spent_cumsum_prediction_by_system_planning_periods_m_and_b(
+        system_planning_period_testing_time_sheets_by_date=output_data.system_planning_period_testing_time_sheets_by_date,
+        system_planning_periods=output_data.system_planning_periods
+    )
+
 def make_predictions(output_data):
     make_planning_period_predictions(output_data=output_data)
     make_dedicated_team_planning_period_predictions(output_data=output_data)
@@ -259,6 +301,9 @@ class Transformer:
         system_change_request_time_sheet_by_date = entities.SystemChangeRequestTimeSheetByDate()
         system_planning_period = entities.SystemPlanningPeriod()
         system_planning_period_time_sheet_by_date = entities.SystemPlanningPeriodTimeSheetByDate()
+        system_planning_period_analysis_time_sheet_by_date = entities.SystemPlanningPeriodAnalysisTimeSheetByDate()
+        system_planning_period_development_time_sheet_by_date = entities.SystemPlanningPeriodDevelopmentTimeSheetByDate()
+        system_planning_period_testing_time_sheet_by_date = entities.SystemPlanningPeriodTestingTimeSheetByDate()
         task = entities.Task(data_frame=input_data.tasks)
         task_analysis_time_sheet_by_date = entities.TaskAnalysisTimeSheetByDate()
         task_development_time_sheet_by_date = entities.TaskDevelopmentTimeSheetByDate()
@@ -297,6 +342,9 @@ class Transformer:
             system_change_request_time_sheet_by_date,
             system_planning_period,
             system_planning_period_time_sheet_by_date,
+            system_planning_period_analysis_time_sheet_by_date,
+            system_planning_period_development_time_sheet_by_date,
+            system_planning_period_testing_time_sheet_by_date,
             task,
             task_analysis_time_sheet_by_date,
             task_development_time_sheet_by_date,
@@ -338,6 +386,9 @@ class Transformer:
         output_data.system_change_request_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestTimeSheetByDate].data_frame
         output_data.system_planning_periods = data_source.tables[entities.SystemPlanningPeriod].data_frame
         output_data.system_planning_period_time_sheets_by_date = data_source.tables[entities.SystemPlanningPeriodTimeSheetByDate].data_frame
+        output_data.system_planning_period_analysis_time_sheets_by_date = data_source.tables[entities.SystemPlanningPeriodAnalysisTimeSheetByDate].data_frame
+        output_data.system_planning_period_development_time_sheets_by_date = data_source.tables[entities.SystemPlanningPeriodDevelopmentTimeSheetByDate].data_frame
+        output_data.system_planning_period_testing_time_sheets_by_date = data_source.tables[entities.SystemPlanningPeriodTestingTimeSheetByDate].data_frame
         output_data.task_analysis_time_sheets_by_date = data_source.tables[entities.TaskAnalysisTimeSheetByDate].data_frame
         output_data.task_development_time_sheets_by_date = data_source.tables[entities.TaskDevelopmentTimeSheetByDate].data_frame
         output_data.task_testing_time_sheets_by_date = data_source.tables[entities.TaskTestingTimeSheetByDate].data_frame

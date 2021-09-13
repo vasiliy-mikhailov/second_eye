@@ -130,3 +130,132 @@ class SystemPlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
             default=datetime.datetime.date(datetime.datetime.now())
         )
 
+class SystemPlanningPeriodAnalysisTimeSheetByDate(cubista.AggregatedTable):
+    class Aggregation:
+        source = lambda: system_change_request.SystemChangeRequestAnalysisTimeSheetByDate
+        sort_by: [str] = ["date"]
+        group_by: [str] = ["system_id", "system_planning_period_id", "date"]
+        filter = None
+        filter_fields: [str] = []
+
+    class Fields:
+        id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
+
+        system_id = cubista.AggregatedTableGroupField(source="system_id")
+        system_planning_period_id = cubista.AggregatedTableGroupField(source="system_planning_period_id")
+        date = cubista.AggregatedTableGroupField(source="date")
+
+
+        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
+        time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["system_planning_period_id"], sort_by=["date"])
+
+        planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: SystemPlanningPeriod,
+            related_field_names=["system_planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="planning_period_id",
+            default=-1
+        )
+
+        planning_period_start = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="start",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+
+        planning_period_end = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="end",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+
+class SystemPlanningPeriodDevelopmentTimeSheetByDate(cubista.AggregatedTable):
+    class Aggregation:
+        source = lambda: system_change_request.SystemChangeRequestDevelopmentTimeSheetByDate
+        sort_by: [str] = ["date"]
+        group_by: [str] = ["system_id", "system_planning_period_id", "date"]
+        filter = None
+        filter_fields: [str] = []
+
+    class Fields:
+        id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
+
+        system_id = cubista.AggregatedTableGroupField(source="system_id")
+        system_planning_period_id = cubista.AggregatedTableGroupField(source="system_planning_period_id")
+        date = cubista.AggregatedTableGroupField(source="date")
+
+
+        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
+        time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["system_planning_period_id"], sort_by=["date"])
+
+        planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: SystemPlanningPeriod,
+            related_field_names=["system_planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="planning_period_id",
+            default=-1
+        )
+
+        planning_period_start = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="start",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+
+        planning_period_end = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="end",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+
+class SystemPlanningPeriodTestingTimeSheetByDate(cubista.AggregatedTable):
+    class Aggregation:
+        source = lambda: system_change_request.SystemChangeRequestTestingTimeSheetByDate
+        sort_by: [str] = ["date"]
+        group_by: [str] = ["system_id", "system_planning_period_id", "date"]
+        filter = None
+        filter_fields: [str] = []
+
+    class Fields:
+        id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
+
+        system_id = cubista.AggregatedTableGroupField(source="system_id")
+        system_planning_period_id = cubista.AggregatedTableGroupField(source="system_planning_period_id")
+        date = cubista.AggregatedTableGroupField(source="date")
+
+
+        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
+        time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["system_planning_period_id"], sort_by=["date"])
+
+        planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: SystemPlanningPeriod,
+            related_field_names=["system_planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="planning_period_id",
+            default=-1
+        )
+
+        planning_period_start = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="start",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+
+        planning_period_end = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="end",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+

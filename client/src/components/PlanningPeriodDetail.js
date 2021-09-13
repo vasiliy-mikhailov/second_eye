@@ -7,6 +7,7 @@ import {Link as RouterLink} from "react-router-dom";
 import moment from "moment";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
 import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
+import { DataGrid, GridToolbarContainer, GridToolbarExport, } from '@material-ui/data-grid';
 
 const fetchPlanningPeriodById = gql`
     query PlanningPeriodByIdQuery($id: Int!) {
@@ -21,11 +22,13 @@ const fetchPlanningPeriodById = gql`
             dedicatedTeams {
                 id
                 name
+                effortPerFunctionPoint
             }
             
             systems {
                 id
                 name
+                effortPerFunctionPoint
             }
             
             timeSpentPercentWithValueAndWithoutValueByDate {
@@ -50,6 +53,7 @@ const fetchPlanningPeriodById = gql`
                 name
                 
                 stateCategoryId
+                effortPerFunctionPoint
             }
         }
     }
@@ -76,6 +80,129 @@ class PlanningPeriodDetail extends Component {
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
+
+        const dedicatedTeamsTableContents = dedicatedTeams.slice()
+            .sort((a, b) => ((a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0)))
+            .map(dedicatedTeam => (
+                    {
+                        id: dedicatedTeam.id,
+                        name: dedicatedTeam.name,
+                        effortPerFunctionPoint: dedicatedTeam.effortPerFunctionPoint
+                    }
+            ))
+
+        const dedicatedTeamsTableColumns = [
+            {
+                field: 'name',
+                headerName: 'Название',
+                flex: 1,
+                renderCell: (params) => (
+                    <RouterLink to={ `/planningPeriods/${planningPeriodId}/dedicatedTeams/${ params.getValue(params.id, 'id') }` }>
+                        { params.getValue(params.id, 'name') }
+                    </RouterLink>
+                ),
+            },
+            {
+                field: 'effortPerFunctionPoint',
+                headerName: 'Затраты на ф.т.',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}),
+            },
+        ];
+
+        const systemsTableContents = systems.slice()
+            .sort((a, b) => ((a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0)))
+            .map(system => (
+                    {
+                        id: system.id,
+                        name: system.name,
+                        effortPerFunctionPoint: system.effortPerFunctionPoint
+                    }
+            ))
+
+        const systemsTableColumns = [
+            {
+                field: 'name',
+                headerName: 'Название',
+                flex: 1,
+                renderCell: (params) => (
+                    <RouterLink to={ `/planningPeriods/${planningPeriodId}/systems/${ params.getValue(params.id, 'id') }` }>
+                        { params.getValue(params.id, 'name') }
+                    </RouterLink>
+                ),
+            },
+            {
+                field: 'effortPerFunctionPoint',
+                headerName: 'Затраты на ф.т.',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}),
+            },
+        ];
+
+        const changeRequestsTableContents = changeRequests.slice()
+            .sort((a, b) =>  (
+                (a.stateCategoryId === 3 && b.stateCategoryId !== 3) ? 1 : (
+                    (a.stateCategoryId === 3 && b.stateCategoryId === 3) ? 0 : (
+                        (a.stateCategoryId !== 3 && b.stateCategoryId === 3) ? -1 : (
+                            b.timeLeft - a.timeLeft
+                        )
+                    )
+                )
+            ))
+            .map(changeRequest => (
+                    {
+                        id: changeRequest.id,
+                        name: changeRequest.name,
+                        hasValue: changeRequest.hasValue,
+                        estimate: changeRequest.estimate,
+                        timeLeft: changeRequest.timeLeft,
+                        stateCategoryId: changeRequest.stateCategoryId,
+                        effortPerFunctionPoint: changeRequest.effortPerFunctionPoint
+                    }
+            ))
+
+        const changeRequestsTableColumns = [
+            {
+                field: 'name',
+                headerName: 'Название',
+                flex: 1,
+                renderCell: (params) => (
+                    <RouterLink style={{ textDecoration: params.getValue(params.id, 'stateCategoryId') === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${ params.getValue(params.id, 'id') }` }>
+                        { params.getValue(params.id, 'id') } &nbsp;
+                        { params.getValue(params.id, 'name') }
+                    </RouterLink>
+                ),
+            },
+            {
+                field: 'hasValue',
+                headerName: 'Есть ценность',
+                width: 200,
+                valueFormatter: ({ value }) => value ? "Да" : "Нет",
+            },
+            {
+                field: 'estimate',
+                headerName: 'Оценка (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+            },
+            {
+                field: 'timeLeft',
+                headerName: 'Осталось (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+            },
+            {
+                field: 'effortPerFunctionPoint',
+                headerName: 'Затраты на ф.т.',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}),
+            },
+        ];
 
         return (
             <Box>
@@ -104,95 +231,48 @@ class PlanningPeriodDetail extends Component {
                     timeSpentPercentWithValueAndWithoutValueByDate={ timeSpentPercentWithValueAndWithoutValueByDate }
                 />
 
-                <Typography variant="body1" noWrap>
+                <br />
+
+                <Typography variant="h6" noWrap>
                     Выделенные команды
                 </Typography>
 
-               <ul>
-                    { dedicatedTeams
-                        .slice()
-                        .sort(function(a, b) {
-                            if (a.name > b.name) {
-                                return 1;
-                            }
-                            if (a.name === b.name) {
-                                return 0;
-                            }
-                            if (a.name < b.name) {
-                                return -1;
-                            }
-                        })
-                        .map(dedicatedTeam => (
-                            <li key={ dedicatedTeam.id }>
-                                <RouterLink to={ `/planningPeriods/${planningPeriodId}/dedicatedTeams/${dedicatedTeam.id}` }>
-                                { dedicatedTeam.name }
-                                </RouterLink>
-                            </li>
-                        )
-                    )}
-                </ul>
+                <div style={{ height: 1200, width: '100%' }}>
+                    <DataGrid
+                        rows={ dedicatedTeamsTableContents }
+                        columns={ dedicatedTeamsTableColumns }
+                        pagination
+                        autoPageSize
+                    />
+                </div>
 
-                <Typography variant="body1" noWrap>
+                <br />
+
+                <Typography variant="h6" noWrap>
                     Системы
                 </Typography>
+                <div style={{ height: 2400, width: '100%' }}>
+                    <DataGrid
+                        rows={ systemsTableContents }
+                        columns={ systemsTableColumns }
+                        pagination
+                        autoPageSize
+                    />
+                </div>
 
-               <ul>
-                    { systems
-                        .slice()
-                        .sort(function(a, b) {
-                            if (a.name > b.name) {
-                                return 1;
-                            }
-                            if (a.name === b.name) {
-                                return 0;
-                            }
-                            if (a.name < b.name) {
-                                return -1;
-                            }
-                        })
-                        .map(system => (
-                            <li key={ system.id }>
-                                <RouterLink to={ `/planningPeriods/${planningPeriodId}/systems/${system.id}` }>
-                                { system.name }
-                                </RouterLink>
-                            </li>
-                        )
-                    )}
-                </ul>
+                <br />
 
-                <Typography variant="body1" noWrap>
-                    Заявки на доработку
+                <Typography variant="h6" noWrap>
+                    Заявки на доработку ПО
                 </Typography>
-               <ul>
-                    { changeRequests
-                        .slice()
-.                       sort(function(a, b) {
-                            if (a.stateCategoryId === 3 && b.stateCategoryId !== 3) {
-                                return 1;
-                            }
-                            if (a.stateCategoryId === 3 && b.stateCategoryId === 3) {
-                                return 0;
-                            }
-                            if (a.stateCategoryId !== 3 && b.stateCategoryId === 3) {
-                                return -1;
-                            }
-
-                            return b.timeLeft - a.timeLeft
-                        })
-                        .map(changeRequest => (
-                            <li key={ changeRequest.id }>
-                                { changeRequest.stateCategoryId !== 3 ? `Осталось ${ Math.round(changeRequest.timeLeft) } ч ` : '' }
-                                { changeRequest.estimate === 0 && changeRequest.stateCategoryId !== 3 ? `Оценка ${ Math.round(changeRequest.estimate) } ч ` : '' }
-                                { changeRequest.hasValue ? '' : 'Нет ценности ' }
-
-                                <RouterLink style={{ textDecoration: changeRequest.stateCategoryId === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${changeRequest.id}` }>
-                                    { changeRequest.id } &nbsp;
-                                    { changeRequest.name }
-                                </RouterLink>
-                            </li>
-                        )
-                    )}
-                </ul>
+                <div style={{ height: 4800, width: '100%' }}>
+                    <DataGrid
+                        rows={ changeRequestsTableContents }
+                        columns={ changeRequestsTableColumns }
+                        pagination
+                        autoPageSize
+                    />
+                </div>
             </Box>
         );
     }

@@ -27,9 +27,22 @@ class SystemPlanningPeriod(graphene_frame.DataFrameObjectType):
         time_sheets_by_date = graphene_frame.List(to_entity=lambda: SystemPlanningPeriodTimeSheetsByDate, to_field="system_planning_period_id")
         time_spent_cumsum_at_end_prediction = graphene_frame.Float()
 
+        analysis_time_sheets_by_date = graphene_frame.List(to_entity=lambda: SystemPlanningPeriodAnalysisTimeSheetsByDate, to_field="system_planning_period_id")
+        analysis_time_spent_cumsum_at_end_prediction = graphene_frame.Float()
+
+        development_time_sheets_by_date = graphene_frame.List(to_entity=lambda: SystemPlanningPeriodDevelopmentTimeSheetsByDate, to_field="system_planning_period_id")
+        development_time_spent_cumsum_at_end_prediction = graphene_frame.Float()
+
+        testing_time_sheets_by_date = graphene_frame.List(to_entity=lambda: SystemPlanningPeriodTestingTimeSheetsByDate, to_field="system_planning_period_id")
+        testing_time_spent_cumsum_at_end_prediction = graphene_frame.Float()
+
         estimate = graphene_frame.Float()
         time_spent = graphene_frame.Float()
         time_left = graphene_frame.Float()
+
+        analysis_estimate = graphene_frame.Float()
+        development_estimate = graphene_frame.Float()
+        testing_estimate = graphene_frame.Float()
 
         function_points = graphene_frame.Float()
         function_points_effort = graphene_frame.Float()
@@ -44,5 +57,41 @@ class SystemPlanningPeriodTimeSheetsByDate(graphene_frame.DataFrameObjectType):
         time_spent_cumsum = graphene_frame.Float()
         time_spent_cumsum_prediction = graphene_frame.Float()
 
-        planning_period = graphene_frame.Field(to_entity=lambda: project_team.ProjectTeamPlanningPeriod)
+        planning_period = graphene_frame.Field(to_entity=lambda: planning_period.PlanningPeriod)
+        system = graphene_frame.Field(to_entity=lambda: System)
+
+class SystemPlanningPeriodAnalysisTimeSheetsByDate(graphene_frame.DataFrameObjectType):
+    class Fields:
+        id = graphene_frame.PrimaryKey(graphene_frame.Int())
+        date = graphene_frame.Date()
+
+        time_spent = graphene_frame.Float()
+        time_spent_cumsum = graphene_frame.Float()
+        time_spent_cumsum_prediction = graphene_frame.Float()
+
+        planning_period = graphene_frame.Field(to_entity=lambda: planning_period.PlanningPeriod)
+        system = graphene_frame.Field(to_entity=lambda: System)
+
+class SystemPlanningPeriodDevelopmentTimeSheetsByDate(graphene_frame.DataFrameObjectType):
+    class Fields:
+        id = graphene_frame.PrimaryKey(graphene_frame.Int())
+        date = graphene_frame.Date()
+
+        time_spent = graphene_frame.Float()
+        time_spent_cumsum = graphene_frame.Float()
+        time_spent_cumsum_prediction = graphene_frame.Float()
+
+        planning_period = graphene_frame.Field(to_entity=lambda: planning_period.PlanningPeriod)
+        system = graphene_frame.Field(to_entity=lambda: System)
+
+class SystemPlanningPeriodTestingTimeSheetsByDate(graphene_frame.DataFrameObjectType):
+    class Fields:
+        id = graphene_frame.PrimaryKey(graphene_frame.Int())
+        date = graphene_frame.Date()
+
+        time_spent = graphene_frame.Float()
+        time_spent_cumsum = graphene_frame.Float()
+        time_spent_cumsum_prediction = graphene_frame.Float()
+
+        planning_period = graphene_frame.Field(to_entity=lambda: planning_period.PlanningPeriod)
         system = graphene_frame.Field(to_entity=lambda: System)

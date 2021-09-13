@@ -275,6 +275,16 @@ class SystemChangeRequestAnalysisTimeSheetByDate(cubista.AggregatedTable):
             related_field_name="system_change_request_id",
             pulled_field_name="change_request_id"
         )
+        system_id = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: SystemChangeRequest,
+            related_field_name="system_change_request_id",
+            pulled_field_name="system_id"
+        )
+        system_planning_period_id = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: SystemChangeRequest,
+            related_field_name="system_change_request_id",
+            pulled_field_name="system_planning_period_id"
+        )
 
 class SystemChangeRequestDevelopmentTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
@@ -295,6 +305,16 @@ class SystemChangeRequestDevelopmentTimeSheetByDate(cubista.AggregatedTable):
             related_field_name="system_change_request_id",
             pulled_field_name="change_request_id"
         )
+        system_id = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: SystemChangeRequest,
+            related_field_name="system_change_request_id",
+            pulled_field_name="system_id"
+        )
+        system_planning_period_id = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: SystemChangeRequest,
+            related_field_name="system_change_request_id",
+            pulled_field_name="system_planning_period_id"
+        )
 
 class SystemChangeRequestTestingTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
@@ -314,4 +334,14 @@ class SystemChangeRequestTestingTimeSheetByDate(cubista.AggregatedTable):
             foreign_table=lambda: SystemChangeRequest,
             related_field_name="system_change_request_id",
             pulled_field_name="change_request_id"
+        )
+        system_id = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: SystemChangeRequest,
+            related_field_name="system_change_request_id",
+            pulled_field_name="system_id"
+        )
+        system_planning_period_id = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: SystemChangeRequest,
+            related_field_name="system_change_request_id",
+            pulled_field_name="system_planning_period_id"
         )
