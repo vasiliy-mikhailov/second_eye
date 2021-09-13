@@ -297,7 +297,7 @@ class Transformer:
         output_data.change_request_time_sheets_by_date = data_source.tables[entities.ChangeRequestTimeSheetByDate].data_frame
         output_data.companies = data_source.tables[entities.Company].data_frame
         output_data.dedicated_team_planning_periods = data_source.tables[entities.DedicatedTeamPlanningPeriod].data_frame
-        output_data.dedicated_team_planning_period_time_sheets_by_date = data_source.tables[entities.DedicatedTeamPlanningperiodTimeSheetByDate].data_frame,
+        output_data.dedicated_team_planning_period_time_sheets_by_date = data_source.tables[entities.DedicatedTeamPlanningperiodTimeSheetByDate].data_frame
         output_data.dedicated_team_positions = data_source.tables[entities.DedicatedTeamPosition].data_frame
         output_data.dedicated_teams = data_source.tables[entities.DedicatedTeam].data_frame
         output_data.function_components = data_source.tables[entities.FunctionComponent].data_frame

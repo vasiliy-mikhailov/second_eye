@@ -214,9 +214,9 @@ class ProjectTeamPlanningperiodTimeSheetByDate(cubista.AggregatedTable):
         )
 
         planning_period_id = cubista.PullByRelatedField(
-            foreign_table=lambda: change_request.ChangeRequest,
+            foreign_table=lambda: project_team.ProjectTeamPlanningPeriod,
             related_field_names=["project_team_planning_period_id"],
-            foreign_field_names=["project_team_planning_period_id"],
+            foreign_field_names=["id"],
             pulled_field_name="planning_period_id",
             default=-1
         )

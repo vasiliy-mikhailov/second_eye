@@ -4,6 +4,7 @@ from . import person
 from . import project_team
 from . import planning_period
 from . import function_component
+from . import change_request
 import datetime
 
 class DedicatedTeam(cubista.Table):
@@ -183,16 +184,16 @@ class DedicatedTeamPlanningperiodTimeSheetByDate(cubista.AggregatedTable):
     class Fields:
         id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
 
-        dedicated_team_team_planning_period_id = cubista.AggregatedTableGroupField(source="dedicated_team_planning_period_id")
+        dedicated_team_planning_period_id = cubista.AggregatedTableGroupField(source="dedicated_team_planning_period_id")
         date = cubista.AggregatedTableGroupField(source="date")
 
         time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
         time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["dedicated_team_planning_period_id"], sort_by=["date"])
 
         planning_period_id = cubista.PullByRelatedField(
-            foreign_table=lambda: change_request.ChangeRequest,
+            foreign_table=lambda: DedicatedTeamPlanningPeriod,
             related_field_names=["dedicated_team_planning_period_id"],
-            foreign_field_names=["dedicated_team_planning_period_id"],
+            foreign_field_names=["id"],
             pulled_field_name="planning_period_id",
             default=-1
         )
