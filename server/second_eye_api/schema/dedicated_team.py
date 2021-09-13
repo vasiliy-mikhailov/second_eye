@@ -52,6 +52,8 @@ class DedicatedTeamPlanningPeriod(graphene_frame.DataFrameObjectType):
             through_field="dedicated_team_planning_period_id"
         )
 
+        project_team_planning_periods = graphene_frame.List(to_entity=lambda: project_team.ProjectTeamPlanningPeriod, to_field="dedicated_team_planning_period_id")
+
         change_requests = graphene_frame.List(to_entity=lambda: change_request.ChangeRequest, to_field="dedicated_team_planning_period_id")
 
         time_sheets_by_date = graphene_frame.List(to_entity=lambda: DedicatedTeamPlanningPeriodTimeSheetsByDate, to_field="dedicated_team_planning_period_id")

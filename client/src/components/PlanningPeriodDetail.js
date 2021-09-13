@@ -19,15 +19,21 @@ const fetchPlanningPeriodById = gql`
             estimate
             effortPerFunctionPoint
             
-            dedicatedTeams {
+            dedicatedTeamPlanningPeriods {
                 id
-                name
+                dedicatedTeam {
+                    id
+                    name
+                }
                 effortPerFunctionPoint
             }
             
-            systems {
+            systemPlanningPeriods {
                 id
-                name
+                system {
+                    id
+                    name
+                }
                 effortPerFunctionPoint
             }
             
@@ -44,17 +50,6 @@ const fetchPlanningPeriodById = gql`
             }
             
             timeSpentCumsumAtEndPrediction
-            
-            changeRequests {
-                id
-                estimate
-                timeLeft
-                hasValue
-                name
-                
-                stateCategoryId
-                effortPerFunctionPoint
-            }
         }
     }
 `;
@@ -70,9 +65,8 @@ class PlanningPeriodDetail extends Component {
         const planningPeriodStart = planningPeriod.start
         const planningPeriodEnd = planningPeriod.end
 
-        const dedicatedTeams = planningPeriod.dedicatedTeams
-        const systems = planningPeriod.systems
-        const changeRequests = planningPeriod.changeRequests
+        const dedicatedTeamPlanningPeriods = planningPeriod.dedicatedTeamPlanningPeriods
+        const systemPlanningPeriods = planningPeriod.systemPlanningPeriods
 
         const timeSheetsByDate = planningPeriod.timeSheetsByDate
         const timeSpentPercentWithValueAndWithoutValueByDate = planningPeriod.timeSpentPercentWithValueAndWithoutValueByDate
@@ -81,24 +75,25 @@ class PlanningPeriodDetail extends Component {
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
 
-        const dedicatedTeamsTableContents = dedicatedTeams.slice()
-            .sort((a, b) => ((a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0)))
-            .map(dedicatedTeam => (
+        const dedicatedTeamsTableContents = dedicatedTeamPlanningPeriods.slice()
+            .sort((a, b) => ((a.dedicatedTeam.name > b.dedicatedTeam.name) ? 1 : ((a.dedicatedTeam.name < b.dedicatedTeam.name) ? -1 : 0)))
+            .map(dedicatedTeamPlanningPeriod => (
                     {
-                        id: dedicatedTeam.id,
-                        name: dedicatedTeam.name,
-                        effortPerFunctionPoint: dedicatedTeam.effortPerFunctionPoint
+                        id: dedicatedTeamPlanningPeriod.id,
+                        dedicatedTeamId: dedicatedTeamPlanningPeriod.dedicatedTeam.id,
+                        dedicatedTeamName: dedicatedTeamPlanningPeriod.dedicatedTeam.name,
+                        effortPerFunctionPoint: dedicatedTeamPlanningPeriod.effortPerFunctionPoint
                     }
             ))
 
         const dedicatedTeamsTableColumns = [
             {
-                field: 'name',
+                field: 'dedicatedTeamName',
                 headerName: 'Название',
                 flex: 1,
                 renderCell: (params) => (
-                    <RouterLink to={ `/planningPeriods/${planningPeriodId}/dedicatedTeams/${ params.getValue(params.id, 'id') }` }>
-                        { params.getValue(params.id, 'name') }
+                    <RouterLink to={ `/planningPeriods/${planningPeriodId}/dedicatedTeams/${ params.getValue(params.id, 'dedicatedTeamId') }` }>
+                        { params.getValue(params.id, 'dedicatedTeamName') }
                     </RouterLink>
                 ),
             },
@@ -111,89 +106,27 @@ class PlanningPeriodDetail extends Component {
             },
         ];
 
-        const systemsTableContents = systems.slice()
-            .sort((a, b) => ((a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0)))
-            .map(system => (
+        const systemsTableContents = systemPlanningPeriods.slice()
+            .sort((a, b) => ((a.system.name > b.system.name) ? 1 : ((a.system.name < b.system.name) ? -1 : 0)))
+            .map(systemPlanningPeriod => (
                     {
-                        id: system.id,
-                        name: system.name,
-                        effortPerFunctionPoint: system.effortPerFunctionPoint
+                        id: systemPlanningPeriod.id,
+                        systemId: systemPlanningPeriod.system.id,
+                        systemName: systemPlanningPeriod.system.name,
+                        effortPerFunctionPoint: systemPlanningPeriod.effortPerFunctionPoint
                     }
             ))
 
         const systemsTableColumns = [
             {
-                field: 'name',
+                field: 'systemName',
                 headerName: 'Название',
                 flex: 1,
                 renderCell: (params) => (
-                    <RouterLink to={ `/planningPeriods/${planningPeriodId}/systems/${ params.getValue(params.id, 'id') }` }>
-                        { params.getValue(params.id, 'name') }
+                    <RouterLink to={ `/planningPeriods/${planningPeriodId}/systems/${ params.getValue(params.id, 'systemId') }` }>
+                        { params.getValue(params.id, 'systemName') }
                     </RouterLink>
                 ),
-            },
-            {
-                field: 'effortPerFunctionPoint',
-                headerName: 'Затраты на ф.т.',
-                width: 200,
-                align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}),
-            },
-        ];
-
-        const changeRequestsTableContents = changeRequests.slice()
-            .sort((a, b) =>  (
-                (a.stateCategoryId === 3 && b.stateCategoryId !== 3) ? 1 : (
-                    (a.stateCategoryId === 3 && b.stateCategoryId === 3) ? 0 : (
-                        (a.stateCategoryId !== 3 && b.stateCategoryId === 3) ? -1 : (
-                            b.timeLeft - a.timeLeft
-                        )
-                    )
-                )
-            ))
-            .map(changeRequest => (
-                    {
-                        id: changeRequest.id,
-                        name: changeRequest.name,
-                        hasValue: changeRequest.hasValue,
-                        estimate: changeRequest.estimate,
-                        timeLeft: changeRequest.timeLeft,
-                        stateCategoryId: changeRequest.stateCategoryId,
-                        effortPerFunctionPoint: changeRequest.effortPerFunctionPoint
-                    }
-            ))
-
-        const changeRequestsTableColumns = [
-            {
-                field: 'name',
-                headerName: 'Название',
-                flex: 1,
-                renderCell: (params) => (
-                    <RouterLink style={{ textDecoration: params.getValue(params.id, 'stateCategoryId') === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${ params.getValue(params.id, 'id') }` }>
-                        { params.getValue(params.id, 'id') } &nbsp;
-                        { params.getValue(params.id, 'name') }
-                    </RouterLink>
-                ),
-            },
-            {
-                field: 'hasValue',
-                headerName: 'Есть ценность',
-                width: 200,
-                valueFormatter: ({ value }) => value ? "Да" : "Нет",
-            },
-            {
-                field: 'estimate',
-                headerName: 'Оценка (ч)',
-                width: 200,
-                align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
-            },
-            {
-                field: 'timeLeft',
-                headerName: 'Осталось (ч)',
-                width: 200,
-                align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
             },
             {
                 field: 'effortPerFunctionPoint',
@@ -255,20 +188,6 @@ class PlanningPeriodDetail extends Component {
                     <DataGrid
                         rows={ systemsTableContents }
                         columns={ systemsTableColumns }
-                        pagination
-                        autoPageSize
-                    />
-                </div>
-
-                <br />
-
-                <Typography variant="h6" noWrap>
-                    Заявки на доработку ПО
-                </Typography>
-                <div style={{ height: 4800, width: '100%' }}>
-                    <DataGrid
-                        rows={ changeRequestsTableContents }
-                        columns={ changeRequestsTableColumns }
                         pagination
                         autoPageSize
                     />

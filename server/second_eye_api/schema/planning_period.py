@@ -26,12 +26,16 @@ class PlanningPeriod(graphene_frame.DataFrameObjectType):
             through_field="planning_period_id"
         )
 
+        dedicated_team_planning_periods = graphene_frame.List(to_entity=lambda: dedicated_team.DedicatedTeamPlanningPeriod, to_field="planning_period_id")
+
         systems = graphene_frame.ManyToMany(
             to_entity=lambda: system.System,
             to_field="system_id",
             through_entity=lambda: system.SystemPlanningPeriod,
             through_field="planning_period_id"
         )
+
+        system_planning_periods = graphene_frame.List(to_entity=lambda: system.SystemPlanningPeriod, to_field="planning_period_id")
 
         estimate = graphene_frame.Float()
         time_spent = graphene_frame.Float()

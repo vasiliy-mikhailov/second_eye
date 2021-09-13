@@ -36,9 +36,12 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                     
                     timeSpentCumsumAtEndPrediction
                     
-                    projectTeams {
+                    projectTeamPlanningPeriods {
                         id
-                        name
+                        projectTeam {
+                            id
+                            name
+                        }
                         timeLeft
                         effortPerFunctionPoint
                     }
@@ -49,9 +52,7 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                         timeLeft
                         hasValue
                         name
-                        stateCategory {
-                            id
-                        }
+                        stateCategoryId
                         effortPerFunctionPoint
                     }
               }
@@ -71,7 +72,7 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
         const planningPeriodName = dedicatedTeamPlanningPeriod.planningPeriod.name
         const planningPeriodStart = dedicatedTeamPlanningPeriod.planningPeriod.start
         const planningPeriodEnd = dedicatedTeamPlanningPeriod.planningPeriod.end
-        const projectTeams = dedicatedTeamPlanningPeriod.projectTeams
+        const projectTeamPlanningPeriods = dedicatedTeamPlanningPeriod.projectTeamPlanningPeriods
         const changeRequests = dedicatedTeamPlanningPeriod.changeRequests
 
         const timeSheetsByDate = dedicatedTeamPlanningPeriod.timeSheetsByDate
@@ -81,24 +82,25 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
 
-        const projectTeamsTableContents = projectTeams.slice()
+        const projectTeamsTableContents = projectTeamPlanningPeriods.slice()
             .sort((a, b) => ((a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0)))
-            .map(projectTeam => (
+            .map(projectTeamPlanningPeriod => (
                     {
-                        id: projectTeam.id,
-                        name: projectTeam.name,
-                        effortPerFunctionPoint: projectTeam.effortPerFunctionPoint
+                        id: projectTeamPlanningPeriod.id,
+                        projectTeamId: projectTeamPlanningPeriod.projectTeam.id,
+                        projectTeamName: projectTeamPlanningPeriod.projectTeam.name,
+                        effortPerFunctionPoint: projectTeamPlanningPeriod.effortPerFunctionPoint
                     }
             ))
 
         const projectTeamsTableColumns = [
             {
-                field: 'name',
+                field: 'projectTeamName',
                 headerName: 'Название',
                 flex: 1,
                 renderCell: (params) => (
-                    <RouterLink to={ `/planningPeriods/${planningPeriodId}/projectTeams/${ params.getValue(params.id, 'id') }` }>
-                        { params.getValue(params.id, 'name') }
+                    <RouterLink to={ `/planningPeriods/${planningPeriodId}/projectTeams/${ params.getValue(params.id, 'projectTeamId') }` }>
+                        { params.getValue(params.id, 'projectTeamName') }
                     </RouterLink>
                 ),
             },

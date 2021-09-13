@@ -20,6 +20,7 @@ class SystemChangeRequest(graphene_frame.DataFrameObjectType):
 
         has_value = graphene_frame.Boolean()
 
+        state_category_id = graphene_frame.Int()
         state_category = graphene_frame.Field(to_entity=lambda: state_category.StateCategory)
 
         dedicated_team = graphene_frame.Field(to_entity=lambda: dedicated_team.DedicatedTeam)

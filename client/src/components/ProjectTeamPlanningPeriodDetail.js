@@ -7,6 +7,7 @@ import {Link as RouterLink} from "react-router-dom";
 import moment from "moment";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
 import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
+import {DataGrid} from "@material-ui/data-grid";
 
 const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
     query ProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId($planningPeriodId: Int!, $projectTeamId: Int!) {
@@ -42,9 +43,8 @@ const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
                     timeLeft
                     hasValue
                     name
-                    stateCategory {
-                        id
-                    }
+                    stateCategoryId
+                    effortPerFunctionPoint
                 }
           }
     }
@@ -69,6 +69,69 @@ class ProjectTeamPlanningPeriodDetail extends Component {
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
+
+        const changeRequestsTableContents = changeRequests.slice()
+            .sort((a, b) =>  (
+                (a.stateCategoryId === 3 && b.stateCategoryId !== 3) ? 1 : (
+                    (a.stateCategoryId === 3 && b.stateCategoryId === 3) ? 0 : (
+                        (a.stateCategoryId !== 3 && b.stateCategoryId === 3) ? -1 : (
+                            b.timeLeft - a.timeLeft
+                        )
+                    )
+                )
+            ))
+            .map(changeRequest => (
+                    {
+                        id: changeRequest.id,
+                        name: changeRequest.name,
+                        hasValue: changeRequest.hasValue,
+                        estimate: changeRequest.estimate,
+                        timeLeft: changeRequest.timeLeft,
+                        stateCategoryId: changeRequest.stateCategoryId,
+                        effortPerFunctionPoint: changeRequest.effortPerFunctionPoint
+                    }
+            ))
+
+        const changeRequestsTableColumns = [
+            {
+                field: 'name',
+                headerName: 'Название',
+                flex: 1,
+                renderCell: (params) => (
+                    <RouterLink style={{ textDecoration: params.getValue(params.id, 'stateCategoryId') === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${ params.getValue(params.id, 'id') }` }>
+                        { params.getValue(params.id, 'id') } &nbsp;
+                        { params.getValue(params.id, 'name') }
+                    </RouterLink>
+                ),
+            },
+            {
+                field: 'hasValue',
+                headerName: 'Есть ценность',
+                width: 200,
+                valueFormatter: ({ value }) => value ? "Да" : "Нет",
+            },
+            {
+                field: 'estimate',
+                headerName: 'Оценка (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+            },
+            {
+                field: 'timeLeft',
+                headerName: 'Осталось (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+            },
+            {
+                field: 'effortPerFunctionPoint',
+                headerName: 'Затраты на ф.т.',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}) ,
+            },
+        ];
 
         return (
             <Box>
@@ -100,39 +163,17 @@ class ProjectTeamPlanningPeriodDetail extends Component {
                     timeSpentPercentWithValueAndWithoutValueByDate={ timeSpentPercentWithValueAndWithoutValueByDate }
                 />
 
-                <Typography variant="body" noWrap>
-                    Заявки на доработку
+               <Typography variant="h6" noWrap>
+                    Заявки на доработку ПО
                 </Typography>
-                <ul>
-                    { changeRequests
-                        .slice()
-.                       sort(function(a, b) {
-                            if (a.stateCategory.id === 3 && b.stateCategory.id !== 3) {
-                                return 1;
-                            }
-                            if (a.stateCategory.id === 3 && b.stateCategory.id === 3) {
-                                return 0;
-                            }
-                            if (a.stateCategory.id !== 3 && b.stateCategory.id === 3) {
-                                return -1;
-                            }
-
-                            return b.timeLeft - a.timeLeft
-                        })
-                        .map(changeRequest => (
-                            <li key={ changeRequest.id }>
-                                { changeRequest.stateCategory.id !== 3 ? `Осталось ${ Math.round(changeRequest.timeLeft) } ч ` : '' }
-                                { changeRequest.estimate === 0 && changeRequest.stateCategory.id !== 3 ? `Оценка ${ Math.round(changeRequest.estimate) } ч ` : '' }
-                                { changeRequest.hasValue ? '' : 'Нет ценности ' }
-
-                                <RouterLink style={{ textDecoration: changeRequest.stateCategory.id === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${changeRequest.id}` }>
-                                    { changeRequest.id } &nbsp;
-                                    { changeRequest.name }
-                                </RouterLink>
-                            </li>
-                        )
-                    )}
-                 </ul>
+                <div style={{ height: 1200, width: '100%' }}>
+                    <DataGrid
+                        rows={ changeRequestsTableContents }
+                        columns={ changeRequestsTableColumns }
+                        pagination
+                        autoPageSize
+                    />
+                </div>
             </Box>
         );
     }
