@@ -40,6 +40,7 @@ const fetchSystemChangeRequest = gql`
             }
             
             estimate
+            effortPerFunctionPoint
             timeSpent
             timeLeft
             timeSheetsByDate {
@@ -63,6 +64,7 @@ class SystemChangeRequestDetail extends Component {
         const plannedInstallDate = changeRequest.plannedInstallDate ? new Date(changeRequest.plannedInstallDate).getTime() : null
         const timeSheetsByDate = systemChangeRequest.timeSheetsByDate
         const estimate = systemChangeRequest.estimate
+        const effortPerFunctionPoint = systemChangeRequest.effortPerFunctionPoint
 
         const analysisTimeSheetsByDate = systemChangeRequest.analysisTimeSheetsByDate
         const analysisEstimate = systemChangeRequest.analysisEstimate
@@ -108,6 +110,7 @@ class SystemChangeRequestDetail extends Component {
                     Осталось { Math.round(systemChangeRequest.timeLeft) } ч ( { (systemChangeRequest.timeLeft / systemChangeRequest.estimate * 100).toFixed(2) }% ) <br />
                     Сделано { Math.round(systemChangeRequest.timeSpent) } ч <br />
                     Оценка { Math.round(systemChangeRequest.estimate) } ч <br />
+                    Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка
                 </Typography>
                 <br />
 

@@ -1,6 +1,7 @@
 import cubista
 from . import planning_period
 from . import system_change_request
+import datetime
 
 class System(cubista.Table):
     SYSTEMS_WITHOUT_FUNCTION_POINTS = [
@@ -104,3 +105,28 @@ class SystemPlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
 
         time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
         time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["system_planning_period_id"], sort_by=["date"])
+
+        planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: SystemPlanningPeriod,
+            related_field_names=["system_planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="planning_period_id",
+            default=-1
+        )
+
+        planning_period_start = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="start",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+
+        planning_period_end = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="end",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+

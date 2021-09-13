@@ -42,6 +42,7 @@ const fetchChangeRequest = gql`
             }
             
             estimate
+            effortPerFunctionPoint
             timeSpent
             timeLeft
             timeSheetsByDate {
@@ -77,6 +78,7 @@ class ChangeRequestDetail extends Component {
         const plannedInstallDate = changeRequest.plannedInstallDate ? new Date(changeRequest.plannedInstallDate).getTime() : null
         const timeSheetsByDate = changeRequest.timeSheetsByDate
         const estimate = changeRequest.estimate
+        const effortPerFunctionPoint = changeRequest.effortPerFunctionPoint
 
         const analysisTimeSheetsByDate = changeRequest.analysisTimeSheetsByDate
         const analysisEstimate = changeRequest.analysisEstimate
@@ -123,6 +125,8 @@ class ChangeRequestDetail extends Component {
                     Сделано { Math.round(changeRequest.timeSpent) } ч <br />
                     Оценка { Math.round(changeRequest.estimate) } ч <br />
                     Плановая дата установки { plannedInstallDate ? moment(plannedInstallDate).format("YYYY-MM-DD") : "не указана"} <br />
+                    Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка
+                    <br />
                 </Typography>
                 <br />
                 <TimeSheetsByDateIssueChart

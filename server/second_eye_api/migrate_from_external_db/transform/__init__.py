@@ -17,6 +17,8 @@ from .entities.project_team_planning_period_time_spent_percent_with_value_and_wi
 from .entities.dedicated_team_planning_periods_transform import *
 from .entities.dedicated_team_planning_period_time_sheets_by_date_transform import *
 from .entities.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
+from .entities.system_planning_periods_transform import *
+from .entities.system_planning_period_time_sheets_by_date_transform import *
 
 def calculate_time_sheets_inplace(output_data):
     output_data.project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date = calculate_project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date(
@@ -199,10 +201,26 @@ def make_project_team_planning_period_predictions(output_data):
         project_team_planning_periods=output_data.project_team_planning_periods
     )
 
+def make_system_planning_period_predictions(output_data):
+    output_data.system_planning_periods = calculate_system_planning_periods_time_sheets_by_date_model_by_time_sheets_planning_period_start_and_planning_period_end_and_date_and_time_spent_cumsum(
+        system_planning_periods=output_data.system_planning_periods,
+        system_planning_period_time_sheets_by_date=output_data.system_planning_period_time_sheets_by_date
+    )
+
+    calculate_system_planning_period_time_spent_cumsum_at_end_prediction_by_m_and_b_inplace(
+        system_planning_periods=output_data.system_planning_periods
+    )
+
+    output_data.system_planning_period_time_sheets_by_date = calculate_system_planning_period_time_spent_cumsum_prediction_by_system_planning_periods_m_and_b(
+        system_planning_period_time_sheets_by_date=output_data.system_planning_period_time_sheets_by_date,
+        system_planning_periods=output_data.system_planning_periods
+    )
+
 def make_predictions(output_data):
     make_planning_period_predictions(output_data=output_data)
     make_dedicated_team_planning_period_predictions(output_data=output_data)
     make_project_team_planning_period_predictions(output_data=output_data)
+    make_system_planning_period_predictions(output_data=output_data)
 
 class Transformer:
     def __init__(self, input_data):

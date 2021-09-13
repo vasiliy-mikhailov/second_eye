@@ -29,6 +29,8 @@ const fetchSystemPlanningPeriodByPlanningPeriodIdAndSystemId = gql`
                     timeSpentCumsumPrediction
                 }
                 
+                timeSpentCumsumAtEndPrediction
+                
                 systemChangeRequests {
                     id
                     estimate
@@ -60,7 +62,7 @@ class SystemPlanningPeriodDetail extends Component {
         const systemChangeRequests = systemPlanningPeriod.systemChangeRequests
 
         const timeSheetsByDate = systemPlanningPeriod.timeSheetsByDate
-        const timeSpentCumsumAtEndPrediction = 0
+        const timeSpentCumsumAtEndPrediction = systemPlanningPeriod.timeSpentCumsumAtEndPrediction
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
@@ -111,7 +113,7 @@ class SystemPlanningPeriodDetail extends Component {
                                 { systemChangeRequest.estimate === 0 && systemChangeRequest.stateCategory.id !== 3 ? `Оценка ${ Math.round(systemChangeRequest.estimate) } ч ` : '' }
                                 { systemChangeRequest.hasValue ? '' : 'Нет ценности ' }
 
-                                <RouterLink style={{ textDecoration: systemChangeRequest.stateCategory.id === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${systemChangeRequest.id}` }>
+                                <RouterLink style={{ textDecoration: systemChangeRequest.stateCategory.id === 3 ? 'line-through' : 'none' }} to={ `/systemChangeRequests/${systemChangeRequest.id}` }>
                                     { systemChangeRequest.id } &nbsp;
                                     { systemChangeRequest.name }
                                 </RouterLink>
