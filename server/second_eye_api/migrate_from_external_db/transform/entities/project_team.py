@@ -7,6 +7,7 @@ from . import planning_period
 from . import task
 from . import function_component
 import datetime
+from . import system_change_request
 
 class ProjectTeam(cubista.Table):
     class Fields:
@@ -188,7 +189,7 @@ class ProjectTeamPlanningPeriod(cubista.AggregatedTable):
             default=-1
         )
 
-class ProjectTeamPlanningperiodTimeSheetByDate(cubista.AggregatedTable):
+class ProjectTeamPlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
         source = lambda: change_request.ChangeRequestTimeSheetByDate
         sort_by: [str] = ["date"]
@@ -237,4 +238,137 @@ class ProjectTeamPlanningperiodTimeSheetByDate(cubista.AggregatedTable):
             default=datetime.datetime.date(datetime.datetime.now())
         )
 
+class ProjectTeamPlanningPeriodSystem(cubista.AggregatedTable):
+    class Aggregation:
+        source = lambda: system_change_request.SystemChangeRequest
+        sort_by: [str] = []
+        group_by: [str] = ["planning_period_id", "project_team_id", "system_id"]
+        filter = None
+        filter_fields: [str] = []
 
+    class Fields:
+        id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
+        planning_period_id = cubista.AggregatedTableGroupField(source="planning_period_id", primary_key=False)
+        project_team_id = cubista.AggregatedTableGroupField(source="project_team_id", primary_key=False)
+        system_id = cubista.AggregatedTableGroupField(source="system_id", primary_key=False)
+        dedicated_team_id = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: ProjectTeam,
+            related_field_name="project_team_id",
+            pulled_field_name="dedicated_team_id"
+        )
+        analysis_estimate = cubista.AggregatedTableAggregateField(source="analysis_estimate", aggregate_function="sum")
+        development_estimate = cubista.AggregatedTableAggregateField(source="development_estimate", aggregate_function="sum")
+        testing_estimate = cubista.AggregatedTableAggregateField(source="testing_estimate", aggregate_function="sum")
+        estimate = cubista.AggregatedTableAggregateField(source="estimate", aggregate_function="sum")
+
+        management_time_spent = cubista.AggregatedTableAggregateField(source="management_time_spent", aggregate_function="sum")
+        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
+        time_left = cubista.AggregatedTableAggregateField(source="time_left", aggregate_function="sum")
+
+        function_points = cubista.AggregatedTableAggregateField(source="function_points", aggregate_function="sum")
+        function_points_effort = cubista.AggregatedTableAggregateField(source="function_points_effort", aggregate_function="sum")
+        effort_per_function_point = cubista.CalculatedField(
+            lambda_expression=lambda x: 0 if x["function_points"] == 0 else x["function_points_effort"] / x["function_points"],
+            source_fields=["function_points_effort", "function_points"]
+        )
+
+        planning_period_start = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_name="planning_period_id",
+            pulled_field_name="start"
+        )
+
+        planning_period_end = planning_period.cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_name="planning_period_id",
+            pulled_field_name="end"
+        )
+
+        dedicated_team_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: dedicated_team.DedicatedTeamPlanningPeriod,
+            related_field_names=["dedicated_team_id", "planning_period_id"],
+            foreign_field_names=["dedicated_team_id", "planning_period_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        project_team_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team.ProjectTeamPlanningPeriod,
+            related_field_names=["project_team_id", "planning_period_id"],
+            foreign_field_names=["project_team_id", "planning_period_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        dedicated_team_planning_period_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: dedicated_team.DedicatedTeamPlanningPeriodSystem,
+            related_field_names=["dedicated_team_id", "planning_period_id", "system_id"],
+            foreign_field_names=["dedicated_team_id", "planning_period_id", "system_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+class ProjectTeamPlanningPeriodSystemTimeSheetByDate(cubista.AggregatedTable):
+    class Aggregation:
+        source = lambda: system_change_request.SystemChangeRequestTimeSheetByDate
+        sort_by: [str] = ["date"]
+        group_by: [str] = ["project_team_planning_period_system_id", "date"]
+        filter = None
+        filter_fields: [str] = []
+
+    class Fields:
+        id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
+
+        project_team_planning_period_system_id = cubista.AggregatedTableGroupField(source="project_team_planning_period_system_id")
+        date = cubista.AggregatedTableGroupField(source="date")
+
+        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
+        time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["project_team_planning_period_system_id"], sort_by=["date"])
+
+        dedicated_team_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team.ProjectTeamPlanningPeriodSystem,
+            related_field_names=["project_team_planning_period_system_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="dedicated_team_planning_period_id",
+            default=-1
+        )
+
+        project_team_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team.ProjectTeamPlanningPeriodSystem,
+            related_field_names=["project_team_planning_period_system_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="project_team_planning_period_id",
+            default=-1
+        )
+
+        planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team.ProjectTeamPlanningPeriodSystem,
+            related_field_names=["project_team_planning_period_system_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="planning_period_id",
+            default=-1
+        )
+
+        planning_period_start = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="start",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+
+        planning_period_end = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="end",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+
+        dedicated_team_planning_period_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team.ProjectTeamPlanningPeriodSystem,
+            related_field_names=["project_team_planning_period_system_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="dedicated_team_planning_period_system_id",
+            default=-1
+        )

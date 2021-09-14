@@ -1,25 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import '@fontsource/roboto';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import './index.css'
+import App from './App'
+import reportWebVitals from './reportWebVitals'
+import '@fontsource/roboto'
 import {
     BrowserRouter as Router,
     Switch,
     Route
-} from "react-router-dom";
-import PlanningPeriodsList from "./components/PlanningPeriodsList";
-import PlanningPeriodDetail from "./components/PlanningPeriodDetail";
+} from "react-router-dom"
+import PlanningPeriodsList from "./components/PlanningPeriodsList"
+import PlanningPeriodDetail from "./components/PlanningPeriodDetail"
 import DedicatedTeamPlanningPeriodDetail from "./components/DedicatedTeamPlanningPeriodDetail"
 import ProjectTeamPlanningPeriodDetail from "./components/ProjectTeamPlanningPeriodDetail"
-import ChangeRequestDetail from "./components/ChangeRequestDetail";
-import SystemChangeRequestDetail from "./components/SystemChangeRequestDetail";
+import ChangeRequestDetail from "./components/ChangeRequestDetail"
+import SystemChangeRequestDetail from "./components/SystemChangeRequestDetail"
 import CapacityAndQueue from "./components/CapacityAndQueue"
-import {Box} from "@material-ui/core";
-import * as Sentry from "@sentry/react";
-import { Integrations } from "@sentry/tracing";
-import SystemPlanningPeriodDetail from "./components/SystemPlanningPeriodDetail";
+import {Box} from "@material-ui/core"
+import * as Sentry from "@sentry/react"
+import { Integrations } from "@sentry/tracing"
+import SystemPlanningPeriodDetail from "./components/SystemPlanningPeriodDetail"
+import ProjectTeamPlanningPeriodSystemDetail from "./components/ProjectTeamPlanningPeriodSystemDetail"
+import DedicatedTeamPlanningPeriodSystemDetail from "./components/DedicatedTeamPlanningPeriodSystemDetail"
 
 import {
   ApolloClient,
@@ -54,7 +56,9 @@ ReactDOM.render(
                         <Route exact path="/" component={ PlanningPeriodsList } />
                         <Route exact path="/capacityAndQueue" component={ CapacityAndQueue } />
                         <Route exact path="/planningPeriods" component={ PlanningPeriodsList } />
+                        <Route path="/planningPeriods/:planningPeriodId/dedicatedTeams/:dedicatedTeamId/systems/:systemId" component={ DedicatedTeamPlanningPeriodSystemDetail } />
                         <Route path="/planningPeriods/:planningPeriodId/dedicatedTeams/:dedicatedTeamId" component={ DedicatedTeamPlanningPeriodDetail } />
+                        <Route path="/planningPeriods/:planningPeriodId/projectTeams/:projectTeamId/systems/:systemId" component={ ProjectTeamPlanningPeriodSystemDetail } />
                         <Route path="/planningPeriods/:planningPeriodId/projectTeams/:projectTeamId" component={ ProjectTeamPlanningPeriodDetail } />
                         <Route path="/planningPeriods/:planningPeriodId/systems/:systemId" component={ SystemPlanningPeriodDetail } />
                         <Route path="/planningPeriods/:id" component={ PlanningPeriodDetail } />

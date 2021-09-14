@@ -2,28 +2,18 @@ import pandas as pd
 from .extract import Extractor
 from .transform import Transformer
 import graphene_frame
-from ..schema.change_request import \
-    ChangeRequest, ChangeRequestTimeSheetsByDate, ChangeRequestAnalysisTimeSheetsByDate, \
-    ChangeRequestDevelopmentTimeSheetsByDate, ChangeRequestTestingTimeSheetsByDate
-from ..schema.company import Company
-from ..schema.dedicated_team import \
-    DedicatedTeam, DedicatedTeamPlanningPeriod, DedicatedTeamPlanningPeriodTimeSheetsByDate,\
-    DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate, \
-    DedicatedTeamPosition, DedicatedTeamPositionAbility
-from ..schema.person import Person
-from ..schema.planning_period import PlanningPeriod, PlanningPeriodTimeSheetsByDate, PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate
-from ..schema.project_team import \
-    ProjectTeam, ProjectTeamPlanningPeriod, ProjectTeamPlanningPeriodTimeSheetsByDate, \
-    ProjectTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate
-from ..schema.state import State
-from ..schema.state_category import StateCategory
-from ..schema.skill import Skill
-from ..schema.system import *
-from ..schema.system_change_request import \
-    SystemChangeRequest, SystemChangeRequestTimeSheetsByDate, \
-    SystemChangeRequestAnalysisTimeSheetsByDate, \
-    SystemChangeRequestDevelopmentTimeSheetsByDate, SystemChangeRequestTestingTimeSheetsByDate
-from ..schema.task import Task
+from ..schema import change_request
+from ..schema import company
+from ..schema import dedicated_team
+from ..schema import person
+from ..schema import planning_period
+from ..schema import project_team
+from ..schema import state
+from ..schema import state_category
+from ..schema import skill
+from ..schema import system
+from ..schema import system_change_request
+from ..schema import task
 
 def migrate(get_input_connection):
     print("extract")
@@ -36,39 +26,43 @@ def migrate(get_input_connection):
 
     print("done")
     return graphene_frame.DataStore(data_frames={
-        ChangeRequest: output_data.change_requests,
-        ChangeRequestTimeSheetsByDate: output_data.change_request_time_sheets_by_date,
-        ChangeRequestAnalysisTimeSheetsByDate: output_data.change_request_analysis_time_sheets_by_date,
-        ChangeRequestDevelopmentTimeSheetsByDate: output_data.change_request_development_time_sheets_by_date,
-        ChangeRequestTestingTimeSheetsByDate: output_data.change_request_testing_time_sheets_by_date,
-        Company: output_data.companies,
-        DedicatedTeam: output_data.dedicated_teams,
-        DedicatedTeamPlanningPeriod: output_data.dedicated_team_planning_periods,
-        DedicatedTeamPlanningPeriodTimeSheetsByDate: output_data.dedicated_team_planning_period_time_sheets_by_date,
-        DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate: output_data.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date,
-        DedicatedTeamPosition: output_data.dedicated_team_positions,
-        DedicatedTeamPositionAbility: output_data.dedicated_team_position_abilities,
-        Person: output_data.persons,
-        PlanningPeriod: output_data.planning_periods,
-        PlanningPeriodTimeSheetsByDate: output_data.planning_period_time_sheets_by_date,
-        PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate: output_data.planning_period_time_spent_percent_with_value_and_without_value_by_date,
-        ProjectTeam: output_data.project_teams,
-        ProjectTeamPlanningPeriod: output_data.project_team_planning_periods,
-        ProjectTeamPlanningPeriodTimeSheetsByDate: output_data.project_team_planning_period_time_sheets_by_date,
-        ProjectTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate: output_data.project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date,
-        Skill: output_data.skills,
-        State: output_data.states,
-        StateCategory: output_data.state_categories,
-        System: output_data.systems,
-        SystemChangeRequest: output_data.system_change_requests,
-        SystemChangeRequestTimeSheetsByDate: output_data.system_change_request_time_sheets_by_date,
-        SystemChangeRequestAnalysisTimeSheetsByDate: output_data.system_change_request_analysis_time_sheets_by_date,
-        SystemChangeRequestDevelopmentTimeSheetsByDate: output_data.system_change_request_development_time_sheets_by_date,
-        SystemChangeRequestTestingTimeSheetsByDate: output_data.system_change_request_testing_time_sheets_by_date,
-        SystemPlanningPeriod: output_data.system_planning_periods,
-        SystemPlanningPeriodTimeSheetsByDate: output_data.system_planning_period_time_sheets_by_date,
-        SystemPlanningPeriodAnalysisTimeSheetsByDate: output_data.system_planning_period_analysis_time_sheets_by_date,
-        SystemPlanningPeriodDevelopmentTimeSheetsByDate: output_data.system_planning_period_development_time_sheets_by_date,
-        SystemPlanningPeriodTestingTimeSheetsByDate: output_data.system_planning_period_testing_time_sheets_by_date,
-        Task: output_data.tasks,
+        change_request.ChangeRequest: output_data.change_requests,
+        change_request.ChangeRequestTimeSheetsByDate: output_data.change_request_time_sheets_by_date,
+        change_request.ChangeRequestAnalysisTimeSheetsByDate: output_data.change_request_analysis_time_sheets_by_date,
+        change_request.ChangeRequestDevelopmentTimeSheetsByDate: output_data.change_request_development_time_sheets_by_date,
+        change_request.ChangeRequestTestingTimeSheetsByDate: output_data.change_request_testing_time_sheets_by_date,
+        company.Company: output_data.companies,
+        dedicated_team.DedicatedTeam: output_data.dedicated_teams,
+        dedicated_team.DedicatedTeamPlanningPeriod: output_data.dedicated_team_planning_periods,
+        dedicated_team.DedicatedTeamPlanningPeriodSystem: output_data.dedicated_team_planning_period_systems,
+        dedicated_team.DedicatedTeamPlanningPeriodSystemTimeSheetsByDate: output_data.dedicated_team_planning_period_system_time_sheets_by_date,
+        dedicated_team.DedicatedTeamPlanningPeriodTimeSheetsByDate: output_data.dedicated_team_planning_period_time_sheets_by_date,
+        dedicated_team.DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate: output_data.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date,
+        dedicated_team.DedicatedTeamPosition: output_data.dedicated_team_positions,
+        dedicated_team.DedicatedTeamPositionAbility: output_data.dedicated_team_position_abilities,
+        person.Person: output_data.persons,
+        planning_period.PlanningPeriod: output_data.planning_periods,
+        planning_period.PlanningPeriodTimeSheetsByDate: output_data.planning_period_time_sheets_by_date,
+        planning_period.PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate: output_data.planning_period_time_spent_percent_with_value_and_without_value_by_date,
+        project_team.ProjectTeam: output_data.project_teams,
+        project_team.ProjectTeamPlanningPeriod: output_data.project_team_planning_periods,
+        project_team.ProjectTeamPlanningPeriodSystem: output_data.project_team_planning_period_systems,
+        project_team.ProjectTeamPlanningPeriodSystemTimeSheetsByDate: output_data.project_team_planning_period_system_time_sheets_by_date,
+        project_team.ProjectTeamPlanningPeriodTimeSheetsByDate: output_data.project_team_planning_period_time_sheets_by_date,
+        project_team.ProjectTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate: output_data.project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date,
+        skill.Skill: output_data.skills,
+        state.State: output_data.states,
+        state_category.StateCategory: output_data.state_categories,
+        system.System: output_data.systems,
+        system_change_request.SystemChangeRequest: output_data.system_change_requests,
+        system_change_request.SystemChangeRequestTimeSheetsByDate: output_data.system_change_request_time_sheets_by_date,
+        system_change_request.SystemChangeRequestAnalysisTimeSheetsByDate: output_data.system_change_request_analysis_time_sheets_by_date,
+        system_change_request.SystemChangeRequestDevelopmentTimeSheetsByDate: output_data.system_change_request_development_time_sheets_by_date,
+        system_change_request.SystemChangeRequestTestingTimeSheetsByDate: output_data.system_change_request_testing_time_sheets_by_date,
+        system.SystemPlanningPeriod: output_data.system_planning_periods,
+        system.SystemPlanningPeriodTimeSheetsByDate: output_data.system_planning_period_time_sheets_by_date,
+        system.SystemPlanningPeriodAnalysisTimeSheetsByDate: output_data.system_planning_period_analysis_time_sheets_by_date,
+        system.SystemPlanningPeriodDevelopmentTimeSheetsByDate: output_data.system_planning_period_development_time_sheets_by_date,
+        system.SystemPlanningPeriodTestingTimeSheetsByDate: output_data.system_planning_period_testing_time_sheets_by_date,
+        task.Task: output_data.tasks,
     })

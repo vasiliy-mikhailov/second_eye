@@ -37,6 +37,17 @@ const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
                 
                 timeSpentCumsumAtEndPrediction
                 
+                projectTeamPlanningPeriodSystems {
+                  id
+                  system {
+                    id
+                    name
+                  }
+                  
+                  effortPerFunctionPoint
+                }
+                  
+                
                 changeRequests {
                     id
                     estimate
@@ -54,6 +65,8 @@ class ProjectTeamPlanningPeriodDetail extends Component {
     render() {
         if (this.props.data.loading) { return <div>Loading ...</div> }
 
+        const planningPeriodId = this.props.match.params.planningPeriodId
+        const projectTeamId = this.props.match.params.projectTeamId
         const projectTeamPlanningPeriod = this.props.data.projectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId
         const projectTeamName = projectTeamPlanningPeriod.projectTeam.name
         const estimate = projectTeamPlanningPeriod.estimate
@@ -61,6 +74,7 @@ class ProjectTeamPlanningPeriodDetail extends Component {
         const planningPeriodName = projectTeamPlanningPeriod.planningPeriod.name
         const planningPeriodStart = projectTeamPlanningPeriod.planningPeriod.start
         const planningPeriodEnd = projectTeamPlanningPeriod.planningPeriod.end
+        const projectTeamPlanningPeriodSystems = projectTeamPlanningPeriod.projectTeamPlanningPeriodSystems
         const changeRequests = projectTeamPlanningPeriod.changeRequests
 
         const timeSheetsByDate = projectTeamPlanningPeriod.timeSheetsByDate
@@ -69,6 +83,37 @@ class ProjectTeamPlanningPeriodDetail extends Component {
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
+
+        const systemsTableContents = projectTeamPlanningPeriodSystems.slice()
+            .sort((a, b) => ((a.system.name > b.system.name) ? 1 : ((a.system.name < b.system.name) ? -1 : 0)))
+            .map(projectTeamPlanningPeriodSystem => (
+                    {
+                        id: projectTeamPlanningPeriodSystem.id,
+                        systemId: projectTeamPlanningPeriodSystem.system.id,
+                        systemName: projectTeamPlanningPeriodSystem.system.name,
+                        effortPerFunctionPoint: projectTeamPlanningPeriodSystem.effortPerFunctionPoint
+                    }
+            ))
+
+        const systemsTableColumns = [
+            {
+                field: 'systemName',
+                headerName: 'Название',
+                flex: 1,
+                renderCell: (params) => (
+                    <RouterLink to={ `/planningPeriods/${ planningPeriodId }/projectTeams/${ projectTeamId }/systems/${ params.getValue(params.id, 'systemId') }` }>
+                        { params.getValue(params.id, 'systemName') }
+                    </RouterLink>
+                ),
+            },
+            {
+                field: 'effortPerFunctionPoint',
+                headerName: 'Затраты на ф.т.',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}),
+            },
+        ];
 
         const changeRequestsTableContents = changeRequests.slice()
             .sort((a, b) =>  (
@@ -162,6 +207,18 @@ class ProjectTeamPlanningPeriodDetail extends Component {
                     color="black"
                     timeSpentPercentWithValueAndWithoutValueByDate={ timeSpentPercentWithValueAndWithoutValueByDate }
                 />
+
+                <Typography variant="h6" noWrap>
+                    Системы
+                </Typography>
+                <div style={{ height: 600, width: '100%' }}>
+                    <DataGrid
+                        rows={ systemsTableContents }
+                        columns={ systemsTableColumns }
+                        pagination
+                        autoPageSize
+                    />
+                </div>
 
                <Typography variant="h6" noWrap>
                     Заявки на доработку ПО

@@ -62,6 +62,22 @@ class SystemChangeRequest(cubista.Table):
             default=-1
         )
 
+        project_team_planning_period_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team.ProjectTeamPlanningPeriodSystem,
+            related_field_names=["system_id", "planning_period_id", "project_team_id"],
+            foreign_field_names=["system_id", "planning_period_id", "project_team_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        dedicated_team_planning_period_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: dedicated_team.DedicatedTeamPlanningPeriodSystem,
+            related_field_names=["system_id", "planning_period_id", "dedicated_team_id"],
+            foreign_field_names=["system_id", "planning_period_id", "dedicated_team_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
         analysis_tasks_estimate_sum = cubista.AggregatedForeignField(
             foreign_table=lambda: task.Task,
             foreign_field_name="system_change_request_id",
@@ -254,6 +270,11 @@ class SystemChangeRequestTimeSheetByDate(cubista.AggregatedTable):
             foreign_table=lambda: SystemChangeRequest,
             related_field_name="system_change_request_id",
             pulled_field_name="system_planning_period_id"
+        )
+        project_team_planning_period_system_id = cubista.PullByForeignPrimaryKeyField(
+            foreign_table=lambda: SystemChangeRequest,
+            related_field_name="system_change_request_id",
+            pulled_field_name="project_team_planning_period_system_id"
         )
 
 class SystemChangeRequestAnalysisTimeSheetByDate(cubista.AggregatedTable):

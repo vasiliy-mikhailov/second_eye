@@ -46,6 +46,16 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                         effortPerFunctionPoint
                     }
                     
+                    dedicatedTeamPlanningPeriodSystems {
+                        id
+                        system {
+                            id
+                            name
+                        }
+                        
+                        effortPerFunctionPoint
+                    }
+                    
                     changeRequests {
                         id
                         estimate
@@ -63,6 +73,7 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
     render() {
         if (this.props.data.loading) { return <div>Loading ...</div> }
         const planningPeriodId = this.props.match.params.planningPeriodId
+        const dedicatedTeamId = this.props.match.params.dedicatedTeamId
 
         const dedicatedTeamPlanningPeriod = this.props.data.dedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId
 
@@ -73,6 +84,7 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
         const planningPeriodStart = dedicatedTeamPlanningPeriod.planningPeriod.start
         const planningPeriodEnd = dedicatedTeamPlanningPeriod.planningPeriod.end
         const projectTeamPlanningPeriods = dedicatedTeamPlanningPeriod.projectTeamPlanningPeriods
+        const dedicatedTeamPlanningPeriodSystems = dedicatedTeamPlanningPeriod.dedicatedTeamPlanningPeriodSystems
         const changeRequests = dedicatedTeamPlanningPeriod.changeRequests
 
         const timeSheetsByDate = dedicatedTeamPlanningPeriod.timeSheetsByDate
@@ -81,6 +93,37 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
+
+        const systemsTableContents = dedicatedTeamPlanningPeriodSystems.slice()
+            .sort((a, b) => ((a.system.name > b.system.name) ? 1 : ((a.system.name < b.system.name) ? -1 : 0)))
+            .map(dedicatedTeamPlanningPeriodSystem => (
+                    {
+                        id: dedicatedTeamPlanningPeriodSystem.id,
+                        systemId: dedicatedTeamPlanningPeriodSystem.system.id,
+                        systemName: dedicatedTeamPlanningPeriodSystem.system.name,
+                        effortPerFunctionPoint: dedicatedTeamPlanningPeriodSystem.effortPerFunctionPoint
+                    }
+            ))
+
+        const systemsTableColumns = [
+            {
+                field: 'systemName',
+                headerName: 'Название',
+                flex: 1,
+                renderCell: (params) => (
+                    <RouterLink to={ `/planningPeriods/${ planningPeriodId }/dedicatedTeams/${ dedicatedTeamId }/systems/${ params.getValue(params.id, 'systemId') }` }>
+                        { params.getValue(params.id, 'systemName') }
+                    </RouterLink>
+                ),
+            },
+            {
+                field: 'effortPerFunctionPoint',
+                headerName: 'Затраты на ф.т.',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}),
+            },
+        ];
 
         const projectTeamsTableContents = projectTeamPlanningPeriods.slice()
             .sort((a, b) => ((a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0)))
@@ -214,6 +257,20 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                     <DataGrid
                         rows={ projectTeamsTableContents }
                         columns={ projectTeamsTableColumns }
+                        pagination
+                        autoPageSize
+                    />
+                </div>
+
+                <br />
+
+                <Typography variant="h6" noWrap>
+                    Системы
+                </Typography>
+                <div style={{ height: 600, width: '100%' }}>
+                    <DataGrid
+                        rows={ systemsTableContents }
+                        columns={ systemsTableColumns }
                         pagination
                         autoPageSize
                     />

@@ -59,6 +59,20 @@ class Query(graphene.ObjectType):
         system_id=graphene.Int()
     )
 
+    project_team_planning_period_system_by_project_team_id_planning_period_id_and_system_id = graphene.Field(
+        project_team.ProjectTeamPlanningPeriodSystem,
+        project_team_id=graphene.Int(),
+        planning_period_id=graphene.Int(),
+        system_id=graphene.Int()
+    )
+
+    dedicated_team_planning_period_system_by_dedicated_team_id_planning_period_id_and_system_id = graphene.Field(
+        dedicated_team.DedicatedTeamPlanningPeriodSystem,
+        dedicated_team_id=graphene.Int(),
+        planning_period_id=graphene.Int(),
+        system_id=graphene.Int()
+    )
+
     def resolve_planning_periods(root, info):
         return planning_period.PlanningPeriod.all(data_store=get_data_store())
 
@@ -124,6 +138,20 @@ class Query(graphene.ObjectType):
 
     def resolve_system_planning_period_by_planning_period_id_and_system_id(root, info, planning_period_id, system_id):
         return system.SystemPlanningPeriod.get_by_multiple_fields(fields={
+            'planning_period_id': planning_period_id,
+            'system_id': system_id
+        }, data_store=get_data_store())
+
+    def resolve_project_team_planning_period_system_by_project_team_id_planning_period_id_and_system_id(root, info, project_team_id, planning_period_id, system_id):
+        return project_team.ProjectTeamPlanningPeriodSystem.get_by_multiple_fields(fields={
+            'project_team_id': project_team_id,
+            'planning_period_id': planning_period_id,
+            'system_id': system_id
+        }, data_store=get_data_store())
+
+    def resolve_dedicated_team_planning_period_system_by_dedicated_team_id_planning_period_id_and_system_id(root, info, dedicated_team_id, planning_period_id, system_id):
+        return dedicated_team.DedicatedTeamPlanningPeriodSystem.get_by_multiple_fields(fields={
+            'dedicated_team_id': dedicated_team_id,
             'planning_period_id': planning_period_id,
             'system_id': system_id
         }, data_store=get_data_store())

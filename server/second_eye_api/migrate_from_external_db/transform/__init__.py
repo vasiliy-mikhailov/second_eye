@@ -19,6 +19,8 @@ from .entities.dedicated_team_planning_period_time_sheets_by_date_transform impo
 from .entities.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
 from .entities.system_planning_periods_transform import *
 from .entities.system_planning_period_time_sheets_by_date_transform import *
+from .entities.project_team_planning_period_systems_transform import *
+from .entities.project_team_planning_period_system_time_sheets_by_date_transform import *
 
 def calculate_time_sheets_inplace(output_data):
     output_data.project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date = calculate_project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date(
@@ -258,11 +260,26 @@ def make_system_planning_period_predictions(output_data):
         system_planning_periods=output_data.system_planning_periods
     )
 
+def make_project_team_planning_period_system_predictions(output_data):
+    output_data.project_team_planning_period_systems = calculate_project_team_planning_period_systems_time_sheets_by_date_model_by_time_sheets_planning_period_start_and_planning_period_end_and_date_and_time_spent_cumsum(
+        project_team_planning_period_systems=output_data.project_team_planning_period_systems,
+        project_team_planning_period_system_time_sheets_by_date=output_data.project_team_planning_period_system_time_sheets_by_date
+    )
+
+    calculate_project_team_planning_period_system_time_spent_cumsum_at_end_prediction_by_m_and_b_inplace(
+        project_team_planning_period_systems=output_data.project_team_planning_period_systems
+    )
+
+    output_data.project_team_planning_period_system_time_sheets_by_date = calculate_project_team_planning_period_system_time_spent_cumsum_prediction_by_system_planning_periods_m_and_b(
+        project_team_planning_period_system_time_sheets_by_date=output_data.project_team_planning_period_system_time_sheets_by_date,
+        project_team_planning_period_systems=output_data.project_team_planning_period_systems
+    )
 def make_predictions(output_data):
     make_planning_period_predictions(output_data=output_data)
     make_dedicated_team_planning_period_predictions(output_data=output_data)
     make_project_team_planning_period_predictions(output_data=output_data)
     make_system_planning_period_predictions(output_data=output_data)
+    make_project_team_planning_period_system_predictions(output_data=output_data)
 
 class Transformer:
     def __init__(self, input_data):
@@ -279,6 +296,8 @@ class Transformer:
         companiy = entities.Company(data_frame=input_data.companies)
         dedicated_team = entities.DedicatedTeam(data_frame=input_data.dedicated_teams)
         dedicated_team_planning_period = entities.DedicatedTeamPlanningPeriod()
+        dedicated_team_planning_period_system = entities.DedicatedTeamPlanningPeriodSystem()
+        dedicated_team_planning_period_system_time_sheet_by_date = entities.DedicatedTeamPlanningPeriodSystemTimeSheetByDate()
         dedicated_team_planning_period_time_sheet_by_date = entities.DedicatedTeamPlanningperiodTimeSheetByDate()
         dedicated_team_position = entities.DedicatedTeamPosition(data_frame=input_data.dedicated_team_positions)
         function_component = entities.FunctionComponent(data_frame=input_data.function_components)
@@ -287,7 +306,9 @@ class Transformer:
         planning_period = entities.PlanningPeriod(data_frame=input_data.planning_periods)
         project_team = entities.ProjectTeam(data_frame=input_data.project_teams)
         project_team_planning_period = entities.ProjectTeamPlanningPeriod()
-        project_team_planning_period_time_sheet_by_date = entities.ProjectTeamPlanningperiodTimeSheetByDate()
+        project_team_planning_period_system = entities.ProjectTeamPlanningPeriodSystem()
+        project_team_planning_period_system_time_sheet_by_date = entities.ProjectTeamPlanningPeriodSystemTimeSheetByDate()
+        project_team_planning_period_time_sheet_by_date = entities.ProjectTeamPlanningPeriodTimeSheetByDate()
         project_team_position = entities.ProjectTeamPosition(data_frame=input_data.project_team_positions)
         skill = entities.Skill(data_frame=input_data.skills)
         state_category = entities.StateCategory(data_frame=input_data.state_categories)
@@ -320,6 +341,8 @@ class Transformer:
             companiy,
             dedicated_team,
             dedicated_team_planning_period,
+            dedicated_team_planning_period_system,
+            dedicated_team_planning_period_system_time_sheet_by_date,
             dedicated_team_planning_period_time_sheet_by_date,
             dedicated_team_position,
             function_component,
@@ -328,6 +351,8 @@ class Transformer:
             planning_period,
             project_team,
             project_team_planning_period,
+            project_team_planning_period_system,
+            project_team_planning_period_system_time_sheet_by_date,
             project_team_planning_period_time_sheet_by_date,
             project_team_position,
             skill,
@@ -363,6 +388,8 @@ class Transformer:
         output_data.change_request_time_sheets_by_date = data_source.tables[entities.ChangeRequestTimeSheetByDate].data_frame
         output_data.companies = data_source.tables[entities.Company].data_frame
         output_data.dedicated_team_planning_periods = data_source.tables[entities.DedicatedTeamPlanningPeriod].data_frame
+        output_data.dedicated_team_planning_period_systems = data_source.tables[entities.DedicatedTeamPlanningPeriodSystem].data_frame
+        output_data.dedicated_team_planning_period_system_time_sheets_by_date = data_source.tables[entities.DedicatedTeamPlanningPeriodSystemTimeSheetByDate].data_frame
         output_data.dedicated_team_planning_period_time_sheets_by_date = data_source.tables[entities.DedicatedTeamPlanningperiodTimeSheetByDate].data_frame
         output_data.dedicated_team_positions = data_source.tables[entities.DedicatedTeamPosition].data_frame
         output_data.dedicated_teams = data_source.tables[entities.DedicatedTeam].data_frame
@@ -370,7 +397,9 @@ class Transformer:
         output_data.function_component_kinds = data_source.tables[entities.FunctionComponentKind].data_frame
         output_data.persons = data_source.tables[entities.Person].data_frame
         output_data.planning_periods = data_source.tables[entities.PlanningPeriod].data_frame
-        output_data.project_team_planning_period_time_sheets_by_date = data_source.tables[entities.ProjectTeamPlanningperiodTimeSheetByDate].data_frame
+        output_data.project_team_planning_period_time_sheets_by_date = data_source.tables[entities.ProjectTeamPlanningPeriodTimeSheetByDate].data_frame
+        output_data.project_team_planning_period_systems = data_source.tables[entities.ProjectTeamPlanningPeriodSystem].data_frame
+        output_data.project_team_planning_period_system_time_sheets_by_date = data_source.tables[entities.ProjectTeamPlanningPeriodSystemTimeSheetByDate].data_frame
         output_data.project_team_planning_periods = data_source.tables[entities.ProjectTeamPlanningPeriod].data_frame
         output_data.project_team_positions = data_source.tables[entities.ProjectTeamPosition].data_frame
         output_data.project_teams = data_source.tables[entities.ProjectTeam].data_frame
