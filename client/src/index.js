@@ -22,6 +22,7 @@ import { Integrations } from "@sentry/tracing"
 import SystemPlanningPeriodDetail from "./components/SystemPlanningPeriodDetail"
 import ProjectTeamPlanningPeriodSystemDetail from "./components/ProjectTeamPlanningPeriodSystemDetail"
 import DedicatedTeamPlanningPeriodSystemDetail from "./components/DedicatedTeamPlanningPeriodSystemDetail"
+import { LicenseInfo } from "@mui/x-data-grid-pro"
 
 import {
   ApolloClient,
@@ -38,6 +39,8 @@ Sentry.init({
   // We recommend adjusting this value in production
   tracesSampleRate: 0.01,
 });
+
+LicenseInfo.setLicenseKey('c96f4e151cafeb69315727049b583000T1JERVI6Mjk0NjAsRVhQSVJZPTE2NjMzMjQyODcwMDAsS0VZVkVSU0lPTj0x')
 
 const client = new ApolloClient({
     uri: process.env.REACT_APP_SECOND_EYE_API_URL,

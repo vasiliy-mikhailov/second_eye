@@ -3,9 +3,8 @@ import {gql} from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import Typography from '@material-ui/core/Typography';
 import {Box} from "@material-ui/core";
-import {Link as RouterLink} from "react-router-dom";
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { DataGrid, GridToolbarContainer, GridToolbarExport, } from '@material-ui/data-grid';
+import { DataGridPro, GridToolbarContainer, GridToolbarExport, } from '@mui/x-data-grid-pro';
 
 const fetchCapacityAndQueue = gql`
     query capacityAndQueue {
@@ -323,13 +322,14 @@ class CapacityAndQueue extends Component {
                     <Bar dataKey="testingQueueLength" fill="blue" name={"Тестирование"} />
                 </BarChart>
 
-                <div style={{ height: 400, width: '100%' }}>
-                    <DataGrid
+                <div>
+                    <DataGridPro
                         rows={topDedicatedTeamsWithCompanies}
                         columns={topDedicatedTeamsWithCompaniesColumns}
                         components={{
                             Toolbar: ToolBarWithExport,
                         }}
+                        autoHeight
                     />
                 </div>
 
@@ -385,13 +385,14 @@ class CapacityAndQueue extends Component {
                     <Bar dataKey="testingQueueLength" fill="blue" name={"Тестирование"} />
                 </BarChart>
 
-                <div style={{ height: 400, width: '100%' }}>
-                    <DataGrid
+                <div>
+                    <DataGridPro
                         rows={topProjectTeams}
                         columns={topProjectTeamsColumns}
                         components={{
                             Toolbar: ToolBarWithExport,
                         }}
+                        autoHeight
                     />
                 </div>
             </Box>

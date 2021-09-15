@@ -174,7 +174,7 @@ class DedicatedTeamPlanningPeriod(cubista.AggregatedTable):
             pulled_field_name="end"
         )
 
-class DedicatedTeamPlanningperiodTimeSheetByDate(cubista.AggregatedTable):
+class DedicatedTeamPlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
         source = lambda: project_team.ProjectTeamPlanningPeriodTimeSheetByDate
         sort_by: [str] = ["date"]

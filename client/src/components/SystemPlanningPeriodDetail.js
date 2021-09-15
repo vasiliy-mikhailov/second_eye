@@ -4,9 +4,8 @@ import { graphql } from '@apollo/client/react/hoc';
 import Typography from '@material-ui/core/Typography';
 import {Box, Link} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
-import moment from "moment";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
-import {DataGrid} from "@material-ui/data-grid";
+import { DataGridPro } from "@mui/x-data-grid-pro";
 
 const fetchSystemPlanningPeriodByPlanningPeriodIdAndSystemId = gql`
     query SystemPlanningPeriodByPlanningPeriodIdAndSystemId($planningPeriodId: Int!, $systemId: Int!) {
@@ -226,12 +225,11 @@ class SystemPlanningPeriodDetail extends Component {
                <Typography variant="h6" noWrap>
                     Заявки на доработку системы
                 </Typography>
-                <div style={{ height: 1200, width: '100%' }}>
-                    <DataGrid
+                <div>
+                    <DataGridPro
                         rows={ systemChangeRequestsTableContents }
                         columns={ systemChangeRequestsTableColumns }
-                        pagination
-                        autoPageSize
+                        autoHeight
                     />
                 </div>
             </Box>

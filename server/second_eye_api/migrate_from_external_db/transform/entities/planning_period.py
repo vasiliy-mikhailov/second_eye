@@ -1,6 +1,8 @@
 import cubista
 import datetime
 from . import change_request
+from . import planning_period
+from . import dedicated_team
 
 class PlanningPeriod(cubista.Table):
     class Fields:
@@ -127,4 +129,37 @@ class PlanningPeriod(cubista.Table):
         effort_per_function_point = cubista.CalculatedField(
             lambda_expression=lambda x: 0 if x["function_points"] == 0 else x["function_points_effort"] / x["function_points"],
             source_fields=["function_points_effort", "function_points"]
+        )
+
+class PlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
+    class Aggregation:
+        source = lambda: dedicated_team.DedicatedTeamPlanningPeriodTimeSheetByDate
+        sort_by: [str] = ["date"]
+        group_by: [str] = ["planning_period_id", "date"]
+        filter = None
+        filter_fields: [str] = []
+
+    class Fields:
+        id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
+
+        planning_period_id = cubista.AggregatedTableGroupField(source="planning_period_id")
+        date = cubista.AggregatedTableGroupField(source="date")
+
+        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
+        time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["planning_period_id"], sort_by=["date"])
+
+        planning_period_start = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="start",
+            default=datetime.datetime.date(datetime.datetime.now())
+        )
+
+        planning_period_end = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="end",
+            default=datetime.datetime.date(datetime.datetime.now())
         )

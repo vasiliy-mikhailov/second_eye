@@ -4,10 +4,9 @@ import { graphql } from '@apollo/client/react/hoc';
 import Typography from '@material-ui/core/Typography';
 import {Box, Link} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
-import moment from "moment";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
 import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
-import {DataGrid} from "@material-ui/data-grid";
+import { DataGridPro } from "@mui/x-data-grid-pro";
 
 const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql`
         query DedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId($planningPeriodId: Int!, $dedicatedTeamId: Int!) {
@@ -38,21 +37,23 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                     
                     projectTeamPlanningPeriods {
                         id
+                        estimate
+                        timeLeft
                         projectTeam {
                             id
                             name
                         }
-                        timeLeft
                         effortPerFunctionPoint
                     }
                     
                     dedicatedTeamPlanningPeriodSystems {
                         id
+                        estimate
+                        timeLeft
                         system {
                             id
                             name
                         }
-                        
                         effortPerFunctionPoint
                     }
                     
@@ -99,6 +100,8 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
             .map(dedicatedTeamPlanningPeriodSystem => (
                     {
                         id: dedicatedTeamPlanningPeriodSystem.id,
+                        estimate: dedicatedTeamPlanningPeriodSystem.estimate,
+                        timeLeft: dedicatedTeamPlanningPeriodSystem.timeLeft,
                         systemId: dedicatedTeamPlanningPeriodSystem.system.id,
                         systemName: dedicatedTeamPlanningPeriodSystem.system.name,
                         effortPerFunctionPoint: dedicatedTeamPlanningPeriodSystem.effortPerFunctionPoint
@@ -117,6 +120,20 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                 ),
             },
             {
+                field: 'estimate',
+                headerName: 'Оценка (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+            },
+            {
+                field: 'timeLeft',
+                headerName: 'Осталось (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+            },
+            {
                 field: 'effortPerFunctionPoint',
                 headerName: 'Затраты на ф.т.',
                 width: 200,
@@ -130,6 +147,8 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
             .map(projectTeamPlanningPeriod => (
                     {
                         id: projectTeamPlanningPeriod.id,
+                        estimate: projectTeamPlanningPeriod.estimate,
+                        timeLeft: projectTeamPlanningPeriod.timeLeft,
                         projectTeamId: projectTeamPlanningPeriod.projectTeam.id,
                         projectTeamName: projectTeamPlanningPeriod.projectTeam.name,
                         effortPerFunctionPoint: projectTeamPlanningPeriod.effortPerFunctionPoint
@@ -146,6 +165,20 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                         { params.getValue(params.id, 'projectTeamName') }
                     </RouterLink>
                 ),
+            },
+            {
+                field: 'estimate',
+                headerName: 'Оценка (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+            },
+            {
+                field: 'timeLeft',
+                headerName: 'Осталось (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
             },
             {
                 field: 'effortPerFunctionPoint',
@@ -253,12 +286,11 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                     Проектные команды
                 </Typography>
 
-                <div style={{ height: 400, width: '100%' }}>
-                    <DataGrid
+                <div>
+                    <DataGridPro
                         rows={ projectTeamsTableContents }
                         columns={ projectTeamsTableColumns }
-                        pagination
-                        autoPageSize
+                        autoHeight
                     />
                 </div>
 
@@ -267,12 +299,11 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                 <Typography variant="h6" noWrap>
                     Системы
                 </Typography>
-                <div style={{ height: 600, width: '100%' }}>
-                    <DataGrid
+                <div>
+                    <DataGridPro
                         rows={ systemsTableContents }
                         columns={ systemsTableColumns }
-                        pagination
-                        autoPageSize
+                        autoHeight
                     />
                 </div>
 
@@ -281,12 +312,11 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                 <Typography variant="h6" noWrap>
                     Заявки на доработку ПО
                 </Typography>
-                <div style={{ height: 1200, width: '100%' }}>
-                    <DataGrid
+                <div>
+                    <DataGridPro
                         rows={ changeRequestsTableContents }
                         columns={ changeRequestsTableColumns }
-                        pagination
-                        autoPageSize
+                        autoHeight
                     />
                 </div>
             </Box>

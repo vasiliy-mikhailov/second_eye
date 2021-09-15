@@ -4,10 +4,9 @@ import { graphql } from '@apollo/client/react/hoc';
 import Typography from '@material-ui/core/Typography';
 import {Box, Link} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
-import moment from "moment";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
 import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
-import {DataGrid} from "@material-ui/data-grid";
+import { DataGridPro } from "@mui/x-data-grid-pro";
 
 const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
     query ProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId($planningPeriodId: Int!, $projectTeamId: Int!) {
@@ -39,11 +38,12 @@ const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
                 
                 projectTeamPlanningPeriodSystems {
                   id
+                  estimate
+                  timeLeft
                   system {
                     id
                     name
                   }
-                  
                   effortPerFunctionPoint
                 }
                   
@@ -89,6 +89,8 @@ class ProjectTeamPlanningPeriodDetail extends Component {
             .map(projectTeamPlanningPeriodSystem => (
                     {
                         id: projectTeamPlanningPeriodSystem.id,
+                        estimate: projectTeamPlanningPeriodSystem.estimate,
+                        timeLeft: projectTeamPlanningPeriodSystem.timeLeft,
                         systemId: projectTeamPlanningPeriodSystem.system.id,
                         systemName: projectTeamPlanningPeriodSystem.system.name,
                         effortPerFunctionPoint: projectTeamPlanningPeriodSystem.effortPerFunctionPoint
@@ -105,6 +107,20 @@ class ProjectTeamPlanningPeriodDetail extends Component {
                         { params.getValue(params.id, 'systemName') }
                     </RouterLink>
                 ),
+            },
+            {
+                field: 'estimate',
+                headerName: 'Оценка (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+            },
+            {
+                field: 'timeLeft',
+                headerName: 'Осталось (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
             },
             {
                 field: 'effortPerFunctionPoint',
@@ -211,24 +227,22 @@ class ProjectTeamPlanningPeriodDetail extends Component {
                 <Typography variant="h6" noWrap>
                     Системы
                 </Typography>
-                <div style={{ height: 600, width: '100%' }}>
-                    <DataGrid
+                <div>
+                    <DataGridPro
                         rows={ systemsTableContents }
                         columns={ systemsTableColumns }
-                        pagination
-                        autoPageSize
+                        autoHeight
                     />
                 </div>
 
                <Typography variant="h6" noWrap>
                     Заявки на доработку ПО
                 </Typography>
-                <div style={{ height: 1200, width: '100%' }}>
-                    <DataGrid
+                <div>
+                    <DataGridPro
                         rows={ changeRequestsTableContents }
                         columns={ changeRequestsTableColumns }
-                        pagination
-                        autoPageSize
+                        autoHeight
                     />
                 </div>
             </Box>

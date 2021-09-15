@@ -25,6 +25,7 @@ class TimeSheetsByDateIssueChart extends Component {
                         })
                     }
                     margin={{
+                        left: 20,
                         top: 50
                     }}
                 >
