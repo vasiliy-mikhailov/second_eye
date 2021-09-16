@@ -8,6 +8,10 @@ from . import task
 from . import function_component
 
 class ChangeRequest(cubista.Table):
+    CHANGE_REQUESTS_WITHOUT_FUNCTION_POINTS = [
+        "MKB-23539"
+    ]
+
     class Fields:
         id = cubista.StringField(primary_key=True, unique=True)
         url = cubista.StringField()
@@ -189,8 +193,8 @@ class ChangeRequest(cubista.Table):
         )
 
         function_points = cubista.CalculatedField(
-            lambda_expression=lambda x: 0 if x["is_cancelled"] else x["child_function_points"],
-            source_fields=["is_cancelled", "child_function_points"]
+            lambda_expression=lambda x: 0 if x["is_cancelled"] or x["id"] in ChangeRequest.CHANGE_REQUESTS_WITHOUT_FUNCTION_POINTS else x["child_function_points"],
+            source_fields=["is_cancelled", "child_function_points", "id"]
         )
 
         child_function_points_effort = cubista.AggregatedForeignField(
@@ -202,8 +206,8 @@ class ChangeRequest(cubista.Table):
         )
 
         function_points_effort = cubista.CalculatedField(
-            lambda_expression=lambda x: 0 if x["is_cancelled"] else x["child_function_points_effort"],
-            source_fields=["is_cancelled", "child_function_points_effort"]
+            lambda_expression=lambda x: 0 if x["is_cancelled"] or x["id"] in ChangeRequest.CHANGE_REQUESTS_WITHOUT_FUNCTION_POINTS else x["child_function_points_effort"],
+            source_fields=["is_cancelled", "child_function_points_effort", "id"]
         )
 
         effort_per_function_point = cubista.CalculatedField(

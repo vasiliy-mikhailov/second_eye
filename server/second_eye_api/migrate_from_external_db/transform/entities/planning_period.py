@@ -3,6 +3,8 @@ import datetime
 from . import change_request
 from . import planning_period
 from . import dedicated_team
+from .. import planning_period_time_sheet_by_date_model
+from ..utils import normalize
 
 class PlanningPeriod(cubista.Table):
     class Fields:
@@ -131,6 +133,28 @@ class PlanningPeriod(cubista.Table):
             source_fields=["function_points_effort", "function_points"]
         )
 
+        time_sheets_by_date_model_m = cubista.PullByRelatedField(
+            foreign_table=lambda: PlanningPeriodTimeSheetByDateModel,
+            related_field_names=["id"],
+            foreign_field_names=["planning_period_id"],
+            pulled_field_name="time_sheets_by_date_model_m",
+            default=0
+        )
+
+        time_sheets_by_date_model_b = cubista.PullByRelatedField(
+            foreign_table=lambda: PlanningPeriodTimeSheetByDateModel,
+            related_field_names=["id"],
+            foreign_field_names=["planning_period_id"],
+            pulled_field_name="time_sheets_by_date_model_b",
+            default=0
+        )
+
+        time_spent_cumsum_at_end_prediction = cubista.CalculatedField(
+            lambda_expression=lambda x: 1 * x["time_sheets_by_date_model_m"] + x["time_sheets_by_date_model_b"],
+            source_fields=["time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+        )
+
+
 class PlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
         source = lambda: dedicated_team.DedicatedTeamPlanningPeriodTimeSheetByDate
@@ -163,3 +187,37 @@ class PlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
             pulled_field_name="end",
             default=datetime.datetime.date(datetime.datetime.now())
         )
+
+        time_sheets_by_date_model_m = cubista.PullByRelatedField(
+            foreign_table=lambda: PlanningPeriodTimeSheetByDateModel,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["planning_period_id"],
+            pulled_field_name="time_sheets_by_date_model_m",
+            default=0
+        )
+
+        time_sheets_by_date_model_b = cubista.PullByRelatedField(
+            foreign_table=lambda: PlanningPeriodTimeSheetByDateModel,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["planning_period_id"],
+            pulled_field_name="time_sheets_by_date_model_b",
+            default=0
+        )
+
+        time_spent_cumsum_prediction = cubista.CalculatedField(
+            lambda_expression=lambda x: normalize(
+                x=x["date"], min_x=x["planning_period_start"],
+                max_x=x["planning_period_end"]) * x["time_sheets_by_date_model_m"] + x["time_sheets_by_date_model_b"],
+            source_fields=["date", "planning_period_start", "planning_period_end", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+        )
+
+
+class PlanningPeriodTimeSheetByDateModel(planning_period_time_sheet_by_date_model.ModelTable):
+    class Model:
+        source = lambda: PlanningPeriodTimeSheetByDate
+        planning_period_id_field_name = "planning_period_id"
+
+    class Fields:
+        planning_period_id = planning_period_time_sheet_by_date_model.PeriodIdField(source="planning_period_id")
+        time_sheets_by_date_model_m = planning_period_time_sheet_by_date_model.ModelOutputField("time_sheets_by_date_model_m")
+        time_sheets_by_date_model_b = planning_period_time_sheet_by_date_model.ModelOutputField("time_sheets_by_date_model_b")

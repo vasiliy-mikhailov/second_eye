@@ -56,6 +56,9 @@ class PlanningPeriod(graphene_frame.DataFrameObjectType):
         function_points_effort = graphene_frame.Float()
         effort_per_function_point = graphene_frame.Float()
 
+        time_sheets_by_date_model_m = graphene_frame.Float()
+        time_sheets_by_date_model_b = graphene_frame.Float()
+
     def __str__(self):
         return self.name
 

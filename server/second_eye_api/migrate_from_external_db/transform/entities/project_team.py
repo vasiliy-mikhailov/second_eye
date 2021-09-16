@@ -8,6 +8,8 @@ from . import task
 from . import function_component
 import datetime
 from . import system_change_request
+from .. import planning_period_time_sheet_by_date_model
+from ..utils import normalize
 
 class ProjectTeam(cubista.Table):
     class Fields:
@@ -189,6 +191,27 @@ class ProjectTeamPlanningPeriod(cubista.AggregatedTable):
             default=-1
         )
 
+        time_sheets_by_date_model_m = cubista.PullByRelatedField(
+            foreign_table=lambda: ProjectTeamPlanningPeriodTimeSheetByDateModel,
+            related_field_names=["id"],
+            foreign_field_names=["project_team_planning_period_id"],
+            pulled_field_name="time_sheets_by_date_model_m",
+            default=0
+        )
+
+        time_sheets_by_date_model_b = cubista.PullByRelatedField(
+            foreign_table=lambda: ProjectTeamPlanningPeriodTimeSheetByDateModel,
+            related_field_names=["id"],
+            foreign_field_names=["project_team_planning_period_id"],
+            pulled_field_name="time_sheets_by_date_model_b",
+            default=0
+        )
+
+        time_spent_cumsum_at_end_prediction = cubista.CalculatedField(
+            lambda_expression=lambda x: 1 * x["time_sheets_by_date_model_m"] + x["time_sheets_by_date_model_b"],
+            source_fields=["time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+        )
+
 class ProjectTeamPlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
         source = lambda: change_request.ChangeRequestTimeSheetByDate
@@ -237,6 +260,40 @@ class ProjectTeamPlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
             pulled_field_name="end",
             default=datetime.datetime.date(datetime.datetime.now())
         )
+
+        time_sheets_by_date_model_m = cubista.PullByRelatedField(
+            foreign_table=lambda: ProjectTeamPlanningPeriodTimeSheetByDateModel,
+            related_field_names=["project_team_planning_period_id"],
+            foreign_field_names=["project_team_planning_period_id"],
+            pulled_field_name="time_sheets_by_date_model_m",
+            default=0
+        )
+
+        time_sheets_by_date_model_b = cubista.PullByRelatedField(
+            foreign_table=lambda: ProjectTeamPlanningPeriodTimeSheetByDateModel,
+            related_field_names=["project_team_planning_period_id"],
+            foreign_field_names=["project_team_planning_period_id"],
+            pulled_field_name="time_sheets_by_date_model_b",
+            default=0
+        )
+
+        time_spent_cumsum_prediction = cubista.CalculatedField(
+            lambda_expression=lambda x: normalize(
+                x=x["date"], min_x=x["planning_period_start"],
+                max_x=x["planning_period_end"]) * x["time_sheets_by_date_model_m"] + x["time_sheets_by_date_model_b"],
+            source_fields=["date", "planning_period_start", "planning_period_end", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+        )
+
+
+class ProjectTeamPlanningPeriodTimeSheetByDateModel(planning_period_time_sheet_by_date_model.ModelTable):
+    class Model:
+        source = lambda: ProjectTeamPlanningPeriodTimeSheetByDate
+        planning_period_id_field_name = "project_team_planning_period_id"
+
+    class Fields:
+        project_team_planning_period_id = planning_period_time_sheet_by_date_model.PeriodIdField(source="project_team_planning_period_id")
+        time_sheets_by_date_model_m = planning_period_time_sheet_by_date_model.ModelOutputField("time_sheets_by_date_model_m")
+        time_sheets_by_date_model_b = planning_period_time_sheet_by_date_model.ModelOutputField("time_sheets_by_date_model_b")
 
 class ProjectTeamPlanningPeriodSystem(cubista.AggregatedTable):
     class Aggregation:
@@ -308,6 +365,27 @@ class ProjectTeamPlanningPeriodSystem(cubista.AggregatedTable):
             default=-1
         )
 
+        time_sheets_by_date_model_m = cubista.PullByRelatedField(
+            foreign_table=lambda: ProjectTeamPlanningPeriodSystemTimeSheetByDateModel,
+            related_field_names=["id"],
+            foreign_field_names=["project_team_planning_period_system_id"],
+            pulled_field_name="time_sheets_by_date_model_m",
+            default=0
+        )
+
+        time_sheets_by_date_model_b = cubista.PullByRelatedField(
+            foreign_table=lambda: ProjectTeamPlanningPeriodSystemTimeSheetByDateModel,
+            related_field_names=["id"],
+            foreign_field_names=["project_team_planning_period_system_id"],
+            pulled_field_name="time_sheets_by_date_model_b",
+            default=0
+        )
+
+        time_spent_cumsum_at_end_prediction = cubista.CalculatedField(
+            lambda_expression=lambda x: 1 * x["time_sheets_by_date_model_m"] + x["time_sheets_by_date_model_b"],
+            source_fields=["time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+        )
+
 class ProjectTeamPlanningPeriodSystemTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
         source = lambda: system_change_request.SystemChangeRequestTimeSheetByDate
@@ -372,3 +450,37 @@ class ProjectTeamPlanningPeriodSystemTimeSheetByDate(cubista.AggregatedTable):
             pulled_field_name="dedicated_team_planning_period_system_id",
             default=-1
         )
+
+        time_sheets_by_date_model_m = cubista.PullByRelatedField(
+            foreign_table=lambda: ProjectTeamPlanningPeriodSystemTimeSheetByDateModel,
+            related_field_names=["project_team_planning_period_system_id"],
+            foreign_field_names=["project_team_planning_period_system_id"],
+            pulled_field_name="time_sheets_by_date_model_m",
+            default=0
+        )
+
+        time_sheets_by_date_model_b = cubista.PullByRelatedField(
+            foreign_table=lambda: ProjectTeamPlanningPeriodSystemTimeSheetByDateModel,
+            related_field_names=["project_team_planning_period_system_id"],
+            foreign_field_names=["project_team_planning_period_system_id"],
+            pulled_field_name="time_sheets_by_date_model_b",
+            default=0
+        )
+
+        time_spent_cumsum_prediction = cubista.CalculatedField(
+            lambda_expression=lambda x: normalize(
+                x=x["date"], min_x=x["planning_period_start"],
+                max_x=x["planning_period_end"]) * x["time_sheets_by_date_model_m"] + x["time_sheets_by_date_model_b"],
+            source_fields=["date", "planning_period_start", "planning_period_end", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+        )
+
+
+class ProjectTeamPlanningPeriodSystemTimeSheetByDateModel(planning_period_time_sheet_by_date_model.ModelTable):
+    class Model:
+        source = lambda: ProjectTeamPlanningPeriodSystemTimeSheetByDate
+        planning_period_id_field_name = "project_team_planning_period_system_id"
+
+    class Fields:
+        project_team_planning_period_system_id = planning_period_time_sheet_by_date_model.PeriodIdField(source="project_team_planning_period_system_id")
+        time_sheets_by_date_model_m = planning_period_time_sheet_by_date_model.ModelOutputField("time_sheets_by_date_model_m")
+        time_sheets_by_date_model_b = planning_period_time_sheet_by_date_model.ModelOutputField("time_sheets_by_date_model_b")
