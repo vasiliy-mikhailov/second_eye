@@ -48,6 +48,8 @@ class SystemPlanningPeriod(graphene_frame.DataFrameObjectType):
         function_points_effort = graphene_frame.Float()
         effort_per_function_point = graphene_frame.Float()
 
+        calculated_finish_date = graphene_frame.Date()
+
 class SystemPlanningPeriodTimeSheetsByDate(graphene_frame.DataFrameObjectType):
     class Fields:
         id = graphene_frame.PrimaryKey(graphene_frame.Int())

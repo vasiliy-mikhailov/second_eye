@@ -154,6 +154,12 @@ class PlanningPeriod(cubista.Table):
             source_fields=["time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )
 
+        calculated_finish_date = cubista.CalculatedField(
+            lambda_expression=lambda x: x["end"] if x["time_sheets_by_date_model_m"] == 0 else
+                x["start"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["end"] - x["start"]),
+            source_fields=["start", "end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+        )
+
 
 class PlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:

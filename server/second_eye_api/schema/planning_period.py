@@ -59,6 +59,8 @@ class PlanningPeriod(graphene_frame.DataFrameObjectType):
         time_sheets_by_date_model_m = graphene_frame.Float()
         time_sheets_by_date_model_b = graphene_frame.Float()
 
+        calculated_finish_date = graphene_frame.Date()
+
     def __str__(self):
         return self.name
 

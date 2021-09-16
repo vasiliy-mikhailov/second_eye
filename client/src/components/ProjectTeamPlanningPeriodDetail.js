@@ -45,6 +45,7 @@ const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
                     name
                   }
                   effortPerFunctionPoint
+                  calculatedFinishDate
                 }
                   
                 
@@ -93,7 +94,8 @@ class ProjectTeamPlanningPeriodDetail extends Component {
                         timeLeft: projectTeamPlanningPeriodSystem.timeLeft,
                         systemId: projectTeamPlanningPeriodSystem.system.id,
                         systemName: projectTeamPlanningPeriodSystem.system.name,
-                        effortPerFunctionPoint: projectTeamPlanningPeriodSystem.effortPerFunctionPoint
+                        effortPerFunctionPoint: projectTeamPlanningPeriodSystem.effortPerFunctionPoint,
+                        calculatedFinishDate: projectTeamPlanningPeriodSystem.calculatedFinishDate
                     }
             ))
 
@@ -107,6 +109,12 @@ class ProjectTeamPlanningPeriodDetail extends Component {
                         { params.getValue(params.id, 'systemName') }
                     </RouterLink>
                 ),
+            },
+            {
+                field: 'calculatedFinishDate',
+                headerName: 'Расчетная дата завершения',
+                width: 200,
+                align: 'center',
             },
             {
                 field: 'estimate',

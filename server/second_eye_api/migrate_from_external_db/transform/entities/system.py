@@ -173,6 +173,12 @@ class SystemPlanningPeriod(cubista.AggregatedTable):
             source_fields=["testing_time_sheets_by_date_model_m", "testing_time_sheets_by_date_model_b"]
         )
 
+        calculated_finish_date = cubista.CalculatedField(
+            lambda_expression=lambda x: x["planning_period_end"] if x["time_sheets_by_date_model_m"] == 0 else
+                x["planning_period_start"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["planning_period_end"] - x["planning_period_start"]),
+            source_fields=["planning_period_start", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+        )
+
 class SystemPlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
         source = lambda: system_change_request.SystemChangeRequestTimeSheetByDate

@@ -27,6 +27,7 @@ const fetchPlanningPeriodById = gql`
                     name
                 }
                 effortPerFunctionPoint
+                calculatedFinishDate
             }
             
             systemPlanningPeriods {
@@ -38,6 +39,7 @@ const fetchPlanningPeriodById = gql`
                     name
                 }
                 effortPerFunctionPoint
+                calculatedFinishDate
             }
             
             timeSpentPercentWithValueAndWithoutValueByDate {
@@ -87,7 +89,8 @@ class PlanningPeriodDetail extends Component {
                         timeLeft: dedicatedTeamPlanningPeriod.timeLeft,
                         dedicatedTeamId: dedicatedTeamPlanningPeriod.dedicatedTeam.id,
                         dedicatedTeamName: dedicatedTeamPlanningPeriod.dedicatedTeam.name,
-                        effortPerFunctionPoint: dedicatedTeamPlanningPeriod.effortPerFunctionPoint
+                        effortPerFunctionPoint: dedicatedTeamPlanningPeriod.effortPerFunctionPoint,
+                        calculatedFinishDate: dedicatedTeamPlanningPeriod.calculatedFinishDate
                     }
             ))
 
@@ -101,6 +104,12 @@ class PlanningPeriodDetail extends Component {
                         { params.getValue(params.id, 'dedicatedTeamName') }
                     </RouterLink>
                 ),
+            },
+            {
+                field: 'calculatedFinishDate',
+                headerName: 'Расчетная дата завершения',
+                width: 200,
+                align: 'center',
             },
             {
                 field: 'estimate',
@@ -134,7 +143,8 @@ class PlanningPeriodDetail extends Component {
                         timeLeft: systemPlanningPeriod.timeLeft,
                         systemId: systemPlanningPeriod.system.id,
                         systemName: systemPlanningPeriod.system.name,
-                        effortPerFunctionPoint: systemPlanningPeriod.effortPerFunctionPoint
+                        effortPerFunctionPoint: systemPlanningPeriod.effortPerFunctionPoint,
+                        calculatedFinishDate: systemPlanningPeriod.calculatedFinishDate
                     }
             ))
 
@@ -148,6 +158,12 @@ class PlanningPeriodDetail extends Component {
                         { params.getValue(params.id, 'systemName') }
                     </RouterLink>
                 ),
+            },
+            {
+                field: 'calculatedFinishDate',
+                headerName: 'Расчетная дата завершения',
+                width: 200,
+                align: 'center',
             },
             {
                 field: 'estimate',

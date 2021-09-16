@@ -212,6 +212,12 @@ class ProjectTeamPlanningPeriod(cubista.AggregatedTable):
             source_fields=["time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )
 
+        calculated_finish_date = cubista.CalculatedField(
+            lambda_expression=lambda x: x["planning_period_end"] if x["time_sheets_by_date_model_m"] == 0 else
+                x["planning_period_start"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["planning_period_end"] - x["planning_period_start"]),
+            source_fields=["planning_period_start", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+        )
+
 class ProjectTeamPlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
         source = lambda: change_request.ChangeRequestTimeSheetByDate
@@ -386,6 +392,12 @@ class ProjectTeamPlanningPeriodSystem(cubista.AggregatedTable):
             source_fields=["time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )
 
+        calculated_finish_date = cubista.CalculatedField(
+            lambda_expression=lambda x: x["planning_period_end"] if x["time_sheets_by_date_model_m"] == 0 else
+                x["planning_period_start"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["planning_period_end"] - x["planning_period_start"]),
+            source_fields=["planning_period_start", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+        )
+
 class ProjectTeamPlanningPeriodSystemTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
         source = lambda: system_change_request.SystemChangeRequestTimeSheetByDate
@@ -473,7 +485,6 @@ class ProjectTeamPlanningPeriodSystemTimeSheetByDate(cubista.AggregatedTable):
                 max_x=x["planning_period_end"]) * x["time_sheets_by_date_model_m"] + x["time_sheets_by_date_model_b"],
             source_fields=["date", "planning_period_start", "planning_period_end", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )
-
 
 class ProjectTeamPlanningPeriodSystemTimeSheetByDateModel(planning_period_time_sheet_by_date_model.ModelTable):
     class Model:
