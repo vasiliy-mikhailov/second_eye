@@ -219,6 +219,16 @@ class TaskTimeSheet(cubista.Table):
             default=-1
         )
 
+        time_spent_with_value = cubista.CalculatedField(lambda_expression=lambda x:
+            x["time_spent"] if x["has_value"] else 0,
+            source_fields=["time_spent", "has_value"]
+        )
+
+        time_spent_without_value = cubista.CalculatedField(lambda_expression=lambda x:
+            x["time_spent"] if not x["has_value"] else 0,
+           source_fields=["time_spent", "has_value"]
+        )
+
 class TaskTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
         source = lambda: TaskTimeSheet
@@ -233,6 +243,8 @@ class TaskTimeSheetByDate(cubista.AggregatedTable):
         date = cubista.AggregatedTableGroupField(source="date")
         time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
         time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["task_id"], sort_by=["date"])
+        time_spent_with_value = cubista.AggregatedTableAggregateField(source="time_spent_with_value", aggregate_function="sum")
+        time_spent_without_value = cubista.AggregatedTableAggregateField(source="time_spent_without_value", aggregate_function="sum")
         system_change_request_id = cubista.PullByForeignPrimaryKeyField(
             foreign_table=lambda: Task,
             related_field_name="task_id",

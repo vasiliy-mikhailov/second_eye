@@ -1,31 +1,25 @@
 import cubista
-from second_eye_api.migrate_from_external_db.transform import entities
-from second_eye_api.migrate_from_external_db.output_data import OutputData
-from .entities.company_transform import *
-from .entities.dedicated_teams_transform import *
-from .entities.project_team_transform import *
+from .change_request import *
+from .change_requests_transform import *
+from .company import *
+from .company_transform import *
+from .dedicated_team import *
+from .dedicated_teams_transform import *
+from .function_component import *
+from .person import *
+from .planning_period import *
+from .planning_period_time_sheet_by_date_model import *
+from .project_team import *
+from .project_team_transform import *
+from .skill import *
+from .state import *
+from .system import *
+from .system_change_request import *
+from .system_change_requests_transform import *
+from .task import *
+from .tasks_transform import *
 from .utils import *
-from .entities.tasks_transform import *
-from .entities.system_change_requests_transform import *
-from .entities.change_requests_transform import *
-from .entities.planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
-from .entities.project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
-from .entities.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date_transform import *
-from .entities.system_planning_periods_transform import *
-from .entities.system_planning_period_time_sheets_by_date_transform import *
-
-def calculate_time_sheets_inplace(output_data):
-    output_data.project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date = calculate_project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date(
-        task_time_sheets=output_data.task_time_sheets
-    )
-
-    output_data.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date = calculate_dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date(
-        task_time_sheets=output_data.task_time_sheets
-    )
-
-    output_data.planning_period_time_spent_percent_with_value_and_without_value_by_date = calculate_planning_period_time_spent_percent_with_value_and_without_value_by_date(
-        task_time_sheets=output_data.task_time_sheets
-    )
+from ..output_data import OutputData
 
 def calculate_companies_actual_change_request_capacity_effort_and_queue_length(output_data):
     output_data.companies = calculate_companies_actual_change_request_capacity_by_task_time_sheets(
@@ -142,59 +136,59 @@ class Transformer:
     def transform(self):
         input_data = self.input_data
 
-        change_request = entities.ChangeRequest(data_frame=input_data.change_requests)
-        change_request_analysis_time_sheet_by_date = entities.ChangeRequestAnalysisTimeSheetByDate()
-        change_request_development_time_sheet_by_date = entities.ChangeRequestDevelopmentTimeSheetByDate()
-        change_request_testing_time_sheet_by_date = entities.ChangeRequestTestingTimeSheetByDate()
-        change_request_time_sheet_by_date = entities.ChangeRequestTimeSheetByDate()
-        companiy = entities.Company(data_frame=input_data.companies)
-        dedicated_team = entities.DedicatedTeam(data_frame=input_data.dedicated_teams)
-        dedicated_team_planning_period = entities.DedicatedTeamPlanningPeriod()
-        dedicated_team_planning_period_system = entities.DedicatedTeamPlanningPeriodSystem()
-        dedicated_team_planning_period_system_time_sheet_by_date = entities.DedicatedTeamPlanningPeriodSystemTimeSheetByDate()
-        dedicated_team_planning_period_system_time_sheet_by_date_model = entities.DedicatedTeamPlanningPeriodSystemTimeSheetByDateModel()
-        dedicated_team_planning_period_time_sheet_by_date = entities.DedicatedTeamPlanningPeriodTimeSheetByDate()
-        dedicated_team_planning_period_time_sheet_by_date_model = entities.DedicatedTeamPlanningPeriodTimeSheetByDateModel()
-        dedicated_team_position = entities.DedicatedTeamPosition(data_frame=input_data.dedicated_team_positions)
-        function_component = entities.FunctionComponent(data_frame=input_data.function_components)
-        function_component_kind = entities.FunctionComponentKind(data_frame=input_data.function_component_kinds)
-        person = entities.Person(data_frame=input_data.persons)
-        planning_period = entities.PlanningPeriod(data_frame=input_data.planning_periods)
-        planning_period_time_sheet_by_date = entities.PlanningPeriodTimeSheetByDate()
-        planning_period_time_sheet_by_date_model = entities.PlanningPeriodTimeSheetByDateModel()
-        project_team = entities.ProjectTeam(data_frame=input_data.project_teams)
-        project_team_planning_period = entities.ProjectTeamPlanningPeriod()
-        project_team_planning_period_system = entities.ProjectTeamPlanningPeriodSystem()
-        project_team_planning_period_system_time_sheet_by_date = entities.ProjectTeamPlanningPeriodSystemTimeSheetByDate()
-        project_team_planning_period_system_time_sheet_by_date_model = entities.ProjectTeamPlanningPeriodSystemTimeSheetByDateModel()
-        project_team_planning_period_time_sheet_by_date = entities.ProjectTeamPlanningPeriodTimeSheetByDate()
-        project_team_planning_period_time_sheet_by_date_model = entities.ProjectTeamPlanningPeriodTimeSheetByDateModel()
-        project_team_position = entities.ProjectTeamPosition(data_frame=input_data.project_team_positions)
-        skill = entities.Skill(data_frame=input_data.skills)
-        state_category = entities.StateCategory(data_frame=input_data.state_categories)
-        state = entities.State(data_frame=input_data.states)
-        system = entities.System(data_frame=input_data.systems)
-        system_change_request = entities.SystemChangeRequest(data_frame=input_data.system_change_requests)
-        system_change_request_analysis_time_sheet_by_date = entities.SystemChangeRequestAnalysisTimeSheetByDate()
-        system_change_request_development_time_sheet_by_date = entities.SystemChangeRequestDevelopmentTimeSheetByDate()
-        system_change_request_testing_time_sheet_by_date = entities.SystemChangeRequestTestingTimeSheetByDate()
-        system_change_request_time_sheet = entities.SystemChangeRequestTimeSheet(data_frame=input_data.system_change_request_time_sheets)
-        system_change_request_time_sheet_by_date = entities.SystemChangeRequestTimeSheetByDate()
-        system_planning_period = entities.SystemPlanningPeriod()
-        system_planning_period_time_sheet_by_date = entities.SystemPlanningPeriodTimeSheetByDate()
-        system_planning_period_time_sheet_by_date_model = entities.SystemPlanningPeriodTimeSheetByDateModel()
-        system_planning_period_analysis_time_sheet_by_date = entities.SystemPlanningPeriodAnalysisTimeSheetByDate()
-        system_planning_period_analysis_time_sheet_by_date_model = entities.SystemPlanningPeriodAnalysisTimeSheetByDateModel()
-        system_planning_period_development_time_sheet_by_date = entities.SystemPlanningPeriodDevelopmentTimeSheetByDate()
-        system_planning_period_development_time_sheet_by_date_model = entities.SystemPlanningPeriodDevelopmentTimeSheetByDateModel()
-        system_planning_period_testing_time_sheet_by_date = entities.SystemPlanningPeriodTestingTimeSheetByDate()
-        system_planning_period_testing_time_sheet_by_date_model = entities.SystemPlanningPeriodTestingTimeSheetByDateModel()
-        task = entities.Task(data_frame=input_data.tasks)
-        task_analysis_time_sheet_by_date = entities.TaskAnalysisTimeSheetByDate()
-        task_development_time_sheet_by_date = entities.TaskDevelopmentTimeSheetByDate()
-        task_testing_time_sheet_by_date = entities.TaskTestingTimeSheetByDate()
-        task_time_sheet = entities.TaskTimeSheet(data_frame=input_data.task_time_sheets)
-        task_time_sheet_by_date = entities.TaskTimeSheetByDate()
+        change_request = ChangeRequest(data_frame=input_data.change_requests)
+        change_request_analysis_time_sheet_by_date = ChangeRequestAnalysisTimeSheetByDate()
+        change_request_development_time_sheet_by_date = ChangeRequestDevelopmentTimeSheetByDate()
+        change_request_testing_time_sheet_by_date = ChangeRequestTestingTimeSheetByDate()
+        change_request_time_sheet_by_date = ChangeRequestTimeSheetByDate()
+        companiy = Company(data_frame=input_data.companies)
+        dedicated_team = DedicatedTeam(data_frame=input_data.dedicated_teams)
+        dedicated_team_planning_period = DedicatedTeamPlanningPeriod()
+        dedicated_team_planning_period_system = DedicatedTeamPlanningPeriodSystem()
+        dedicated_team_planning_period_system_time_sheet_by_date = DedicatedTeamPlanningPeriodSystemTimeSheetByDate()
+        dedicated_team_planning_period_system_time_sheet_by_date_model = DedicatedTeamPlanningPeriodSystemTimeSheetByDateModel()
+        dedicated_team_planning_period_time_sheet_by_date = DedicatedTeamPlanningPeriodTimeSheetByDate()
+        dedicated_team_planning_period_time_sheet_by_date_model = DedicatedTeamPlanningPeriodTimeSheetByDateModel()
+        dedicated_team_position = DedicatedTeamPosition(data_frame=input_data.dedicated_team_positions)
+        function_component = FunctionComponent(data_frame=input_data.function_components)
+        function_component_kind = FunctionComponentKind(data_frame=input_data.function_component_kinds)
+        person = Person(data_frame=input_data.persons)
+        planning_period = PlanningPeriod(data_frame=input_data.planning_periods)
+        planning_period_time_sheet_by_date = PlanningPeriodTimeSheetByDate()
+        planning_period_time_sheet_by_date_model = PlanningPeriodTimeSheetByDateModel()
+        project_team = ProjectTeam(data_frame=input_data.project_teams)
+        project_team_planning_period = ProjectTeamPlanningPeriod()
+        project_team_planning_period_system = ProjectTeamPlanningPeriodSystem()
+        project_team_planning_period_system_time_sheet_by_date = ProjectTeamPlanningPeriodSystemTimeSheetByDate()
+        project_team_planning_period_system_time_sheet_by_date_model = ProjectTeamPlanningPeriodSystemTimeSheetByDateModel()
+        project_team_planning_period_time_sheet_by_date = ProjectTeamPlanningPeriodTimeSheetByDate()
+        project_team_planning_period_time_sheet_by_date_model = ProjectTeamPlanningPeriodTimeSheetByDateModel()
+        project_team_position = ProjectTeamPosition(data_frame=input_data.project_team_positions)
+        skill = Skill(data_frame=input_data.skills)
+        state_category = StateCategory(data_frame=input_data.state_categories)
+        state = State(data_frame=input_data.states)
+        system = System(data_frame=input_data.systems)
+        system_change_request = SystemChangeRequest(data_frame=input_data.system_change_requests)
+        system_change_request_analysis_time_sheet_by_date = SystemChangeRequestAnalysisTimeSheetByDate()
+        system_change_request_development_time_sheet_by_date = SystemChangeRequestDevelopmentTimeSheetByDate()
+        system_change_request_testing_time_sheet_by_date = SystemChangeRequestTestingTimeSheetByDate()
+        system_change_request_time_sheet = SystemChangeRequestTimeSheet(data_frame=input_data.system_change_request_time_sheets)
+        system_change_request_time_sheet_by_date = SystemChangeRequestTimeSheetByDate()
+        system_planning_period = SystemPlanningPeriod()
+        system_planning_period_time_sheet_by_date = SystemPlanningPeriodTimeSheetByDate()
+        system_planning_period_time_sheet_by_date_model = SystemPlanningPeriodTimeSheetByDateModel()
+        system_planning_period_analysis_time_sheet_by_date = SystemPlanningPeriodAnalysisTimeSheetByDate()
+        system_planning_period_analysis_time_sheet_by_date_model = SystemPlanningPeriodAnalysisTimeSheetByDateModel()
+        system_planning_period_development_time_sheet_by_date = SystemPlanningPeriodDevelopmentTimeSheetByDate()
+        system_planning_period_development_time_sheet_by_date_model = SystemPlanningPeriodDevelopmentTimeSheetByDateModel()
+        system_planning_period_testing_time_sheet_by_date = SystemPlanningPeriodTestingTimeSheetByDate()
+        system_planning_period_testing_time_sheet_by_date_model = SystemPlanningPeriodTestingTimeSheetByDateModel()
+        task = Task(data_frame=input_data.tasks)
+        task_analysis_time_sheet_by_date = TaskAnalysisTimeSheetByDate()
+        task_development_time_sheet_by_date = TaskDevelopmentTimeSheetByDate()
+        task_testing_time_sheet_by_date = TaskTestingTimeSheetByDate()
+        task_time_sheet = TaskTimeSheet(data_frame=input_data.task_time_sheets)
+        task_time_sheet_by_date = TaskTimeSheetByDate()
 
         data_source = cubista.DataSource(tables={
             change_request,
@@ -255,59 +249,59 @@ class Transformer:
         print("cubista done")
 
         output_data = OutputData()
-        output_data.change_requests = data_source.tables[entities.ChangeRequest].data_frame
-        output_data.change_request_analysis_time_sheets_by_date = data_source.tables[entities.ChangeRequestAnalysisTimeSheetByDate].data_frame
-        output_data.change_request_development_time_sheets_by_date = data_source.tables[entities.ChangeRequestDevelopmentTimeSheetByDate].data_frame
-        output_data.change_request_testing_time_sheets_by_date = data_source.tables[entities.ChangeRequestTestingTimeSheetByDate].data_frame
-        output_data.change_request_time_sheets_by_date = data_source.tables[entities.ChangeRequestTimeSheetByDate].data_frame
-        output_data.companies = data_source.tables[entities.Company].data_frame
-        output_data.dedicated_team_planning_periods = data_source.tables[entities.DedicatedTeamPlanningPeriod].data_frame
-        output_data.dedicated_team_planning_period_systems = data_source.tables[entities.DedicatedTeamPlanningPeriodSystem].data_frame
-        output_data.dedicated_team_planning_period_system_time_sheets_by_date = data_source.tables[entities.DedicatedTeamPlanningPeriodSystemTimeSheetByDate].data_frame
-        output_data.dedicated_team_planning_period_system_time_sheet_by_date_model = data_source.tables[entities.DedicatedTeamPlanningPeriodSystemTimeSheetByDateModel].data_frame
-        output_data.dedicated_team_planning_period_time_sheets_by_date = data_source.tables[entities.DedicatedTeamPlanningPeriodTimeSheetByDate].data_frame
-        output_data.dedicated_team_planning_period_time_sheets_by_date_model = data_source.tables[entities.DedicatedTeamPlanningPeriodTimeSheetByDateModel].data_frame
-        output_data.dedicated_team_positions = data_source.tables[entities.DedicatedTeamPosition].data_frame
-        output_data.dedicated_teams = data_source.tables[entities.DedicatedTeam].data_frame
-        output_data.function_components = data_source.tables[entities.FunctionComponent].data_frame
-        output_data.function_component_kinds = data_source.tables[entities.FunctionComponentKind].data_frame
-        output_data.persons = data_source.tables[entities.Person].data_frame
-        output_data.planning_period_time_sheets_by_date = data_source.tables[entities.PlanningPeriodTimeSheetByDate].data_frame
-        output_data.planning_period_time_sheets_by_date_model = data_source.tables[entities.PlanningPeriodTimeSheetByDateModel].data_frame
-        output_data.planning_periods = data_source.tables[entities.PlanningPeriod].data_frame
-        output_data.project_team_planning_period_time_sheets_by_date = data_source.tables[entities.ProjectTeamPlanningPeriodTimeSheetByDate].data_frame
-        output_data.project_team_planning_period_time_sheet_by_date_model = data_source.tables[entities.ProjectTeamPlanningPeriodTimeSheetByDateModel].data_frame
-        output_data.project_team_planning_period_systems = data_source.tables[entities.ProjectTeamPlanningPeriodSystem].data_frame
-        output_data.project_team_planning_period_system_time_sheets_by_date = data_source.tables[entities.ProjectTeamPlanningPeriodSystemTimeSheetByDate].data_frame
-        output_data.project_team_planning_period_system_time_sheets_by_date_model = data_source.tables[entities.ProjectTeamPlanningPeriodSystemTimeSheetByDateModel].data_frame
-        output_data.project_team_planning_periods = data_source.tables[entities.ProjectTeamPlanningPeriod].data_frame
-        output_data.project_team_positions = data_source.tables[entities.ProjectTeamPosition].data_frame
-        output_data.project_teams = data_source.tables[entities.ProjectTeam].data_frame
-        output_data.skills = data_source.tables[entities.Skill].data_frame
-        output_data.states = data_source.tables[entities.State].data_frame
-        output_data.state_categories = data_source.tables[entities.StateCategory].data_frame
-        output_data.systems = data_source.tables[entities.System].data_frame
-        output_data.system_change_requests = data_source.tables[entities.SystemChangeRequest].data_frame
-        output_data.system_change_request_analysis_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestAnalysisTimeSheetByDate].data_frame
-        output_data.system_change_request_development_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestDevelopmentTimeSheetByDate].data_frame
-        output_data.system_change_request_testing_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestTestingTimeSheetByDate].data_frame
-        output_data.system_change_request_time_sheets = data_source.tables[entities.SystemChangeRequestTimeSheet].data_frame
-        output_data.system_change_request_time_sheets_by_date = data_source.tables[entities.SystemChangeRequestTimeSheetByDate].data_frame
-        output_data.system_planning_periods = data_source.tables[entities.SystemPlanningPeriod].data_frame
-        output_data.system_planning_period_time_sheets_by_date = data_source.tables[entities.SystemPlanningPeriodTimeSheetByDate].data_frame
-        output_data.system_planning_period_time_sheets_by_date_model = data_source.tables[entities.SystemPlanningPeriodTimeSheetByDateModel].data_frame
-        output_data.system_planning_period_analysis_time_sheets_by_date = data_source.tables[entities.SystemPlanningPeriodAnalysisTimeSheetByDate].data_frame
-        output_data.system_planning_period_analysis_time_sheets_by_date_model = data_source.tables[entities.SystemPlanningPeriodAnalysisTimeSheetByDateModel].data_frame
-        output_data.system_planning_period_development_time_sheets_by_date = data_source.tables[entities.SystemPlanningPeriodDevelopmentTimeSheetByDate].data_frame
-        output_data.system_planning_period_development_time_sheets_by_date_model = data_source.tables[entities.SystemPlanningPeriodDevelopmentTimeSheetByDateModel].data_frame
-        output_data.system_planning_period_testing_time_sheets_by_date = data_source.tables[entities.SystemPlanningPeriodTestingTimeSheetByDate].data_frame
-        output_data.system_planning_period_testing_time_sheets_by_date_model = data_source.tables[entities.SystemPlanningPeriodTestingTimeSheetByDateModel].data_frame
-        output_data.task_analysis_time_sheets_by_date = data_source.tables[entities.TaskAnalysisTimeSheetByDate].data_frame
-        output_data.task_development_time_sheets_by_date = data_source.tables[entities.TaskDevelopmentTimeSheetByDate].data_frame
-        output_data.task_testing_time_sheets_by_date = data_source.tables[entities.TaskTestingTimeSheetByDate].data_frame
-        output_data.task_time_sheets = data_source.tables[entities.TaskTimeSheet].data_frame
-        output_data.task_time_sheets_by_date = data_source.tables[entities.TaskTimeSheetByDate].data_frame
-        output_data.tasks = data_source.tables[entities.Task].data_frame
+        output_data.change_requests = data_source.tables[ChangeRequest].data_frame
+        output_data.change_request_analysis_time_sheets_by_date = data_source.tables[ChangeRequestAnalysisTimeSheetByDate].data_frame
+        output_data.change_request_development_time_sheets_by_date = data_source.tables[ChangeRequestDevelopmentTimeSheetByDate].data_frame
+        output_data.change_request_testing_time_sheets_by_date = data_source.tables[ChangeRequestTestingTimeSheetByDate].data_frame
+        output_data.change_request_time_sheets_by_date = data_source.tables[ChangeRequestTimeSheetByDate].data_frame
+        output_data.companies = data_source.tables[Company].data_frame
+        output_data.dedicated_team_planning_periods = data_source.tables[DedicatedTeamPlanningPeriod].data_frame
+        output_data.dedicated_team_planning_period_systems = data_source.tables[DedicatedTeamPlanningPeriodSystem].data_frame
+        output_data.dedicated_team_planning_period_system_time_sheets_by_date = data_source.tables[DedicatedTeamPlanningPeriodSystemTimeSheetByDate].data_frame
+        output_data.dedicated_team_planning_period_system_time_sheet_by_date_model = data_source.tables[DedicatedTeamPlanningPeriodSystemTimeSheetByDateModel].data_frame
+        output_data.dedicated_team_planning_period_time_sheets_by_date = data_source.tables[DedicatedTeamPlanningPeriodTimeSheetByDate].data_frame
+        output_data.dedicated_team_planning_period_time_sheets_by_date_model = data_source.tables[DedicatedTeamPlanningPeriodTimeSheetByDateModel].data_frame
+        output_data.dedicated_team_positions = data_source.tables[DedicatedTeamPosition].data_frame
+        output_data.dedicated_teams = data_source.tables[DedicatedTeam].data_frame
+        output_data.function_components = data_source.tables[FunctionComponent].data_frame
+        output_data.function_component_kinds = data_source.tables[FunctionComponentKind].data_frame
+        output_data.persons = data_source.tables[Person].data_frame
+        output_data.planning_period_time_sheets_by_date = data_source.tables[PlanningPeriodTimeSheetByDate].data_frame
+        output_data.planning_period_time_sheets_by_date_model = data_source.tables[PlanningPeriodTimeSheetByDateModel].data_frame
+        output_data.planning_periods = data_source.tables[PlanningPeriod].data_frame
+        output_data.project_team_planning_period_time_sheets_by_date = data_source.tables[ProjectTeamPlanningPeriodTimeSheetByDate].data_frame
+        output_data.project_team_planning_period_time_sheet_by_date_model = data_source.tables[ProjectTeamPlanningPeriodTimeSheetByDateModel].data_frame
+        output_data.project_team_planning_period_systems = data_source.tables[ProjectTeamPlanningPeriodSystem].data_frame
+        output_data.project_team_planning_period_system_time_sheets_by_date = data_source.tables[ProjectTeamPlanningPeriodSystemTimeSheetByDate].data_frame
+        output_data.project_team_planning_period_system_time_sheets_by_date_model = data_source.tables[ProjectTeamPlanningPeriodSystemTimeSheetByDateModel].data_frame
+        output_data.project_team_planning_periods = data_source.tables[ProjectTeamPlanningPeriod].data_frame
+        output_data.project_team_positions = data_source.tables[ProjectTeamPosition].data_frame
+        output_data.project_teams = data_source.tables[ProjectTeam].data_frame
+        output_data.skills = data_source.tables[Skill].data_frame
+        output_data.states = data_source.tables[State].data_frame
+        output_data.state_categories = data_source.tables[StateCategory].data_frame
+        output_data.systems = data_source.tables[System].data_frame
+        output_data.system_change_requests = data_source.tables[SystemChangeRequest].data_frame
+        output_data.system_change_request_analysis_time_sheets_by_date = data_source.tables[SystemChangeRequestAnalysisTimeSheetByDate].data_frame
+        output_data.system_change_request_development_time_sheets_by_date = data_source.tables[SystemChangeRequestDevelopmentTimeSheetByDate].data_frame
+        output_data.system_change_request_testing_time_sheets_by_date = data_source.tables[SystemChangeRequestTestingTimeSheetByDate].data_frame
+        output_data.system_change_request_time_sheets = data_source.tables[SystemChangeRequestTimeSheet].data_frame
+        output_data.system_change_request_time_sheets_by_date = data_source.tables[SystemChangeRequestTimeSheetByDate].data_frame
+        output_data.system_planning_periods = data_source.tables[SystemPlanningPeriod].data_frame
+        output_data.system_planning_period_time_sheets_by_date = data_source.tables[SystemPlanningPeriodTimeSheetByDate].data_frame
+        output_data.system_planning_period_time_sheets_by_date_model = data_source.tables[SystemPlanningPeriodTimeSheetByDateModel].data_frame
+        output_data.system_planning_period_analysis_time_sheets_by_date = data_source.tables[SystemPlanningPeriodAnalysisTimeSheetByDate].data_frame
+        output_data.system_planning_period_analysis_time_sheets_by_date_model = data_source.tables[SystemPlanningPeriodAnalysisTimeSheetByDateModel].data_frame
+        output_data.system_planning_period_development_time_sheets_by_date = data_source.tables[SystemPlanningPeriodDevelopmentTimeSheetByDate].data_frame
+        output_data.system_planning_period_development_time_sheets_by_date_model = data_source.tables[SystemPlanningPeriodDevelopmentTimeSheetByDateModel].data_frame
+        output_data.system_planning_period_testing_time_sheets_by_date = data_source.tables[SystemPlanningPeriodTestingTimeSheetByDate].data_frame
+        output_data.system_planning_period_testing_time_sheets_by_date_model = data_source.tables[SystemPlanningPeriodTestingTimeSheetByDateModel].data_frame
+        output_data.task_analysis_time_sheets_by_date = data_source.tables[TaskAnalysisTimeSheetByDate].data_frame
+        output_data.task_development_time_sheets_by_date = data_source.tables[TaskDevelopmentTimeSheetByDate].data_frame
+        output_data.task_testing_time_sheets_by_date = data_source.tables[TaskTestingTimeSheetByDate].data_frame
+        output_data.task_time_sheets = data_source.tables[TaskTimeSheet].data_frame
+        output_data.task_time_sheets_by_date = data_source.tables[TaskTimeSheetByDate].data_frame
+        output_data.tasks = data_source.tables[Task].data_frame
 
         output_data.dedicated_team_position_abilities = input_data.dedicated_team_position_abilities
         output_data.project_team_position_abilities = input_data.project_team_position_abilities
@@ -321,8 +315,6 @@ class Transformer:
             tasks=output_data.tasks,
             system_change_requests=output_data.system_change_requests
         )
-
-        calculate_time_sheets_inplace(output_data=output_data)
 
         calculate_companies_actual_change_request_capacity_effort_and_queue_length(output_data=output_data)
 

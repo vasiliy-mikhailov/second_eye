@@ -14,6 +14,7 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                     id
                     estimate
                     effortPerFunctionPoint
+                    calculatedFinishDate
                     dedicatedTeam {
                         name
                     }
@@ -22,15 +23,12 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                         start
                         end
                     }
-                    timeSpentPercentWithValueAndWithoutValueByDate {
-                        date
-                        timeSpentWithoutValuePercentCumsum
-                        timeSpentWithValuePercentCumsum
-                    }
                     timeSheetsByDate {
                         date
                         timeSpentCumsum
                         timeSpentCumsumPrediction
+                        timeSpentWithoutValuePercentCumsum
+                        timeSpentWithValuePercentCumsum
                     }
                     
                     timeSpentCumsumAtEndPrediction
@@ -83,6 +81,7 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
         const dedicatedTeamName = dedicatedTeamPlanningPeriod.dedicatedTeam.name
         const estimate = dedicatedTeamPlanningPeriod.estimate
         const effortPerFunctionPoint = dedicatedTeamPlanningPeriod.effortPerFunctionPoint
+        const calculatedFinishDate = dedicatedTeamPlanningPeriod.calculatedFinishDate
         const planningPeriodName = dedicatedTeamPlanningPeriod.planningPeriod.name
         const planningPeriodStart = dedicatedTeamPlanningPeriod.planningPeriod.start
         const planningPeriodEnd = dedicatedTeamPlanningPeriod.planningPeriod.end
@@ -91,7 +90,6 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
         const changeRequests = dedicatedTeamPlanningPeriod.changeRequests
 
         const timeSheetsByDate = dedicatedTeamPlanningPeriod.timeSheetsByDate
-        const timeSpentPercentWithValueAndWithoutValueByDate = dedicatedTeamPlanningPeriod.timeSpentPercentWithValueAndWithoutValueByDate
         const timeSpentCumsumAtEndPrediction = dedicatedTeamPlanningPeriod.timeSpentCumsumAtEndPrediction
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
@@ -275,6 +273,8 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                     <br />
                     Период планирования { planningPeriodName } ({ planningPeriodStart }-{ planningPeriodEnd })
                     <br />
+                    Расчетная дата завершения { calculatedFinishDate }
+                    <br />
                     Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка
                 </Typography>
 
@@ -295,7 +295,7 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                     xAxisStart={ xAxisStart }
                     xAxisEnd={ xAxisEnd }
                     color="black"
-                    timeSpentPercentWithValueAndWithoutValueByDate={ timeSpentPercentWithValueAndWithoutValueByDate }
+                    timeSpentPercentWithValueAndWithoutValueByDate={ timeSheetsByDate }
                 />
 
                 <Typography variant="h6" noWrap>

@@ -7,8 +7,8 @@ from . import function_component
 from . import change_request
 from . import dedicated_team
 import datetime
-from .. import planning_period_time_sheet_by_date_model
-from ..utils import normalize
+from . import planning_period_time_sheet_by_date_model
+from .utils import normalize
 
 class DedicatedTeam(cubista.Table):
     class Fields:
@@ -219,6 +219,20 @@ class DedicatedTeamPlanningPeriodTimeSheetByDate(cubista.AggregatedTable):
 
         time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
         time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["dedicated_team_planning_period_id"], sort_by=["date"])
+        time_spent_with_value = cubista.AggregatedTableAggregateField(source="time_spent_with_value", aggregate_function="sum")
+        time_spent_without_value = cubista.AggregatedTableAggregateField(source="time_spent_without_value", aggregate_function="sum")
+        time_spent_with_value_cumsum = cubista.CumSumField(source_field="time_spent_with_value", group_by=["dedicated_team_planning_period_id"], sort_by=["date"])
+        time_spent_without_value_cumsum = cubista.CumSumField(source_field="time_spent_without_value", group_by=["dedicated_team_planning_period_id"], sort_by=["date"])
+
+        time_spent_with_value_percent_cumsum = cubista.CalculatedField(
+            lambda_expression=lambda x: 1 if x["time_spent_cumsum"] == 0 else x["time_spent_with_value_cumsum"] / x["time_spent_cumsum"],
+            source_fields=["time_spent_with_value_cumsum", "time_spent_cumsum"]
+        )
+
+        time_spent_without_value_percent_cumsum = cubista.CalculatedField(
+            lambda_expression=lambda x: 1 if x["time_spent_cumsum"] == 0 else x["time_spent_without_value_cumsum"] / x["time_spent_cumsum"],
+            source_fields=["time_spent_without_value_cumsum", "time_spent_cumsum"]
+        )
 
         planning_period_id = cubista.PullByRelatedField(
             foreign_table=lambda: DedicatedTeamPlanningPeriod,

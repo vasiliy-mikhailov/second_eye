@@ -93,8 +93,9 @@ class Table:
                 end = time.time()
                 duration = end - start
 
-                if duration > 1:
-                    print("{} {}".format(duration, field_to_evaluate))
+                # if duration > 1:
+                #     print("{} {}".format(duration, field_to_evaluate))
+
 
 class AggregatedTable(Table):
     class Aggregation:
@@ -204,7 +205,11 @@ class AggregatedTable(Table):
 
         if filter_fields and filter:
             reduced_data_frame = source_table.data_frame[filter_fields]
-            new_data_frame = new_data_frame[reduced_data_frame.apply(filter, axis=1)]
+            new_data_frame = new_data_frame[reduced_data_frame.apply(
+                filter,
+                axis=1,
+                result_type="expand"
+            )]
 
         new_data_frame = new_data_frame.sort_values(by=sort_by_field_names)
         new_data_frame = new_data_frame[reduced_field_names]
@@ -221,7 +226,8 @@ class AggregatedTable(Table):
 
         new_data_frame[primary_key_field_name] = new_data_frame.apply(
             lambda x: -x.name - 2,
-            axis=1
+            axis=1,
+            result_type="reduce"
         )
 
         self.data_frame = new_data_frame

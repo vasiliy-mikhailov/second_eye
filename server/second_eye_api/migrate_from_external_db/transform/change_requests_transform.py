@@ -1,6 +1,5 @@
-from second_eye_api.schema.state_category import StateCategory
 import pandas as pd
-from second_eye_api.migrate_from_external_db.transform.utils import *
+from .utils import *
 
 def calculate_change_requests_actual_change_request_capacity_by_task_time_sheets(change_requests, task_time_sheets):
     return calculate_entities_actual_change_request_capacity_by_task_time_sheets_summing_up_by_column(

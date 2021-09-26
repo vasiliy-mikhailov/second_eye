@@ -17,6 +17,7 @@ const fetchPlanningPeriodById = gql`
             end
             estimate
             effortPerFunctionPoint
+            calculatedFinishDate
             
             dedicatedTeamPlanningPeriods {
                 id
@@ -41,17 +42,13 @@ const fetchPlanningPeriodById = gql`
                 effortPerFunctionPoint
                 calculatedFinishDate
             }
-            
-            timeSpentPercentWithValueAndWithoutValueByDate {
-                date
-                timeSpentWithoutValuePercentCumsum
-                timeSpentWithValuePercentCumsum
-            }
     
             timeSheetsByDate {
                 date
                 timeSpentCumsum
                 timeSpentCumsumPrediction
+                timeSpentWithoutValuePercentCumsum
+                timeSpentWithValuePercentCumsum
             }
             
             timeSpentCumsumAtEndPrediction
@@ -67,6 +64,7 @@ class PlanningPeriodDetail extends Component {
         const planningPeriod = this.props.data.planningPeriodById
         const estimate = planningPeriod.estimate
         const effortPerFunctionPoint = planningPeriod.effortPerFunctionPoint
+        const calculatedFinishDate = planningPeriod.calculatedFinishDate
         const planningPeriodStart = planningPeriod.start
         const planningPeriodEnd = planningPeriod.end
 
@@ -74,7 +72,6 @@ class PlanningPeriodDetail extends Component {
         const systemPlanningPeriods = planningPeriod.systemPlanningPeriods
 
         const timeSheetsByDate = planningPeriod.timeSheetsByDate
-        const timeSpentPercentWithValueAndWithoutValueByDate = planningPeriod.timeSpentPercentWithValueAndWithoutValueByDate
         const timeSpentCumsumAtEndPrediction = planningPeriod.timeSpentCumsumAtEndPrediction
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
@@ -191,6 +188,8 @@ class PlanningPeriodDetail extends Component {
         return (
             <Box>
                 <Typography variant="body" noWrap>
+                    Расчетная дата завершения { calculatedFinishDate }
+                    <br />
                     Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка
                 </Typography>
 
@@ -212,7 +211,7 @@ class PlanningPeriodDetail extends Component {
                     xAxisStart={ xAxisStart }
                     xAxisEnd={ xAxisEnd }
                     color="black"
-                    timeSpentPercentWithValueAndWithoutValueByDate={ timeSpentPercentWithValueAndWithoutValueByDate }
+                    timeSpentPercentWithValueAndWithoutValueByDate={ timeSheetsByDate }
                 />
 
                 <br />

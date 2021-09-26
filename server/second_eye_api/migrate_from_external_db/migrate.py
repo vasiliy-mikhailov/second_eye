@@ -1,5 +1,4 @@
 import pandas as pd
-from .extract import Extractor
 from .transform import Transformer
 import graphene_frame
 from ..schema import change_request
@@ -15,9 +14,8 @@ from ..schema import system
 from ..schema import system_change_request
 from ..schema import task
 
-def migrate(get_input_connection):
+def migrate(extractor):
     print("extract")
-    extractor = Extractor(get_connection=get_input_connection)
     input_data = extractor.extract()
 
     print("transform")
@@ -37,19 +35,16 @@ def migrate(get_input_connection):
         dedicated_team.DedicatedTeamPlanningPeriodSystem: output_data.dedicated_team_planning_period_systems,
         dedicated_team.DedicatedTeamPlanningPeriodSystemTimeSheetsByDate: output_data.dedicated_team_planning_period_system_time_sheets_by_date,
         dedicated_team.DedicatedTeamPlanningPeriodTimeSheetsByDate: output_data.dedicated_team_planning_period_time_sheets_by_date,
-        dedicated_team.DedicatedTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate: output_data.dedicated_team_planning_period_time_spent_percent_with_value_and_without_value_by_date,
         dedicated_team.DedicatedTeamPosition: output_data.dedicated_team_positions,
         dedicated_team.DedicatedTeamPositionAbility: output_data.dedicated_team_position_abilities,
         person.Person: output_data.persons,
         planning_period.PlanningPeriod: output_data.planning_periods,
         planning_period.PlanningPeriodTimeSheetsByDate: output_data.planning_period_time_sheets_by_date,
-        planning_period.PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate: output_data.planning_period_time_spent_percent_with_value_and_without_value_by_date,
         project_team.ProjectTeam: output_data.project_teams,
         project_team.ProjectTeamPlanningPeriod: output_data.project_team_planning_periods,
         project_team.ProjectTeamPlanningPeriodSystem: output_data.project_team_planning_period_systems,
         project_team.ProjectTeamPlanningPeriodSystemTimeSheetsByDate: output_data.project_team_planning_period_system_time_sheets_by_date,
         project_team.ProjectTeamPlanningPeriodTimeSheetsByDate: output_data.project_team_planning_period_time_sheets_by_date,
-        project_team.ProjectTeamPlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate: output_data.project_team_planning_period_time_spent_percent_with_value_and_without_value_by_date,
         skill.Skill: output_data.skills,
         state.State: output_data.states,
         state_category.StateCategory: output_data.state_categories,

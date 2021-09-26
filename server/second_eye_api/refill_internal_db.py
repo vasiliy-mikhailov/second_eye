@@ -6,6 +6,7 @@ import traceback
 import logging
 import time
 from django.conf import settings
+from .migrate_from_external_db.extract import Extractor
 
 def get_connection_to_jira_db():
     pool = settings.pool
@@ -32,7 +33,8 @@ def refill_internal_db():
 
     get_input_connection = get_connection_to_jira_db
 
-    settings.GRAPHENE_FRAME_DATA_STORE = migrate(get_input_connection=get_input_connection)
+    extractor = Extractor(get_connection=get_input_connection)
+    settings.GRAPHENE_FRAME_DATA_STORE = migrate(extractor=extractor)
 
 def refill_internal_db_in_cycle():
     while (True):

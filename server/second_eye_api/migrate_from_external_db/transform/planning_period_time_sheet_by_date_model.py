@@ -129,14 +129,26 @@ class ModelTable(Table):
                 planning_period_end_field_name])
             ]
 
-        model = source_data_frame_filtered_by_period_start_and_end.groupby(
-            [planning_period_id_field_name]
-        ).apply(lambda x: pd.Series(
-            linear_polyfit(
-                x=(x[date_field_name] - x[planning_period_start_field_name]) / (x[planning_period_end_field_name] - x[planning_period_start_field_name]),
-                y=x[time_spent_cumsum_field_name]),
-            index=["time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
-        )).reset_index()
+        source_data_frame_grouped_by_planning_period_id_field_name = source_data_frame_filtered_by_period_start_and_end.groupby(
+            [planning_period_id_field_name],
+            as_index=False
+        )
+
+        model = source_data_frame_grouped_by_planning_period_id_field_name.apply(
+            lambda x: pd.Series(
+                linear_polyfit(
+                    x=(x[date_field_name] - x[planning_period_start_field_name]) / (x[planning_period_end_field_name] - x[planning_period_start_field_name]),
+                    y=x[time_spent_cumsum_field_name]
+                ),
+                index=["time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+            )
+        ) if source_data_frame_grouped_by_planning_period_id_field_name.ngroups else pd.DataFrame({
+            planning_period_id_field_name: pd.Series(dtype=type(planning_period_id_field_name)),
+            "time_sheets_by_date_model_m": pd.Series(dtype=float),
+            "time_sheets_by_date_model_b": pd.Series(dtype=float)
+        })
+
+
 
         self.data_frame = model
 

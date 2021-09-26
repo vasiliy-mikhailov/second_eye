@@ -1,6 +1,5 @@
-from second_eye_api.migrate_from_external_db.transform.utils import *
-from second_eye_api.schema.state_category import StateCategory
-from second_eye_api.schema.skill import Skill
+from .utils import *
+from .state import StateCategory
 import pandas as pd
 
 def make_filler_system_change_requests_summing_up_to_change_request_estimate(system_change_requests, change_requests):

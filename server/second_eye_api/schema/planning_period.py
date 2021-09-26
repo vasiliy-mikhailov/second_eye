@@ -47,11 +47,6 @@ class PlanningPeriod(graphene_frame.DataFrameObjectType):
 
         time_spent_cumsum_at_end_prediction = graphene_frame.Float()
 
-        time_spent_percent_with_value_and_without_value_by_date = graphene_frame.List(
-            to_entity=lambda: PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate,
-            to_field = "planning_period_id"
-        )
-
         function_points = graphene_frame.Float()
         function_points_effort = graphene_frame.Float()
         effort_per_function_point = graphene_frame.Float()
@@ -73,15 +68,8 @@ class PlanningPeriodTimeSheetsByDate(graphene_frame.DataFrameObjectType):
         time_spent_cumsum = graphene_frame.Float()
         time_spent_cumsum_prediction = graphene_frame.Float()
 
-        planning_period = graphene_frame.Field(to_entity=lambda: PlanningPeriod)
-
-
-class PlanningPeriodTimeSpentPercentWithValueAndWithoutValueByDate(graphene_frame.DataFrameObjectType):
-    class Fields:
-        id = graphene_frame.PrimaryKey(graphene_frame.Int())
-        date = graphene_frame.Date()
-
         time_spent_with_value_percent_cumsum = graphene_frame.Float()
         time_spent_without_value_percent_cumsum = graphene_frame.Float()
 
         planning_period = graphene_frame.Field(to_entity=lambda: PlanningPeriod)
+

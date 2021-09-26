@@ -1,7 +1,5 @@
 from django.conf import settings
 import graphene
-import graphene_django_optimizer as gql_optimizer
-
 from second_eye_api.schema import change_request
 from second_eye_api.schema import company
 from second_eye_api.schema import dedicated_team
@@ -92,7 +90,7 @@ class Query(graphene.ObjectType):
         return state.State.all(data_store=get_data_store())
 
     def resolve_change_requests(root, info):
-        return gql_optimizer.query(ChangeRequest.all(data_store=get_data_store()), info)
+        return change_request.ChangeRequest.all(data_store=get_data_store())
 
     def resolve_system_change_requests(root, info):
         return system_change_request.SystemChangeRequest.all(data_store=get_data_store())

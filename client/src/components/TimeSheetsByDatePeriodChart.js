@@ -61,7 +61,7 @@ class TimeSheetsByDatePeriodChart extends Component {
                     />
                     <Legend />
 
-                    <ReferenceLine x={ new Date(planningPeriodEnd).getTime() } stroke="red" strokeDasharray="5 5" label={{ position: "left", value: "Конец" }} ifOverflow="extendDomain"/>
+                    <ReferenceLine x={ new Date(planningPeriodEnd).getTime() } stroke="red" strokeDasharray="5 5" label={{ position: "left", value: "Конец периода" }} ifOverflow="extendDomain"/>
 
                     <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label={{ position: "left", value: "Сегодня" }} ifOverflow="extendDomain"/>
 

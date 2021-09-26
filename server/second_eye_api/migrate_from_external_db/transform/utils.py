@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from second_eye_api.schema.skill import Skill
+from .skill import Skill
 from datetime import datetime, date, timedelta
 
 def replace_column_values_with_minus_one_if_not_in_valid_list(dataframe, column_name, valid_list):

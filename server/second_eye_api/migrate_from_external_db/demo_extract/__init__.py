@@ -22,33 +22,32 @@ from .planning_periods_extractor import PlaningPeriodsExtractor
 from .system_change_requests_time_sheets_extractor import SystemChangeRequestsTimeSheetsExtractor
 
 class Extractor:
-    def __init__(self, get_connection):
-        self.get_connection = get_connection
+    def __init__(self):
+        pass
 
     def extract(self):
-        get_connection = self.get_connection
         input_data = InputData()
 
         skills_extractor = SkillsExtractor()
-        systems_extractor = SystemsExtractor(get_connection=get_connection)
+        systems_extractor = SystemsExtractor()
         companies_extractor = CompaniesExtractor()
-        dedicated_teams_extractor = DedicatedTeamsExtractor(get_connection=get_connection)
-        project_teams_extractor = ProjectTeamsExtractor(get_connection=get_connection)
+        dedicated_teams_extractor = DedicatedTeamsExtractor()
+        project_teams_extractor = ProjectTeamsExtractor()
         state_categories_extractor = StateCategoriesExtractor()
-        states_extractor = StatesExtractor(get_connection=get_connection)
-        change_requests_extractor = ChangeRequestsExtractor(get_connection=get_connection)
-        system_change_requests_extractor = SystemChangeRequestsExtractor(get_connection=get_connection)
-        tasks_extractor = TasksExtractor(get_connection=get_connection)
+        states_extractor = StatesExtractor()
+        change_requests_extractor = ChangeRequestsExtractor()
+        system_change_requests_extractor = SystemChangeRequestsExtractor()
+        tasks_extractor = TasksExtractor()
         function_component_kinds_extractor = FunctionComponentKindsExtractor()
-        function_component_extractor = FunctionComponentsExtractor(get_connection=get_connection)
-        persons_extractor = PersonsExtractor(get_connection=get_connection)
-        dedicated_team_positions_extractor = DedicatedTeamPositionsExtractor(get_connection=get_connection)
-        project_team_positions_extractor = ProjectTeamPositionsExtractor(get_connection=get_connection)
-        dedicated_team_position_abilities_extractor = DedicatedTeamPositionAbilitiesExtractor(get_connection=get_connection)
-        project_team_position_abilities_extractor = ProjectTeamPositionAbilitiesExtractor(get_connection=get_connection)
-        task_time_sheets_extractor = TaskTimeSheetsExtractor(get_connection=get_connection)
-        planning_periods_extractor = PlaningPeriodsExtractor(get_connection=get_connection)
-        system_change_request_time_sheets_extractor = SystemChangeRequestsTimeSheetsExtractor(get_connection=get_connection)
+        function_component_extractor = FunctionComponentsExtractor()
+        persons_extractor = PersonsExtractor()
+        dedicated_team_positions_extractor = DedicatedTeamPositionsExtractor()
+        project_team_positions_extractor = ProjectTeamPositionsExtractor()
+        dedicated_team_position_abilities_extractor = DedicatedTeamPositionAbilitiesExtractor()
+        project_team_position_abilities_extractor = ProjectTeamPositionAbilitiesExtractor()
+        task_time_sheets_extractor = TaskTimeSheetsExtractor()
+        planning_periods_extractor = PlaningPeriodsExtractor()
+        system_change_request_time_sheets_extractor = SystemChangeRequestsTimeSheetsExtractor()
 
         run_tasks_in_parallel([
             lambda: skills_extractor.extract(),

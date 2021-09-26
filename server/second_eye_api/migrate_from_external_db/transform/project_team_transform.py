@@ -1,4 +1,4 @@
-from second_eye_api.migrate_from_external_db.transform.utils import *
+from .utils import *
 
 def calculate_project_teams_actual_change_request_capacity_by_task_time_sheets(project_teams, task_time_sheets):
     return calculate_entities_actual_change_request_capacity_by_task_time_sheets_summing_up_by_column(

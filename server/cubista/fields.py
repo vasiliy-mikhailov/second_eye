@@ -484,7 +484,8 @@ class CalculatedField(Field):
         source_fields = self.source_fields
         data_frame[field_name] = data_frame[source_fields].apply(
             lambda_expression,
-            axis=1
+            axis=1,
+            result_type="reduce"
         )
 
     def is_evaluated(self):

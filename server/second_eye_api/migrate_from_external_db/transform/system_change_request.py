@@ -256,6 +256,8 @@ class SystemChangeRequestTimeSheetByDate(cubista.AggregatedTable):
         date = cubista.AggregatedTableGroupField(source="date")
         time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
         time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["system_change_request_id"], sort_by=["date"])
+        time_spent_with_value = cubista.AggregatedTableAggregateField(source="time_spent_with_value", aggregate_function="sum")
+        time_spent_without_value = cubista.AggregatedTableAggregateField(source="time_spent_without_value", aggregate_function="sum")
         change_request_id = cubista.PullByForeignPrimaryKeyField(
             foreign_table=lambda: SystemChangeRequest,
             related_field_name="system_change_request_id",

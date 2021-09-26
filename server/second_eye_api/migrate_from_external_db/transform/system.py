@@ -2,8 +2,8 @@ import cubista
 from . import planning_period
 from . import system_change_request
 import datetime
-from .. import planning_period_time_sheet_by_date_model
-from ..utils import normalize
+from . import planning_period_time_sheet_by_date_model
+from .utils import normalize
 
 class System(cubista.Table):
     SYSTEMS_WITHOUT_FUNCTION_POINTS = [
