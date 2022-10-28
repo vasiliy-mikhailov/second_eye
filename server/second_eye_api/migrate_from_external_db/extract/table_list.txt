@@ -1,0 +1,9 @@
+jira60.customFieldOption
+jira60.customFieldValue
+jira60.jiraIssue
+jira60.project
+jira60.issueLink
+jira60.label
+jira60.issueStatus
+jira60.workLog
+cwd_user
