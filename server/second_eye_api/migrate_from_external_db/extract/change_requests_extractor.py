@@ -9,10 +9,10 @@ class ChangeRequestsExtractor:
         with get_connection() as connection:
             query = """
                     select
-                        project.pkey||'-'||issue.issuenum as "id",
+                        issue.id as "id",
+                        project.pkey||'-'||issue.issuenum as "key",
                         'https://jira.mcb.ru/browse/'||project.pkey||'-'||issue.issuenum as "url",
                         issue.summary as "name",
-                        analysis_hours_express_cv.numbervalue + dev_express_estimate_cv.numbervalue + testing_hours_express_cv.numbervalue as "express_estimate",
                         analysis_hours_express_cv.numbervalue as "analysis_express_estimate",
                         dev_express_estimate_cv.numbervalue as "development_express_estimate",
                         testing_hours_express_cv.numbervalue as "testing_express_estimate",
@@ -25,15 +25,32 @@ class ChangeRequestsExtractor:
                         case nvl(to_number(issue_goal.stringValue), 0)
                             when 15318 then 0 -- автоматизация процесса
                             else 1
-                        end as "has_value"
+                        end as "has_value",
+                        case nvl(to_number(issue_goal.stringValue), 0)
+                            when 27319 then 1 -- технологическое перевооружение
+                            when 23732 then 1 -- исправление проблемы
+                            else 0
+                        end as "is_reengineering",
+                        nvl(epic_issue_data.id, -1) as "epic_id",
+                        case nvl(to_number(quarter_cfv.stringValue), '-1')
+                            when 488701 then '2022-I'
+                            when 504375 then '2022-I'
+                            when 488702 then '2022-II'
+                            when 504238 then '2022-II'
+                            when 488703 then '2022-III'
+                            when 504239 then '2022-III'
+                            when 488704 then '2022-IV'
+                            when 504240 then '2022-IV'
+                            else '-1'
+                        end as "quarter_key"
                     from 
                         jira60.jiraissue issue
                         inner join jira60.project project on issue.project=project.id
                         left join jira60.customfieldvalue analysis_hours_express_cv on (analysis_hours_express_cv.issue = issue.id and analysis_hours_express_cv.customfield = 14809)
                         left join jira60.customfieldvalue dev_express_estimate_cv on (dev_express_estimate_cv.issue = issue.id and dev_express_estimate_cv.customfield = 14810)
                         left join jira60.customfieldvalue testing_hours_express_cv on (testing_hours_express_cv.issue = issue.id and testing_hours_express_cv.customfield = 14811)
-                        left join jira60.customfieldvalue planned_install_date_cfv on planned_install_date_cfv.issue=issue.id and planned_install_date_cfv.customfield=14615
-                        left join jira60.customfieldvalue install_date_cfv on install_date_cfv.issue=issue.id and install_date_cfv.customfield=14619 
+                        left join jira60.customfieldvalue planned_install_date_cfv on planned_install_date_cfv.issue=issue.id and planned_install_date_cfv.customfield = 14615
+                        left join jira60.customfieldvalue install_date_cfv on install_date_cfv.issue=issue.id and install_date_cfv.customfield = 14619 
                         left join (
                             select
                                 to_number(regexp_substr(label,'\dквартал(\d+)$', 1, 1, NULL, 1)) as year,
@@ -44,10 +61,24 @@ class ChangeRequestsExtractor:
                             where
                                 regexp_like(label.label, '\dквартал(\d+)$')                               
                         ) year_label on (year_label.issue=issue.id and year_label.rank = 1) -- Первая метка с максимальным годом
-                        left join jira60.customFieldValue issue_project_team on issue_project_team.issue = issue.id and issue_project_team.customfield=17127 and issue_project_team.parentkey is not null --'Команда проекта
-                        left join jira60.customFieldValue issue_goal on issue_goal.issue = issue.id and issue_goal.customField=14622
+                        left join jira60.customFieldValue issue_project_team on issue_project_team.issue = issue.id and issue_project_team.customfield = 17127 and issue_project_team.parentkey is not null --'Команда проекта
+                        left join jira60.customFieldValue issue_goal on issue_goal.issue = issue.id and issue_goal.customField = 14622
+                        left join (
+                            select
+                                epic_issue_link.destination,
+                                (ROW_NUMBER() OVER(PARTITION BY destination ORDER BY destination)) as rank,
+                                epic_issue.id
+                            from 
+                                jira60.issuelink epic_issue_link
+                                inner join jira60.jiraissue epic_issue on (
+                                    epic_issue_link.source = epic_issue.id
+                                    and epic_issue_link.linktype = 10800 -- Epic -> доработка системы
+                                    and epic_issue.issuetype = 11007 -- Epic
+                                )
+                        ) epic_issue_data on epic_issue_data.destination = issue.id and epic_issue_data.rank = 1 -- ограничить связь только с первой (по возрастанию id) доработкой системы
+                        left join jira60.customFieldValue quarter_cfv on quarter_cfv.issue=issue.id and quarter_cfv.customField = 17740 
                     where 
-                        issue.issuetype=11900 --заявка на доработку ПО
+                        issue.issuetype = 11900 --заявка на доработку ПО
         """
 
             change_requests = pd.read_sql(
@@ -62,10 +93,10 @@ class ChangeRequestsExtractor:
             change_requests["planned_install_date"] = change_requests["planned_install_date"].dt.date
 
             change_request_not_specified = pd.DataFrame([[
+                -1,
                 "-1",
                 "",
                 "Не указано",
-                0,
                 0,
                 0,
                 0,
@@ -73,12 +104,17 @@ class ChangeRequestsExtractor:
                 None,
                 -1,
                 -1,
-                0
+                0,
+                0,
+                -1,
+                "-1",
+                None,
+                None
             ]], columns=[
                 "id",
+                "key",
                 "url",
                 "name",
-                "express_estimate",
                 "analysis_express_estimate",
                 "development_express_estimate",
                 "testing_express_estimate",
@@ -86,7 +122,12 @@ class ChangeRequestsExtractor:
                 "planned_install_date",
                 "year_label_max",
                 "project_team_id",
-                "has_value"
+                "has_value",
+                "is_reengineering",
+                "epic_id",
+                "quarter_key",
+                "install_date",
+                "resolution_date"
             ])
             change_requests = change_requests.append(
                 change_request_not_specified,

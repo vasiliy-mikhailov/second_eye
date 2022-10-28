@@ -17,10 +17,12 @@ class ProjectTeamPositionsExtractor:
                     change_request_capacity_cfv.numberValue as "change_request_capacity",
                     other_capacity_cfv.numberValue as "other_capacity",
                     case 
-                        when person_issue.project = 14200 then lower(outsource_person_cfv.stringValue)
-                        when person_issue.project = 15306 then lower(insource_person_cfv.stringValue)
-                    end as "person_id",
-                    team_cfv.stringValue as "project_team_id"
+                        when person_issue.project = 14200 then nvl(lower(outsource_person_cfv.stringValue), '-1')
+                        when person_issue.project = 15306 then nvl(lower(insource_person_cfv.stringValue), '-1')
+                        else '-1'
+                    end as "person_key",
+                    to_number(team_cfv.stringValue) as "project_team_id",
+                    position.issueStatus as "state_id"
                 from 
                     jira60.jiraissue position
                     left join jira60.customFieldValue incident_capacity_cfv on (incident_capacity_cfv.issue=position.id and incident_capacity_cfv.customfield=17114) --Часов на инциденты в день (план)
@@ -40,5 +42,34 @@ class ProjectTeamPositionsExtractor:
 
             project_team_positions = pd.read_sql(query, connection)
             project_team_positions = project_team_positions.drop_duplicates(subset=['id'])
+
+            project_team_position_not_specified = pd.DataFrame([[
+                -1,
+                "",
+                "Не указано",
+                0,
+                0,
+                0,
+                0,
+                "-1",
+                -1,
+                "-1"
+            ]], columns=[
+                "id",
+                "url",
+                "name",
+                "incident_capacity",
+                "management_capacity",
+                "change_request_capacity",
+                "other_capacity",
+                "person_key",
+                "project_team_id",
+                "state_id"
+            ])
+            project_team_positions = project_team_positions.append(
+                project_team_position_not_specified,
+                sort=False,
+                ignore_index=True
+            )
 
             self.data = project_team_positions

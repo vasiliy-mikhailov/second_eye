@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import {Box, Link} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
+import ReengineeringByDatePeriodChart from "./ReengineeringByDatePeriodChart"
 import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
 import { DataGridPro,} from '@mui/x-data-grid-pro';
 
@@ -29,6 +30,8 @@ const fetchPlanningPeriodById = gql`
                 }
                 effortPerFunctionPoint
                 calculatedFinishDate
+                newFunctionsTimeSpentPrevious28Days
+                timeSpentForReengineeringPercent
             }
             
             systemPlanningPeriods {
@@ -49,9 +52,9 @@ const fetchPlanningPeriodById = gql`
                 timeSpentCumsumPrediction
                 timeSpentWithoutValuePercentCumsum
                 timeSpentWithValuePercentCumsum
+                timeSpentForReengineeringPercentCumsum
+                timeSpentNotForReengineeringPercentCumsum
             }
-            
-            timeSpentCumsumAtEndPrediction
         }
     }
 `;
@@ -72,10 +75,10 @@ class PlanningPeriodDetail extends Component {
         const systemPlanningPeriods = planningPeriod.systemPlanningPeriods
 
         const timeSheetsByDate = planningPeriod.timeSheetsByDate
-        const timeSpentCumsumAtEndPrediction = planningPeriod.timeSpentCumsumAtEndPrediction
 
-        const xAxisStart = new Date(planningPeriodStart).getTime()
-        const xAxisEnd = new Date(planningPeriodEnd).getTime()
+        const fourWeeks = 1000 * 60 * 60 * 24 * 7 * 4
+        const xAxisStart = new Date(planningPeriodStart).getTime() - fourWeeks
+        const xAxisEnd = new Date(planningPeriodEnd).getTime() + fourWeeks
 
         const dedicatedTeamsTableContents = dedicatedTeamPlanningPeriods.slice()
             .sort((a, b) => ((a.dedicatedTeam.name > b.dedicatedTeam.name) ? 1 : ((a.dedicatedTeam.name < b.dedicatedTeam.name) ? -1 : 0)))
@@ -87,7 +90,9 @@ class PlanningPeriodDetail extends Component {
                         dedicatedTeamId: dedicatedTeamPlanningPeriod.dedicatedTeam.id,
                         dedicatedTeamName: dedicatedTeamPlanningPeriod.dedicatedTeam.name,
                         effortPerFunctionPoint: dedicatedTeamPlanningPeriod.effortPerFunctionPoint,
-                        calculatedFinishDate: dedicatedTeamPlanningPeriod.calculatedFinishDate
+                        calculatedFinishDate: dedicatedTeamPlanningPeriod.calculatedFinishDate,
+                        newFunctionsTimeSpentPrevious28Days: dedicatedTeamPlanningPeriod.newFunctionsTimeSpentPrevious28Days,
+                        timeSpentForReengineeringPercent: dedicatedTeamPlanningPeriod.timeSpentForReengineeringPercent,
                     }
             ))
 
@@ -113,22 +118,37 @@ class PlanningPeriodDetail extends Component {
                 headerName: 'Оценка (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'timeLeft',
                 headerName: 'Осталось (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'effortPerFunctionPoint',
                 headerName: 'Затраты на ф.т.',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
             },
+            {
+                field: 'newFunctionsTimeSpentPrevious28Days',
+                headerName: 'Фактические трудозатраты за 28 дней (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
+            },
+            {
+                field: 'timeSpentForReengineeringPercent',
+                headerName: 'Затраты на технологическое перевооружение и исправление проблем (%)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => (value * 100).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) ,
+            },
+
         ];
 
         const systemsTableContents = systemPlanningPeriods.slice()
@@ -167,21 +187,21 @@ class PlanningPeriodDetail extends Component {
                 headerName: 'Оценка (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'timeLeft',
                 headerName: 'Осталось (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'effortPerFunctionPoint',
                 headerName: 'Затраты на ф.т.',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
             },
         ];
 
@@ -196,13 +216,13 @@ class PlanningPeriodDetail extends Component {
 
                 <TimeSheetsByDatePeriodChart
                     planningPeriodEnd={ planningPeriodEnd }
-                    title="Аналитика + Разработка + Тестирование"
+                    title="Фактический объем работ: Аналитика + Разработка + Тестирование + Управление + Инциденты"
                     xAxisStart={ xAxisStart }
                     xAxisEnd={ xAxisEnd }
                     color="black"
                     timeSheetsByDate={ timeSheetsByDate }
                     estimate={ estimate }
-                    timeSpentCumsumAtEndPrediction={ timeSpentCumsumAtEndPrediction }
+                    calculatedFinishDate={ calculatedFinishDate }
                 />
 
                 <ValueByDatePeriodChart
@@ -214,6 +234,29 @@ class PlanningPeriodDetail extends Component {
                     timeSpentPercentWithValueAndWithoutValueByDate={ timeSheetsByDate }
                 />
 
+                <ReengineeringByDatePeriodChart
+                    planningPeriodEnd={ planningPeriodEnd }
+                    title="Доля списаний на задачи технологического перевооружения и исправления проблем"
+                    xAxisStart={ xAxisStart }
+                    xAxisEnd={ xAxisEnd }
+                    color="black"
+                    timeSpentPercentForReengineeringAndNotForReengineeringByDate={ timeSheetsByDate }
+                />
+
+                <br />
+
+                <Typography variant="body1">
+                    <RouterLink to={ `/planningPeriods/${ planningPeriodId }/projectTeams` }>
+                        Затраты на функциональные точки по проектным командам
+                    </RouterLink>
+                </Typography>
+                <br />
+
+                <Typography variant="body1">
+                    <RouterLink to={ `/planningPeriods/${ planningPeriodId }/persons` }>
+                        Затраты на функциональную точку по сотрудникам
+                    </RouterLink>
+                </Typography>
                 <br />
 
                 <Typography variant="h6" noWrap>

@@ -2,20 +2,21 @@ import cubista
 from . import state
 from . import task
 from . import change_request
-from . import dedicated_team
-from . import project_team
+from . import dedicated_team_planning_period
+from . import project_team_planning_period
 from . import system_change_request
 from . import system
 
 class FunctionComponent(cubista.Table):
     class Fields:
-        id = cubista.StringField(primary_key=True, unique=True)
+        id = cubista.IntField(primary_key=True, unique=True)
+        key = cubista.StringField(primary_key=False, unique=True)
         url = cubista.StringField()
         name = cubista.StringField()
-        state_id = cubista.ForeignKeyField(foreign_table=lambda: state.State, default=-1, nulls=False)
+        state_id = cubista.ForeignKeyField(foreign_table=lambda: state.State, default="-1", nulls=False)
         state_category_id = cubista.PullByForeignPrimaryKeyField(lambda: state.State, related_field_name="state_id", pulled_field_name="category_id")
         is_cancelled = cubista.PullByForeignPrimaryKeyField(lambda: state.State, related_field_name="state_id", pulled_field_name="is_cancelled")
-        task_id = cubista.ForeignKeyField(foreign_table=lambda: task.Task, default="-1", nulls=False)
+        task_id = cubista.ForeignKeyField(foreign_table=lambda: task.Task, default=-1, nulls=False)
         system_change_request_id = cubista.PullByForeignPrimaryKeyField(
             foreign_table=lambda: task.Task,
             related_field_name="task_id", pulled_field_name="system_change_request_id"
@@ -47,7 +48,7 @@ class FunctionComponent(cubista.Table):
         )
 
         dedicated_team_planning_period_id = cubista.PullByRelatedField(
-            foreign_table=lambda: dedicated_team.DedicatedTeamPlanningPeriod,
+            foreign_table=lambda: dedicated_team_planning_period.DedicatedTeamPlanningPeriod,
             related_field_names=["dedicated_team_id", "planning_period_id"],
             foreign_field_names=["dedicated_team_id", "planning_period_id"],
             pulled_field_name="id",
@@ -55,7 +56,7 @@ class FunctionComponent(cubista.Table):
         )
 
         project_team_planning_period_id = cubista.PullByRelatedField(
-            foreign_table=lambda: project_team.ProjectTeamPlanningPeriod,
+            foreign_table=lambda: project_team_planning_period.ProjectTeamPlanningPeriod,
             related_field_names=["project_team_id", "planning_period_id"],
             foreign_field_names=["project_team_id", "planning_period_id"],
             pulled_field_name="id",

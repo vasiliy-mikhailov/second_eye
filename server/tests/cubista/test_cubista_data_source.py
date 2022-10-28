@@ -66,85 +66,6 @@ def test_when_column_referencing_primary_key_of_another_table_contains_value_not
 
     assert table2.data_frame["table1_id"].tolist() == [-1, -1]
 
-def test_when_column_pulled_by_primary_key_from_another_table_value_migrates():
-    class Table1(cubista.Table):
-        class Fields:
-            id = cubista.IntField(primary_key=True, unique=True)
-            name = cubista.StringField()
-
-    class Table2(cubista.Table):
-        class Fields:
-            id = cubista.IntField(primary_key=True, unique=True)
-            table1_id = cubista.ForeignKeyField(lambda: Table1, default=-1)
-            table1_name = cubista.PullByForeignPrimaryKeyField(lambda: Table1, related_field_name="table1_id", pulled_field_name="name")
-
-    data1 = {
-        "id": [1, 2],
-        "name": ["one", "two"]
-    }
-    data_frame1 = pd.DataFrame(data1)
-    table1 = Table1(data_frame=data_frame1)
-
-    data2 = {
-        "id": [100, 200],
-        "table1_id": [1, 2]
-    }
-    data_frame2 = pd.DataFrame(data2)
-    table2 = Table2(data_frame=data_frame2)
-
-    _ = cubista.DataSource(tables=[
-        table1,
-        table2,
-    ])
-
-    assert table2.data_frame["table1_name"].tolist() == ["one", "two"]
-
-def test_when_column_pulled_by_field_from_another_table_value_migrates():
-    class Table1(cubista.Table):
-        class Fields:
-            id = cubista.IntField(primary_key=True, unique=True)
-            first_id = cubista.IntField()
-            second_id = cubista.IntField()
-            table2_name = cubista.PullByRelatedField(
-                foreign_table=lambda: Table2,
-                related_field_names=["first_id", "second_id"],
-                foreign_field_names=["id1", "id2"],
-                pulled_field_name="name", default="none"
-            )
-
-    class Table2(cubista.Table):
-        class Fields:
-            id = cubista.IntField(primary_key=True, unique=True)
-            id1 = cubista.IntField()
-            id2 = cubista.IntField()
-            name = cubista.StringField()
-
-    data1 = {
-        "id": [1, 2, 3],
-        "first_id": [100, 200, 300],
-        "second_id": [1000, 2000, 3000]
-    }
-    data_frame1 = pd.DataFrame(data1)
-    table1 = Table1(data_frame=data_frame1)
-
-    data2 = {
-        "id": [-1, -2],
-        "id1": [100, 200],
-        "id2": [1000, 2000],
-        "name": ["hello", "world"]
-    }
-    data_frame2 = pd.DataFrame(data2)
-    table2 = Table2(data_frame=data_frame2)
-
-    _ = cubista.DataSource(tables=[
-        table1,
-        table2,
-    ])
-
-    assert table1.data_frame["first_id"].tolist() == [100, 200, 300]
-    assert table1.data_frame["second_id"].tolist() == [1000, 2000, 3000]
-    assert table1.data_frame["table2_name"].tolist() == ["hello", "world", "none"]
-
 def test_when_column_pulled_from_another_table_value_migrates_by_field_chain():
     class Table1(cubista.Table):
         class Fields:
@@ -319,39 +240,43 @@ def test_create_table_with_grouping_aggregation_and_filtering():
     assert table2.data_frame["table1_name"].tolist() == ["group 1", "group 2"]
     assert table2.data_frame["table1_value_sum"].tolist() == [3.0, 7.0]
 
-def test_create_aggregated_foreign_field_migrates_to_table():
+def test_when_aggregated_table_created_with_non_autoincrement_primary_key_then_primary_key_values_are_valid():
     class Table1(cubista.Table):
         class Fields:
             id = cubista.IntField(primary_key=True, unique=True)
-            value_sum = cubista.AggregatedForeignField(lambda: Table2, foreign_field_name="table1_id", aggregated_field_name="value", aggregate_function="sum", default=0)
-
-    class Table2(cubista.Table):
-        class Fields:
-            id = cubista.IntField(primary_key=True, unique=True)
-            table1_id = cubista.ForeignKeyField(foreign_table=lambda: Table1, default=-1, nulls=False)
+            category_id = cubista.IntField()
             value = cubista.FloatField()
 
+    class Table2(cubista.AggregatedTable):
+        class Aggregation:
+            source: cubista.Table = lambda: Table1
+            sort_by = ["id"]
+            group_by = ["category_id"]
+            filter = None
+            filter_fields = []
+
+        class Fields:
+            id = cubista.AggregatedTableGroupField(source="category_id", primary_key=True)
+            value_sum = cubista.AggregatedTableAggregateField(source="value", aggregate_function="sum")
+
     data1 = {
-        "id": [1, 2, 3]
+        "id": [1, 2, 3, 4, 5, 6],
+        "category_id": [1, 1, 2, 2, 3, 3],
+        "value": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
     }
     data_frame1 = pd.DataFrame(data1)
     table1 = Table1(data_frame=data_frame1)
 
-    data2 = {
-        "id": [10, 20, 30, 40],
-        "table1_id": [1, 1, 2, 2],
-        "value": [1.0, 2.0, 3.0, 4.0]
-    }
-    data_frame2 = pd.DataFrame(data2)
-    table2 = Table2(data_frame=data_frame2)
+    table2 = Table2()
 
     _ = cubista.DataSource(tables=[
         table1,
         table2
     ])
 
-    assert table1.data_frame.columns.tolist() == ["id", "value_sum"]
-    assert table1.data_frame["value_sum"].tolist() == [3.0, 7.0, 0.0]
+    assert table2.data_frame.columns.tolist() == ["id", "value_sum"]
+    assert table2.data_frame["id"].tolist() == [1, 2, 3]
+    assert table2.data_frame["value_sum"].tolist() == [3.0, 7.0, 11.0]
 
 def test_calculate_cum_sum_field():
     class Table1(cubista.Table):
@@ -388,3 +313,169 @@ def test_calculate_cum_sum_field():
     ])
 
     assert table1.data_frame["time_spent_cumsum"].tolist() == [1.0, 2.0, 4.0, 6.0, 9.0, 12.0]
+
+def test_create_table_with_outer_join():
+    class Table1(cubista.Table):
+        class Fields:
+            id = cubista.IntField(primary_key=True, unique=True)
+            key1_1 = cubista.IntField(nulls=True, unique=False)
+            key1_2 = cubista.IntField(nulls=True, unique=False)
+            plan_value = cubista.FloatField()
+
+    class Table2(cubista.Table):
+        class Fields:
+            id = cubista.IntField(primary_key=True, unique=True)
+            key2_1 = cubista.IntField(nulls=True, unique=False)
+            key2_2 = cubista.IntField(nulls=True, unique=False)
+            fact_value = cubista.FloatField()
+
+    class Table3(cubista.OuterJoinedTable):
+        class OuterJoin:
+            left_source_table: cubista.Table = lambda: Table1
+            right_source_table: cubista.Table = lambda: Table2
+            left_fields = {"key1_1": "key1", "key1_2": "key2", "plan_value": "plan_value"}
+            right_fields = {"key2_1": "key1", "key2_2": "key2", "fact_value": "fact_value"}
+            on_fields = ["key1", "key2"]
+
+        class Fields:
+            id = cubista.OuterJoinedTableTableAutoIncrementPrimaryKeyField()
+            key1 = cubista.OuterJoinedTableOuterJoinedField(source="key1", default=-1)
+            key2 = cubista.OuterJoinedTableOuterJoinedField(source="key2", default=-1)
+            plan_value = cubista.OuterJoinedTableOuterJoinedField(source="plan_value", default=0)
+            fact_value = cubista.OuterJoinedTableOuterJoinedField(source="fact_value", default=0)
+
+    data1 = {
+        "id": [1, 2],
+        "key1_1": [10, 10],
+        "key1_2": [20, 30],
+        "plan_value": [1.0, 2.0]
+    }
+    data_frame1 = pd.DataFrame(data1)
+    table1 = Table1(data_frame=data_frame1)
+
+    data2 = {
+        "id": [3, 4],
+        "key2_1": [10, 10],
+        "key2_2": [20, 40],
+        "fact_value": [3.0, 4.0]
+    }
+    data_frame2 = pd.DataFrame(data2)
+    table2 = Table2(data_frame=data_frame2)
+
+    table3 = Table3()
+
+    _ = cubista.DataSource(tables=[
+        table1,
+        table2,
+        table3
+    ])
+
+    assert sorted(table3.data_frame.columns.tolist()) == sorted(["id", "key1", "key2", "plan_value", "fact_value"])
+    assert table3.data_frame["id"].tolist() == [-2, -3, -4]
+    assert table3.data_frame["key1"].tolist() == [10, 10, 10]
+    assert table3.data_frame["key2"].tolist() == [20, 30, 40]
+    assert table3.data_frame["plan_value"].tolist() == [1.0, 2.0, 0.0]
+    assert table3.data_frame["fact_value"].tolist() == [3.0, 0.0, 4.0]
+
+def test_create_cross_table_with_outer_join():
+    class Table1(cubista.Table):
+        class Fields:
+            id = cubista.IntField(primary_key=True, unique=True)
+
+    class Table2(cubista.Table):
+        class Fields:
+            id = cubista.IntField(primary_key=True, unique=True)
+
+    class Table3(cubista.OuterJoinedTable):
+        class OuterJoin:
+            left_source_table: cubista.Table = lambda: Table1
+            right_source_table: cubista.Table = lambda: Table2
+            left_fields = {"id": "id_1"}
+            right_fields = {"id": "id_2"}
+            on_fields = []
+
+        class Fields:
+            id = cubista.OuterJoinedTableTableAutoIncrementPrimaryKeyField()
+            id_1 = cubista.OuterJoinedTableOuterJoinedField(source="id_1", default=-1)
+            id_2 = cubista.OuterJoinedTableOuterJoinedField(source="id_2", default=-1)
+
+    data1 = {
+        "id": [1, 2],
+    }
+    data_frame1 = pd.DataFrame(data1)
+    table1 = Table1(data_frame=data_frame1)
+
+    data2 = {
+        "id": [3, 4],
+    }
+    data_frame2 = pd.DataFrame(data2)
+    table2 = Table2(data_frame=data_frame2)
+
+    table3 = Table3()
+
+    _ = cubista.DataSource(tables=[
+        table1,
+        table2,
+        table3
+    ])
+
+    assert sorted(table3.data_frame.columns.tolist()) == sorted(["id", "id_1", "id_2"])
+    assert table3.data_frame["id"].tolist() == [-2, -3, -4, -5]
+    assert table3.data_frame["id_1"].tolist() == [1, 1, 2, 2]
+    assert table3.data_frame["id_2"].tolist() == [3, 4, 3, 4]
+
+def test_create_union_table():
+    class Table1(cubista.Table):
+        class Fields:
+            id = cubista.IntField(primary_key=True, unique=True)
+            key1 = cubista.IntField(nulls=True, unique=False)
+            key2 = cubista.IntField(nulls=True, unique=False)
+            value = cubista.FloatField()
+
+    class Table2(cubista.Table):
+        class Fields:
+            id = cubista.IntField(primary_key=True, unique=True)
+            key1 = cubista.IntField(nulls=True, unique=False)
+            key2 = cubista.IntField(nulls=True, unique=False)
+            value = cubista.FloatField()
+
+    class Table3(cubista.UnionTable):
+        class Union:
+            tables: [cubista.Table] = [lambda: Table1, lambda: Table2]
+            fields: [str] = ["key1", "value"]
+
+        class Fields:
+            id = cubista.UnionTableTableAutoIncrementPrimaryKeyField()
+            key1 = cubista.UnionTableUnionField(source="key1")
+            value = cubista.UnionTableUnionField(source="value")
+
+    data1 = {
+        "id": [1, 2],
+        "key1": [10, 10],
+        "key2": [20, 30],
+        "value": [1.0, 2.0]
+    }
+    data_frame1 = pd.DataFrame(data1)
+    table1 = Table1(data_frame=data_frame1)
+
+    data2 = {
+        "id": [3, 4],
+        "key1": [10, 10],
+        "key2": [20, 40],
+        "value": [3.0, 4.0]
+    }
+    data_frame2 = pd.DataFrame(data2)
+    table2 = Table2(data_frame=data_frame2)
+
+    table3 = Table3()
+
+    _ = cubista.DataSource(tables=[
+        table1,
+        table2,
+        table3
+    ])
+
+    assert sorted(table3.data_frame.columns.tolist()) == sorted(["id", "key1", "value"])
+    assert table3.data_frame["id"].tolist() == [-2, -3, -4, -5]
+    assert table3.data_frame["key1"].tolist() == [10, 10, 10, 10]
+    assert table3.data_frame["value"].tolist() == [1.0, 2.0, 3.0, 4.0]

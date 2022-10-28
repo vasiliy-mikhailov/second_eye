@@ -12,11 +12,8 @@ class TimeSheetsByDatePeriodChart extends Component {
         const xAxisEnd = this.props.xAxisEnd
         const color = this.props.color
         const timeSheetsByDate = this.props.timeSheetsByDate
-        const timeSpentCumsumAtEndPrediction = this.props.timeSpentCumsumAtEndPrediction
         const estimate = this.props.estimate
-
-
-        console.log(xAxisEnd, timeSpentCumsumAtEndPrediction)
+        const calculatedFinishDate = new Date(this.props.calculatedFinishDate).getTime()
 
         return (
                 <LineChart
@@ -31,9 +28,9 @@ class TimeSheetsByDatePeriodChart extends Component {
                         }).filter(item => {
                             return item.date >= xAxisStart
                         }).concat([{
-                                date: xAxisEnd,
+                                date: calculatedFinishDate,
                                 timeSpentCumsum: null,
-                                timeSpentCumsumPrediction: Math.round(timeSpentCumsumAtEndPrediction)
+                                timeSpentCumsumPrediction: Math.round(estimate)
                             }]
                         )
                     }
@@ -61,11 +58,11 @@ class TimeSheetsByDatePeriodChart extends Component {
                     />
                     <Legend />
 
-                    <ReferenceLine x={ new Date(planningPeriodEnd).getTime() } stroke="red" strokeDasharray="5 5" label={{ position: "left", value: "Конец периода" }} ifOverflow="extendDomain"/>
+                    <ReferenceLine x={ new Date(planningPeriodEnd).getTime() } stroke="red" strokeDasharray="5 5" label={{ position: "left" }} ifOverflow="extendDomain"/>
 
                     <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label={{ position: "left", value: "Сегодня" }} ifOverflow="extendDomain"/>
 
-                    <ReferenceLine y={ estimate } stroke={ color } strokeDasharray="5 5" ifOverflow="extendDomain" label={{ position: 'top',  value: "Объем работ " + Math.round(estimate).toLocaleString() + " ч" }} />
+                    <ReferenceLine y={ estimate } stroke={ color } strokeDasharray="5 5" ifOverflow="extendDomain" label={{ position: 'top',  value: "Плановый объем работ " + Math.round(estimate).toLocaleString() + " ч" }} />
 
                     <Line
                         name={ title }

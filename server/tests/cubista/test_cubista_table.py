@@ -78,3 +78,5 @@ def test_when_table_is_created_and_more_than_one_primary_key_specified_raises_ex
     with pytest.raises(cubista.MoreThanOnePrimaryKeySpecified):
         _ = TableWithTwoPrimaryKeys(data_frame=data_frame)
 
+
+

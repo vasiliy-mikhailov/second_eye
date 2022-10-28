@@ -12,6 +12,8 @@ const fetchProjectTeamPlanningPeriodSystemByProjectTeamIdPlanningPeriodIdAndSyst
           projectTeamPlanningPeriodSystemByProjectTeamIdPlanningPeriodIdAndSystemId(projectTeamId: $projectTeamId, planningPeriodId: $planningPeriodId, systemId: $systemId) {
                 id
                 estimate
+                calculatedFinishDate
+                
                 effortPerFunctionPoint
                 system {
                     name
@@ -28,16 +30,20 @@ const fetchProjectTeamPlanningPeriodSystemByProjectTeamIdPlanningPeriodIdAndSyst
                     timeSpentCumsumPrediction
                 }
                 
-                timeSpentCumsumAtEndPrediction
-                
                 systemChangeRequests {
                     id
+                    key
                     estimate
                     timeLeft
                     hasValue
                     name
                     stateCategoryId
                     effortPerFunctionPoint
+                    
+                    mainDeveloper {
+                        id
+                        name
+                    }
                 }
           }
     }
@@ -52,6 +58,7 @@ class ProjectTeamPlanningPeriodSystemDetail extends Component {
 
         const systemName = projectTeamPlanningPeriodSystem.system.name
         const estimate = projectTeamPlanningPeriodSystem.estimate
+        const calculatedFinishDate = projectTeamPlanningPeriodSystem.calculatedFinishDate
         const effortPerFunctionPoint = projectTeamPlanningPeriodSystem.effortPerFunctionPoint
         const planningPeriodName = projectTeamPlanningPeriodSystem.planningPeriod.name
         const planningPeriodStart = projectTeamPlanningPeriodSystem.planningPeriod.start
@@ -59,7 +66,6 @@ class ProjectTeamPlanningPeriodSystemDetail extends Component {
         const systemChangeRequests = projectTeamPlanningPeriodSystem.systemChangeRequests
 
         const timeSheetsByDate = projectTeamPlanningPeriodSystem.timeSheetsByDate
-        const timeSpentCumsumAtEndPrediction = projectTeamPlanningPeriodSystem.timeSpentCumsumAtEndPrediction
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
@@ -77,12 +83,14 @@ class ProjectTeamPlanningPeriodSystemDetail extends Component {
             .map(systemChangeRequest => (
                     {
                         id: systemChangeRequest.id,
+                        key: systemChangeRequest.key,
                         name: systemChangeRequest.name,
                         hasValue: systemChangeRequest.hasValue,
                         estimate: systemChangeRequest.estimate,
                         timeLeft: systemChangeRequest.timeLeft,
                         stateCategoryId: systemChangeRequest.stateCategoryId,
-                        effortPerFunctionPoint: systemChangeRequest.effortPerFunctionPoint
+                        effortPerFunctionPoint: systemChangeRequest.effortPerFunctionPoint,
+                        mainDeveloperName: systemChangeRequest.mainDeveloper.name,
                     }
             ))
 
@@ -92,8 +100,8 @@ class ProjectTeamPlanningPeriodSystemDetail extends Component {
                 headerName: 'Название',
                 flex: 1,
                 renderCell: (params) => (
-                    <RouterLink style={{ textDecoration: params.getValue(params.id, 'stateCategoryId') === 3 ? 'line-through' : 'none' }} to={ `/systemChangeRequests/${ params.getValue(params.id, 'id') }` }>
-                        { params.getValue(params.id, 'id') } &nbsp;
+                    <RouterLink style={{ textDecoration: params.getValue(params.id, 'stateCategoryId') === 3 ? 'line-through' : 'none' }} to={ `/systemChangeRequests/${ params.getValue(params.id, 'key') }` }>
+                        { params.getValue(params.id, 'key') } &nbsp;
                         { params.getValue(params.id, 'name') }
                     </RouterLink>
                 ),
@@ -109,43 +117,48 @@ class ProjectTeamPlanningPeriodSystemDetail extends Component {
                 headerName: 'Оценка (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'timeLeft',
                 headerName: 'Осталось (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'effortPerFunctionPoint',
                 headerName: 'Затраты на ф.т.',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}) ,
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
+            },
+            {
+                field: 'mainDeveloperName',
+                headerName: 'Основной разработчик',
+                width: 200,
+                align: 'left',
             },
         ];
 
         return (
             <Box>
                 <Typography variant="body" noWrap>
-                    Система { systemName }
-                    <br />
-                    Период планирования { planningPeriodName } ({ planningPeriodStart }-{ planningPeriodEnd })
-                    <br />
-                    Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка
+                    Система { systemName }<br />
+                    Период планирования { planningPeriodName } ({ planningPeriodStart }-{ planningPeriodEnd })<br />
+                    Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка<br/>
+                    Расчетная дата завершения { calculatedFinishDate }
                 </Typography>
 
                 <TimeSheetsByDatePeriodChart
                     planningPeriodEnd={ planningPeriodEnd }
-                    title="Аналитика + Разработка + Тестирование"
+                    title="Фактический объем работ: Аналитика + Разработка + Тестирование"
                     xAxisStart={ xAxisStart }
                     xAxisEnd={ xAxisEnd }
                     color="black"
                     timeSheetsByDate={ timeSheetsByDate }
                     estimate={ estimate }
-                    timeSpentCumsumAtEndPrediction={ timeSpentCumsumAtEndPrediction }
+                    calculatedFinishDate={ calculatedFinishDate }
                 />
 
                <Typography variant="h6" noWrap>

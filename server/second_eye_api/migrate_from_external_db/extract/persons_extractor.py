@@ -10,7 +10,8 @@ class PersonsExtractor:
         with get_connection() as connection:
             query = """
                 select
-                    lower(cwd_user.lower_user_name) as "id",
+                    cwd_user.id as "id",
+                    lower(cwd_user.lower_user_name) as "key",
                     cwd_user.display_name as "name",
                     active "is_active"
                 from
@@ -20,9 +21,9 @@ class PersonsExtractor:
             """
 
             persons = pd.read_sql(query, connection)
-            persons = persons.drop_duplicates(subset=["id"]) # логины уволенных передаются новым
+            persons = persons.drop_duplicates(subset=["key"]) # логины уволенных передаются новым
 
-            person_not_specified = pd.DataFrame([["-1", "Не указано", False]], columns=["id", "name", "is_active"])
+            person_not_specified = pd.DataFrame([[-1, "-1", "Не указано", False]], columns=["id", "key", "name", "is_active"])
             persons = persons.append(
                 person_not_specified,
                 sort=False,

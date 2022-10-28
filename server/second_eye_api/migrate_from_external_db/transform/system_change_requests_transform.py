@@ -35,7 +35,7 @@ def make_filler_system_change_requests_summing_up_to_change_request_estimate(sys
         inplace=True
     )
     additional_system_change_requests["url"] = "https://none.com"
-    additional_system_change_requests["name"] = "Заполнитель"
+    additional_system_change_requests["name"] = "(не декомпозированный объем работ вышестоящей задачи)"
     additional_system_change_requests["system_id"] = -1
     additional_system_change_requests["analysis_preliminary_estimate"] = additional_system_change_requests["analysis_estimate"]
     additional_system_change_requests["development_preliminary_estimate"] = additional_system_change_requests["development_estimate"]
@@ -57,6 +57,9 @@ def make_filler_system_change_requests_summing_up_to_change_request_estimate(sys
     additional_system_change_requests["development_time_left"] = additional_system_change_requests["development_estimate"]
     additional_system_change_requests["testing_time_left"] = additional_system_change_requests["testing_estimate"]
     additional_system_change_requests["time_left"] = additional_system_change_requests["estimate"]
+    additional_system_change_requests["effort_per_function_point"] = 0
+    additional_system_change_requests["calculated_finish_date"] = datetime.date(year=2100, month=12, day=31)
+    additional_system_change_requests["main_developer_id"] = -1
     additional_system_change_requests["is_filler"] = True
 
     system_change_requests = system_change_requests.append(
@@ -66,7 +69,12 @@ def make_filler_system_change_requests_summing_up_to_change_request_estimate(sys
     system_change_requests.reset_index(inplace=True, drop=True)  # to prevent duplicate row names
 
     system_change_requests["id"] = system_change_requests.apply(lambda x:
-        -x.name - 1 if pd.isnull(x["id"]) else x["id"],
+        int(-x.name - 1) if pd.isnull(x["id"]) else x["id"],
+        axis=1
+    )
+
+    system_change_requests["key"] = system_change_requests.apply(lambda x:
+        str(-x.name - 1) if pd.isnull(x["key"]) else x["key"],
         axis=1
     )
 

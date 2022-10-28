@@ -1,12 +1,233 @@
 import pandas as pd
-import numpy as np
 from .skill import Skill
-from datetime import datetime, date, timedelta
+import datetime
+import calendar
+from . import quarter
 
-def replace_column_values_with_minus_one_if_not_in_valid_list(dataframe, column_name, valid_list):
-    dataframe.loc[~dataframe[column_name].isin(
-        valid_list
-    ), column_name] = -1
+chronon_working_days_for_sys_date = {}
+chronon_start_dates_for_sys_date = {}
+chronon_end_dates_for_sys_date = {}
+working_days_in_month_hash = {}
+
+public_holidays = [
+    datetime.date(year=2017, month=1, day=2),
+    datetime.date(year=2017, month=1, day=3),
+    datetime.date(year=2017, month=1, day=4),
+    datetime.date(year=2017, month=1, day=5),
+    datetime.date(year=2017, month=1, day=6),
+    datetime.date(year=2017, month=2, day=23),
+    datetime.date(year=2017, month=2, day=24),
+    datetime.date(year=2017, month=3, day=8),
+    datetime.date(year=2017, month=5, day=1),
+    datetime.date(year=2017, month=5, day=8),
+    datetime.date(year=2017, month=5, day=9),
+    datetime.date(year=2017, month=6, day=12),
+    datetime.date(year=2017, month=11, day=6),
+    datetime.date(year=2018, month=1, day=1),
+    datetime.date(year=2018, month=1, day=2),
+    datetime.date(year=2018, month=1, day=3),
+    datetime.date(year=2018, month=1, day=4),
+    datetime.date(year=2018, month=1, day=5),
+    datetime.date(year=2018, month=1, day=8),
+    datetime.date(year=2018, month=2, day=23),
+    datetime.date(year=2018, month=3, day=8),
+    datetime.date(year=2018, month=3, day=9),
+    datetime.date(year=2018, month=4, day=30),
+    datetime.date(year=2018, month=5, day=1),
+    datetime.date(year=2018, month=5, day=2),
+    datetime.date(year=2018, month=5, day=9),
+    datetime.date(year=2018, month=6, day=11),
+    datetime.date(year=2018, month=6, day=12),
+    datetime.date(year=2018, month=11, day=5),
+    datetime.date(year=2018, month=12, day=31),
+    datetime.date(year=2019, month=1, day=1),
+    datetime.date(year=2019, month=1, day=2),
+    datetime.date(year=2019, month=1, day=3),
+    datetime.date(year=2019, month=1, day=4),
+    datetime.date(year=2019, month=1, day=7),
+    datetime.date(year=2019, month=1, day=8),
+    datetime.date(year=2019, month=3, day=8),
+    datetime.date(year=2019, month=5, day=1),
+    datetime.date(year=2019, month=5, day=2),
+    datetime.date(year=2019, month=5, day=3),
+    datetime.date(year=2019, month=5, day=9),
+    datetime.date(year=2019, month=5, day=10),
+    datetime.date(year=2019, month=6, day=12),
+    datetime.date(year=2019, month=11, day=4),
+    datetime.date(year=2020, month=1, day=1),
+    datetime.date(year=2020, month=1, day=2),
+    datetime.date(year=2020, month=1, day=3),
+    datetime.date(year=2020, month=1, day=6),
+    datetime.date(year=2020, month=1, day=7),
+    datetime.date(year=2020, month=1, day=8),
+    datetime.date(year=2020, month=2, day=24),
+    datetime.date(year=2020, month=3, day=9),
+    datetime.date(year=2020, month=5, day=1),
+    datetime.date(year=2020, month=5, day=4),
+    datetime.date(year=2020, month=5, day=5),
+    datetime.date(year=2020, month=5, day=11),
+    datetime.date(year=2020, month=6, day=12),
+    datetime.date(year=2020, month=11, day=4),
+    datetime.date(year=2021, month=1, day=1),
+    datetime.date(year=2021, month=1, day=4),
+    datetime.date(year=2021, month=1, day=5),
+    datetime.date(year=2021, month=1, day=6),
+    datetime.date(year=2021, month=1, day=7),
+    datetime.date(year=2021, month=1, day=8),
+    datetime.date(year=2021, month=2, day=22),
+    datetime.date(year=2021, month=2, day=23),
+    datetime.date(year=2021, month=3, day=8),
+    datetime.date(year=2021, month=5, day=3),
+    datetime.date(year=2021, month=5, day=10),
+    datetime.date(year=2021, month=6, day=14),
+    datetime.date(year=2021, month=11, day=4),
+    datetime.date(year=2021, month=11, day=5),
+    datetime.date(year=2021, month=12, day=31),
+    datetime.date(year=2022, month=1, day=3),
+    datetime.date(year=2022, month=1, day=4),
+    datetime.date(year=2022, month=1, day=5),
+    datetime.date(year=2022, month=1, day=6),
+    datetime.date(year=2022, month=1, day=7),
+    datetime.date(year=2022, month=2, day=23),
+    datetime.date(year=2022, month=3, day=7),
+    datetime.date(year=2022, month=3, day=8),
+    datetime.date(year=2022, month=5, day=2),
+    datetime.date(year=2022, month=5, day=3),
+    datetime.date(year=2022, month=5, day=9),
+    datetime.date(year=2022, month=5, day=10),
+    datetime.date(year=2022, month=6, day=13),
+    datetime.date(year=2022, month=11, day=4),
+]
+
+public_non_standard_working_days = [
+    datetime.date(year=2018, month=4, day=28),
+    datetime.date(year=2018, month=6, day=9),
+    datetime.date(year=2018, month=12, day=30),
+    datetime.date(year=2020, month=2, day=20),
+    datetime.date(year=2021, month=2, day=20),
+    datetime.date(year=2022, month=3, day=5),
+]
+
+def is_holiday(date):
+    global public_holidays
+
+    return (date.weekday() in [5, 6] or date in public_holidays) and date not in public_non_standard_working_days
+
+def subtract_working_days(from_date, number_of_working_days):
+    probe_date = from_date
+    work_days_counter = 0
+    one_day = datetime.timedelta(days=1)
+
+    while work_days_counter < number_of_working_days or is_holiday(probe_date):
+        if not is_holiday(date=probe_date):
+            work_days_counter = work_days_counter + 1
+
+        probe_date = probe_date - one_day
+
+    return probe_date
+
+def make_chronon_dates(sys_date):
+    result = set()
+
+    start_date = sys_date
+
+    start_date = subtract_working_days(from_date=start_date, number_of_working_days=5)
+
+    probe_date = start_date
+    for i in range(0, 20):
+        result.add(probe_date)
+        probe_date = subtract_working_days(from_date=probe_date, number_of_working_days=1)
+
+    return result
+
+def is_in_chronon_working_days(for_date, sys_date):
+    global chronon_working_days_for_sys_date
+
+    if sys_date not in chronon_working_days_for_sys_date:
+        window = make_chronon_dates(sys_date=sys_date)
+        chronon_working_days_for_sys_date[sys_date] = window
+
+    return for_date in chronon_working_days_for_sys_date[sys_date]
+
+def is_in_chronon_bounds(for_date, sys_date):
+    start_date = chronon_start_date(sys_date=sys_date)
+    end_date = chronon_end_date(sys_date=sys_date)
+
+    return for_date >= start_date and for_date <= end_date
+
+def chronon_start_date(sys_date):
+    global chronon_start_dates_for_sys_date
+
+    if sys_date not in chronon_start_dates_for_sys_date:
+        window = make_chronon_dates(sys_date=sys_date)
+        start_date = min(window)
+        chronon_start_dates_for_sys_date[sys_date] = start_date
+
+    result = chronon_start_dates_for_sys_date[sys_date]
+
+    return result
+
+def chronon_end_date(sys_date):
+    global chronon_end_dates_for_sys_date
+
+    if sys_date not in chronon_end_dates_for_sys_date:
+        window = make_chronon_dates(sys_date=sys_date)
+        end_date = max(window)
+        chronon_end_dates_for_sys_date[sys_date] = end_date
+
+    result = chronon_end_dates_for_sys_date[sys_date]
+
+    return result
+
+def date_range(start_date, end_date):
+    for n in range(int((end_date - start_date).days) + 1):
+        yield start_date + datetime.timedelta(n)
+
+def working_days_in_month_occured(for_date, sys_date):
+    global working_days_in_month_hash
+
+    if sys_date not in working_days_in_month_hash:
+        working_days_in_month_hash[sys_date] = {}
+
+    if for_date not in working_days_in_month_hash[sys_date]:
+        month_start_date = datetime.date(for_date.year, for_date.month, 1)
+        month_start_date_limited_by_sys_date = min(month_start_date, sys_date)
+
+        month_end_date = datetime.date(for_date.year, for_date.month, calendar.monthrange(for_date.year, for_date.month)[1])
+        month_end_date_limited_by_sys_date = min(month_end_date, sys_date)
+
+        working_days = 0
+
+        for day in date_range(month_start_date_limited_by_sys_date, month_end_date_limited_by_sys_date):
+            if not is_holiday(date=day):
+                working_days = working_days + 1
+
+        working_days_in_month_hash[sys_date][for_date] = working_days
+
+    return working_days_in_month_hash[sys_date][for_date]
+
+def get_current_quarter_id():
+    today = datetime.date.today()
+    return get_year_and_quarter_number(date=today)
+
+def get_quarter_number(date):
+    return ((date.month - 1) // 3 + 1)
+
+def get_year_and_quarter_number(date):
+    return date.year * 10 + get_quarter_number(date=date)
+
+def get_quarter_key(date):
+    year = date.year
+    quarter_number = ((date.month - 1) // 3 + 1)
+    quarter_roman_number = quarter.Quarter.QUARTER_ROMAN_NUMBERS[quarter_number]
+    return "{}-{}".format(year, quarter_roman_number)
+
+def is_in_current_quarter(for_date):
+    quarter_number = get_year_and_quarter_number(date=for_date)
+    today = datetime.date.today()
+    current_quarter_number = get_year_and_quarter_number(date=today)
+
+    return quarter_number == current_quarter_number
 
 def calculate_entities_actual_capacity_by_task_time_sheets_filtering_by_skill_and_summing_up_by_column(
     entities,
@@ -30,24 +251,15 @@ def calculate_entities_actual_capacity_by_task_time_sheets_filtering_by_skill_an
         skill
     ]
 
-    number_of_days_in_period = 28
-    skip_days = 7
-    work_days = 5
-    week_days = 7
-    today = datetime.now().date()
-    start = today - timedelta(days=number_of_days_in_period + skip_days)
-    end = today - timedelta(days=skip_days)
-
     tasks_time_sheets_filtered_by_skill = task_time_sheets if not skill else task_time_sheets[
         task_time_sheets["skill_id"] == skill
     ]
 
     task_time_sheets_behind = tasks_time_sheets_filtered_by_skill[
-        (task_time_sheets["date"] >= start)
-        & (task_time_sheets["date"] < end)
+        tasks_time_sheets_filtered_by_skill.apply(lambda x: is_in_chronon_bounds(for_date=x["date"]), axis=1)
     ].copy()
 
-    tasks_time_sheets_aggregated_by_company_id = task_time_sheets_behind.groupby(
+    tasks_time_sheets_aggregated_by_sum_up_column = task_time_sheets_behind.groupby(
         [sum_up_by_column]
     ).agg({
         "time_spent": "sum"
@@ -59,7 +271,7 @@ def calculate_entities_actual_capacity_by_task_time_sheets_filtering_by_skill_an
     )
 
     entities = entities.merge(
-        tasks_time_sheets_aggregated_by_company_id,
+        tasks_time_sheets_aggregated_by_sum_up_column,
         how="left",
         on="id",
         suffixes=(False, ""),
@@ -71,7 +283,9 @@ def calculate_entities_actual_capacity_by_task_time_sheets_filtering_by_skill_an
         skill
     ]
 
-    entities[actual_capacity_column_name] = entities[time_spent_last_period_column_name] / number_of_days_in_period * week_days / work_days
+    number_of_work_days_in_period = 20
+
+    entities[actual_capacity_column_name] = entities[time_spent_last_period_column_name] / number_of_work_days_in_period
 
     return entities
 
@@ -124,15 +338,6 @@ def calculate_entities_actual_testing_capacity_by_task_time_sheets_summing_up_by
         sum_up_by_column=sum_up_by_column,
         skill=Skill.TESTING
     )
-
-def linear_polyfit(x, y):
-    try:
-        non_nan_indexes = np.isfinite(x) & np.isfinite(y)
-        non_nan_x, non_nan_y = x[non_nan_indexes], y[non_nan_indexes]
-        result = np.polyfit(non_nan_x, non_nan_y, 1, w=y).tolist()
-        return result
-    except:
-        return [float("nan"), float("nan")]
 
 def normalize(x, min_x, max_x):
     if not pd.isnull(min_x) and not pd.isnull(max_x) and min_x != max_x:

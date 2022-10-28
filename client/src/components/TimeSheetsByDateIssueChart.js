@@ -13,16 +13,26 @@ class TimeSheetsByDateIssueChart extends Component {
         const color = this.props.color
         const timeSheetsByDate = this.props.timeSheetsByDate
         const estimate = this.props.estimate
+        const calculatedFinishDate = this.props.calculatedFinishDate
 
         return (
                 <LineChart
                     width={ 1440 }
                     height={ 300 }
                     data={ timeSheetsByDate.map(item => {
-                            return { date: new Date(item.date).getTime(), timeSpentCumsum: Math.round(item.timeSpentCumsum) }
+                            return {
+                                date: new Date(item.date).getTime(),
+                                timeSpentCumsum: Math.round(item.timeSpentCumsum),
+                                timeSpentCumsumPrediction: Math.round(item.timeSpentCumsumPrediction)
+                            }
                         }).filter(item => {
                             return item.date >= xAxisStart
-                        })
+                        }).concat([{
+                                date: new Date(calculatedFinishDate).getTime(),
+                                timeSpentCumsum: null,
+                                timeSpentCumsumPrediction: Math.round(estimate)
+                            }]
+                        )
                     }
                     margin={{
                         left: 20,
@@ -39,6 +49,7 @@ class TimeSheetsByDateIssueChart extends Component {
                     />
                     <YAxis
                         type="number"
+                        domain={ [dataMin => 0, dataMax => estimate] }
                         tickFormatter={ tick => {
                             return tick.toLocaleString();
                         }}
@@ -56,13 +67,21 @@ class TimeSheetsByDateIssueChart extends Component {
 
                     <ReferenceLine x={ today } stroke="blue" strokeDasharray="5 5" label={{ position: "left", value: "Сегодня" }} ifOverflow="extendDomain"/>
 
-                    <ReferenceLine y={ estimate } stroke={ color } strokeDasharray="5 5" ifOverflow="extendDomain" label={{ position: 'top',  value: "Объем работ " + Math.round(estimate).toLocaleString() + " ч" }} />
+                    <ReferenceLine y={ estimate } stroke={ color } strokeDasharray="5 5" ifOverflow="extendDomain" label={{ position: 'top',  value: "Плановый объем работ " + Math.round(estimate).toLocaleString() + " ч" }} />
 
                     <Line
                         name={ title }
                         dataKey="timeSpentCumsum"
                         stroke={ color }
                         dot={false}
+                    />
+
+                    <Line
+                        name={ "Тренд" }
+                        dataKey="timeSpentCumsumPrediction"
+                        stroke={ color }
+                        dot={false}
+                        strokeDasharray="1 5"
                     />
                 </LineChart>
         );

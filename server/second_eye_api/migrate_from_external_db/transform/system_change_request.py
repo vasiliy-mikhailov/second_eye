@@ -1,17 +1,30 @@
 import cubista
-from . import system
-from . import change_request
-from . import state
-from . import task
+import datetime
 import pandas as pd
-from . import person
-from . import function_component
-from . import dedicated_team
+
+from . import change_request
+from . import dedicated_team_planning_period
+from . import dedicated_team_planning_period_system
+from . import dedicated_team_quarter_system
+from . import epic_system
+from . import field_pack
+from . import person_system_change_request
+from . import planning_period
 from . import project_team
+from . import project_team_planning_period
+from . import project_team_planning_period_system
+from . import project_team_quarter_system
+from . import state
+from . import system
+from . import system_change_request
+from . import system_planning_period
+from . import task
+from . import time_sheet
 
 class SystemChangeRequest(cubista.Table):
     class Fields:
-        id = cubista.StringField(primary_key=True, unique=True)
+        id = cubista.IntField(primary_key=True, unique=True)
+        key = cubista.StringField(primary_key=False, unique=True)
         url = cubista.StringField()
         name = cubista.StringField()
         system_id = cubista.ForeignKeyField(foreign_table=lambda: system.System, default=-1, nulls=False)
@@ -22,12 +35,14 @@ class SystemChangeRequest(cubista.Table):
         analysis_planned_estimate = cubista.FloatField(nulls=True)
         development_planned_estimate = cubista.FloatField(nulls=True)
         testing_planned_estimate = cubista.FloatField(nulls=True)
-        state_id = cubista.ForeignKeyField(foreign_table=lambda: state.State, default=-1, nulls=False)
+        state_id = cubista.ForeignKeyField(foreign_table=lambda: state.State, default="-1", nulls=False)
         state_category_id = cubista.PullByForeignPrimaryKeyField(lambda: state.State, related_field_name="state_id", pulled_field_name="category_id")
         is_cancelled = cubista.PullByForeignPrimaryKeyField(lambda: state.State, related_field_name="state_id", pulled_field_name="is_cancelled")
-        change_request_id = cubista.ForeignKeyField(foreign_table=lambda: change_request.ChangeRequest, default="-1", nulls=False)
+        change_request_id = cubista.ForeignKeyField(foreign_table=lambda: change_request.ChangeRequest, default=-1, nulls=False)
         project_team_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="project_team_id")
+        project_manager_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="project_manager_id")
         dedicated_team_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="dedicated_team_id")
+        epic_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="epic_id")
         company_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="company_id")
         change_request_is_cancelled = cubista.PullByForeignPrimaryKeyField(
             foreign_table=lambda: change_request.ChangeRequest,
@@ -36,10 +51,28 @@ class SystemChangeRequest(cubista.Table):
         )
 
         has_value = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="has_value")
+        is_reengineering = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="is_reengineering")
         planning_period_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="planning_period_id")
+        quarter_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: change_request.ChangeRequest, related_field_name="change_request_id", pulled_field_name="quarter_id")
+
+        planning_period_start = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="start",
+            default=datetime.date.today()
+        )
+
+        planning_period_end = cubista.PullByRelatedField(
+            foreign_table=lambda: planning_period.PlanningPeriod,
+            related_field_names=["planning_period_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="end",
+            default=datetime.date.today()
+        )
 
         dedicated_team_planning_period_id = cubista.PullByRelatedField(
-            foreign_table=lambda: dedicated_team.DedicatedTeamPlanningPeriod,
+            foreign_table=lambda: dedicated_team_planning_period.DedicatedTeamPlanningPeriod,
             related_field_names=["dedicated_team_id", "planning_period_id"],
             foreign_field_names=["dedicated_team_id", "planning_period_id"],
             pulled_field_name="id",
@@ -47,7 +80,7 @@ class SystemChangeRequest(cubista.Table):
         )
 
         project_team_planning_period_id = cubista.PullByRelatedField(
-            foreign_table=lambda: project_team.ProjectTeamPlanningPeriod,
+            foreign_table=lambda: project_team_planning_period.ProjectTeamPlanningPeriod,
             related_field_names=["project_team_id", "planning_period_id"],
             foreign_field_names=["project_team_id", "planning_period_id"],
             pulled_field_name="id",
@@ -55,9 +88,17 @@ class SystemChangeRequest(cubista.Table):
         )
 
         system_planning_period_id = cubista.PullByRelatedField(
-            foreign_table=lambda: system.SystemPlanningPeriod,
+            foreign_table=lambda: system_planning_period.SystemPlanningPeriod,
             related_field_names=["system_id", "planning_period_id"],
             foreign_field_names=["system_id", "planning_period_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        epic_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: epic_system.EpicSystem,
+            related_field_names=["epic_id", "system_id"],
+            foreign_field_names=["epic_id", "system_id"],
             pulled_field_name="id",
             default=-1
         )
@@ -70,10 +111,34 @@ class SystemChangeRequest(cubista.Table):
             default=-1
         )
 
+        project_team_planning_period_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team_planning_period_system.ProjectTeamPlanningPeriodSystem,
+            related_field_names=["system_id", "planning_period_id", "project_team_id"],
+            foreign_field_names=["system_id", "planning_period_id", "project_team_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        project_team_quarter_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team_quarter_system.ProjectTeamQuarterSystem,
+            related_field_names=["system_id", "quarter_id", "project_team_id"],
+            foreign_field_names=["system_id", "quarter_id", "project_team_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
         dedicated_team_planning_period_system_id = cubista.PullByRelatedField(
-            foreign_table=lambda: dedicated_team.DedicatedTeamPlanningPeriodSystem,
+            foreign_table=lambda: dedicated_team_planning_period_system.DedicatedTeamPlanningPeriodSystem,
             related_field_names=["system_id", "planning_period_id", "dedicated_team_id"],
             foreign_field_names=["system_id", "planning_period_id", "dedicated_team_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        dedicated_team_quarter_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: dedicated_team_quarter_system.DedicatedTeamQuarterSystem,
+            related_field_names=["system_id", "quarter_id", "dedicated_team_id"],
+            foreign_field_names=["system_id", "quarter_id", "dedicated_team_id"],
             pulled_field_name="id",
             default=-1
         )
@@ -132,7 +197,7 @@ class SystemChangeRequest(cubista.Table):
         )
 
         management_time_spent = cubista.AggregatedForeignField(
-            foreign_table=lambda: SystemChangeRequestTimeSheet,
+            foreign_table=lambda: time_sheet.ManagementTimeSheet,
             foreign_field_name="system_change_request_id",
             aggregated_field_name="time_spent",
             aggregate_function="sum",
@@ -234,137 +299,91 @@ class SystemChangeRequest(cubista.Table):
             source_fields=["function_points_effort", "function_points", "system_has_function_points"]
         )
 
-class SystemChangeRequestTimeSheet(cubista.Table):
-    class Fields:
-        id = cubista.IntField(primary_key=True, unique=True)
-        system_change_request_id = cubista.ForeignKeyField(foreign_table=lambda: SystemChangeRequest, default="-1", nulls=False)
-        date = cubista.DateField(nulls=False)
-        time_spent = cubista.FloatField(nulls=False)
-        person_id = cubista.ForeignKeyField(foreign_table=lambda: person.Person, default="-1", nulls=False)
+        time_sheets_by_date_model_m = cubista.PullByRelatedField(
+            foreign_table=lambda: time_sheet.SystemChangeRequestTimeSheetByDateModel,
+            related_field_names=["id"],
+            foreign_field_names=["system_change_request_id"],
+            pulled_field_name="time_sheets_by_date_model_m",
+            default=0
+        )
 
-class SystemChangeRequestTimeSheetByDate(cubista.AggregatedTable):
+        time_sheets_by_date_model_b = cubista.PullByRelatedField(
+            foreign_table=lambda: time_sheet.SystemChangeRequestTimeSheetByDateModel,
+            related_field_names=["id"],
+            foreign_field_names=["system_change_request_id"],
+            pulled_field_name="time_sheets_by_date_model_b",
+            default=0
+        )
+
+        time_sheets_by_date_model_min_date = cubista.PullByRelatedField(
+            foreign_table=lambda: time_sheet.SystemChangeRequestTimeSheetByDateModel,
+            related_field_names=["id"],
+            foreign_field_names=["system_change_request_id"],
+            pulled_field_name="time_sheets_by_date_model_min_date",
+            default=datetime.date.today()
+        )
+
+        time_sheets_by_date_model_max_date = cubista.PullByRelatedField(
+            foreign_table=lambda: time_sheet.SystemChangeRequestTimeSheetByDateModel,
+            related_field_names=["id"],
+            foreign_field_names=["system_change_request_id"],
+            pulled_field_name="time_sheets_by_date_model_max_date",
+            default=datetime.date.today()
+        )
+
+        calculated_finish_date = cubista.CalculatedField(
+            lambda_expression=lambda x: x["planning_period_end"] if x["time_sheets_by_date_model_m"] == 0 else
+                x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"]),
+            source_fields=["time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+        )
+
+        main_developer_id = cubista.PullMaxByRelatedField(
+            foreign_table=lambda: system_change_request.SystemChangeRequestDeveloper,
+            related_field_names=["id"],
+            foreign_field_names=["system_change_request_id"],
+            max_field_name="time_spent",
+            pulled_field_name="person_id",
+            default=-1
+        )
+
+class SystemChangeRequestTimeSpent(cubista.AggregatedTable):
     class Aggregation:
-        source = lambda: task.TaskTimeSheetByDate
-        sort_by: [str] = ["date"]
-        group_by: [str] = ["system_change_request_id", "date"]
-        filter = None
-        filter_fields: [str] = []
+        source = lambda: time_sheet.WorkItemTimeSheet
+        sort_by: [str] = []
+        group_by: [str] = ["system_change_request_id", "change_request_id", "project_team_id", "dedicated_team_id", "company_id", "planning_period_id", "quarter_id", "system_id"]
+        filter = lambda x: x["work_item_type"] in [time_sheet.WorkItemTimeSheet.WORK_ITEM_TYPE_MANAGEMENT_TIME_SHEET, time_sheet.WorkItemTimeSheet.WORK_ITEM_TYPE_TASK_TIME_SHEET]
+        filter_fields: [str] = ["work_item_type"]
 
     class Fields:
         id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
         system_change_request_id = cubista.AggregatedTableGroupField(source="system_change_request_id")
-        date = cubista.AggregatedTableGroupField(source="date")
-        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
-        time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["system_change_request_id"], sort_by=["date"])
-        time_spent_with_value = cubista.AggregatedTableAggregateField(source="time_spent_with_value", aggregate_function="sum")
-        time_spent_without_value = cubista.AggregatedTableAggregateField(source="time_spent_without_value", aggregate_function="sum")
-        change_request_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="change_request_id"
-        )
-        system_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="system_id"
-        )
-        system_planning_period_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="system_planning_period_id"
-        )
-        project_team_planning_period_system_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="project_team_planning_period_system_id"
-        )
+        change_request_id = cubista.AggregatedTableGroupField(source="change_request_id")
+        project_team_id = cubista.AggregatedTableGroupField(source="project_team_id")
+        dedicated_team_id = cubista.AggregatedTableGroupField(source="dedicated_team_id")
+        company_id = cubista.AggregatedTableGroupField(source="company_id")
+        planning_period_id = cubista.AggregatedTableGroupField(source="planning_period_id")
+        quarter_id = cubista.AggregatedTableGroupField(source="quarter_id")
+        system_id = cubista.AggregatedTableGroupField(source="system_id")
+        time_spent_in_current_quarter = cubista.AggregatedTableAggregateField(source="time_spent_in_current_quarter", aggregate_function="sum")
+        time_spent_not_in_current_quarter = cubista.AggregatedTableAggregateField(source="time_spent_not_in_current_quarter", aggregate_function="sum")
 
-class SystemChangeRequestAnalysisTimeSheetByDate(cubista.AggregatedTable):
+    class FieldPacks:
+        field_packs = [
+            lambda: field_pack.ChrononFieldPackForAggregatedTable(),
+            lambda: field_pack.TimeSpentFieldPackForAggregatedTable(),
+        ]
+
+
+class SystemChangeRequestDeveloper(cubista.AggregatedTable):
     class Aggregation:
-        source = lambda: task.TaskAnalysisTimeSheetByDate
-        sort_by: [str] = ["date"]
-        group_by: [str] = ["system_change_request_id", "date"]
-        filter = None
-        filter_fields: [str] = []
+        source = lambda: person_system_change_request.PersonSystemChangeRequestTimeSpent
+        sort_by: [str] = []
+        group_by: [str] = ["system_change_request_id", "person_id"]
+        filter = lambda x: x["development_time_spent"] > 0
+        filter_fields: [str] = ["development_time_spent"]
 
     class Fields:
         id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
         system_change_request_id = cubista.AggregatedTableGroupField(source="system_change_request_id")
-        date = cubista.AggregatedTableGroupField(source="date")
         time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
-        time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["system_change_request_id"], sort_by=["date"])
-        change_request_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="change_request_id"
-        )
-        system_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="system_id"
-        )
-        system_planning_period_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="system_planning_period_id"
-        )
-
-class SystemChangeRequestDevelopmentTimeSheetByDate(cubista.AggregatedTable):
-    class Aggregation:
-        source = lambda: task.TaskDevelopmentTimeSheetByDate
-        sort_by: [str] = ["date"]
-        group_by: [str] = ["system_change_request_id", "date"]
-        filter = None
-        filter_fields: [str] = []
-
-    class Fields:
-        id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
-        system_change_request_id = cubista.AggregatedTableGroupField(source="system_change_request_id")
-        date = cubista.AggregatedTableGroupField(source="date")
-        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
-        time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["system_change_request_id"], sort_by=["date"])
-        change_request_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="change_request_id"
-        )
-        system_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="system_id"
-        )
-        system_planning_period_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="system_planning_period_id"
-        )
-
-class SystemChangeRequestTestingTimeSheetByDate(cubista.AggregatedTable):
-    class Aggregation:
-        source = lambda: task.TaskTestingTimeSheetByDate
-        sort_by: [str] = ["date"]
-        group_by: [str] = ["system_change_request_id", "date"]
-        filter = None
-        filter_fields: [str] = []
-
-    class Fields:
-        id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
-        system_change_request_id = cubista.AggregatedTableGroupField(source="system_change_request_id")
-        date = cubista.AggregatedTableGroupField(source="date")
-        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
-        time_spent_cumsum = cubista.CumSumField(source_field="time_spent", group_by=["system_change_request_id"], sort_by=["date"])
-        change_request_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="change_request_id"
-        )
-        system_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="system_id"
-        )
-        system_planning_period_id = cubista.PullByForeignPrimaryKeyField(
-            foreign_table=lambda: SystemChangeRequest,
-            related_field_name="system_change_request_id",
-            pulled_field_name="system_planning_period_id"
-        )
+        person_id = cubista.AggregatedTableGroupField(source="person_id")

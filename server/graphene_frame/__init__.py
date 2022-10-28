@@ -1,10 +1,18 @@
 from graphene.utils.subclass_with_meta import SubclassWithMeta_Meta
+import copy
+import datetime
 import graphene
 import math
-import datetime
 
 class DataFrameObjectType_Meta(SubclassWithMeta_Meta):
     def __new__(meta, class_name, bases, class_attributes):
+        if "FieldPacks" in class_attributes:
+            field_packs = class_attributes["FieldPacks"].field_packs
+
+            for field_pack in field_packs:
+                field_pack = resolve_lambda_if_needed(field_pack)
+                field_pack.apply_to_class(class_attributes=class_attributes)
+
         if "Fields" in class_attributes:
             fields_attributes = class_attributes["Fields"]
             for field_name, field_value in fields_attributes.__dict__.items():
@@ -103,19 +111,33 @@ class Boolean(FieldType):
         class_attributes[field_name] = graphene.Boolean()
 
 class Field(FieldType):
-    def __init__(self, to_entity):
+    def __init__(self, to_entity, to_field=""):
         self.to_entity = to_entity
+        self.to_field = to_field
 
     def modify_class_attributes(self, class_name, class_attributes, field_name, field_value):
-        field_name_with_id = field_name + "_id"
-
+        to_field = self.to_field
         to_entity = field_value.to_entity
         class_attributes[field_name] = graphene.Field(to_entity)
-        class_attributes["resolve_{}".format(field_name)] = lambda self, _: \
-            resolve_lambda_if_needed(to_entity).get_by_primary_key_value(
-                value=self[field_name_with_id],
-                data_store=self['data_store']
-            )
+
+        if to_field:
+            self_primary_key_field_name = PrimaryKey.find_primary_key_in_class_attributes(class_attributes=class_attributes)
+
+            class_attributes["resolve_{}".format(field_name)] = lambda self, _: \
+                resolve_lambda_if_needed(to_entity).get_by_multiple_fields(
+                    fields={
+                        to_field: self[self_primary_key_field_name]
+                    },
+                    data_store=self['data_store']
+                )
+        else:
+            field_name_with_id = field_name + "_id"
+
+            class_attributes["resolve_{}".format(field_name)] = lambda self, _: \
+                resolve_lambda_if_needed(to_entity).get_by_primary_key_value(
+                    value=self[field_name_with_id],
+                    data_store=self['data_store']
+                )
 
 
 class List(FieldType):
@@ -292,3 +314,16 @@ class DataStore:
             indexed_data_frames[data_frame_object_type][field] = data_frame.set_index(field, drop=False)
 
         return indexed_data_frames[data_frame_object_type][field]
+
+class FieldPack:
+    class Fields:
+        pass
+
+    def apply_to_class(self, class_attributes):
+        field_pack_fields = { key: value for key, value in self.Fields.__dict__.items() if not key.startswith("__") }
+
+        class_fields = class_attributes["Fields"]
+
+        for field_name, field_object in field_pack_fields.items():
+            field_object_copy = copy.copy(field_object)
+            setattr(class_fields, field_name, field_object_copy)

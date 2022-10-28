@@ -27,10 +27,10 @@ class DedicatedTeamPositionAbilitiesExtractor:
                     left join jira60.issuelink team_link on team_link.source=position.id and team_link.linktype = 11600
                     right join jira60.jiraissue team on team.id = team_link.destination and team.issuetype = 13202 -- Выделенная команда
                     left join jira60.customFieldValue system_cv_id on (system_cv_id.issue = ability.id and system_cv_id.customField = 14713)
-                    left join jira60.customFieldValue skill_cv_id on (skill_cv_id.issue = ability.id and skill_cv_id.customField=17110)
-                    inner join jira60.customFieldValue team_cfv on team_cfv.issue=team.id and team_cfv.parentkey is null and team_cfv.customField=17127 -- Бизнес-команда
+                    left join jira60.customFieldValue skill_cv_id on (skill_cv_id.issue = ability.id and skill_cv_id.customField = 17110)
+                    inner join jira60.customFieldValue team_cfv on team_cfv.issue=team.id and team_cfv.parentkey is null and team_cfv.customField = 17127 -- Бизнес-команда
                 where
-                    ability.issuetype=13204
+                    ability.issuetype = 13204
             """
 
             dedicated_team_position_abilities = pd.read_sql(query, connection)

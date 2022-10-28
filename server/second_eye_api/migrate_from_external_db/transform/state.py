@@ -26,6 +26,7 @@ class State(cubista.Table):
         'Preprod тестирование': lambda: StateCategory.IN_PROGRESS,
         'Готова к переносу на ПРОД': lambda: StateCategory.IN_PROGRESS,
         'Выполнена': lambda: StateCategory.DONE,
+        'Выполнено': lambda: StateCategory.DONE,
         'Закрыто': lambda: StateCategory.DONE,
         'Завершена': lambda: StateCategory.DONE,
         'Отменено': lambda: StateCategory.DONE,

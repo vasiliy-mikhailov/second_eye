@@ -15,10 +15,18 @@ class PlaningPeriodsExtractor:
                         nvl(extract(year from planned_install_date_cfv.datevalue), -1) as id
                     from 
                         jira60.jiraissue issue
-                        left join jira60.customfieldvalue planned_install_date_cfv on planned_install_date_cfv.issue=issue.id and planned_install_date_cfv.customfield=14615 
+                        left join jira60.customfieldvalue planned_install_date_cfv on planned_install_date_cfv.issue=issue.id and planned_install_date_cfv.customfield = 14615 
                     where 
-                        issue.issuetype=11900 --заявка на доработку ПО
+                        issue.issuetype = 11900 --заявка на доработку ПО
                     union all
+                    select distinct
+                        nvl(extract(year from install_date_cfv.datevalue), -1) as id
+                    from 
+                        jira60.jiraissue issue
+                        left join jira60.customfieldvalue install_date_cfv on install_date_cfv.issue=issue.id and install_date_cfv.customfield = 14619 
+                    where 
+                        issue.issuetype = 11900 --заявка на доработку ПО
+                    union all 
                     select distinct
                         nvl(extract(year from resolutiondate), -1) as id
                     from 
@@ -32,7 +40,7 @@ class PlaningPeriodsExtractor:
                         jira60.jiraissue issue 
                         left join jira60.label year_label on year_label.issue=issue.id
                     where 
-                        issue.issuetype=11900 --заявка на доработку ПО                    
+                        issue.issuetype = 11900 --заявка на доработку ПО                    
                     union all
                     select
                         -1

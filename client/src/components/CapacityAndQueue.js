@@ -5,64 +5,26 @@ import Typography from '@material-ui/core/Typography';
 import {Box} from "@material-ui/core";
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { DataGridPro, GridToolbarContainer, GridToolbarExport, } from '@mui/x-data-grid-pro';
+import {Link as RouterLink} from "react-router-dom";
 
 const fetchCapacityAndQueue = gql`
     query capacityAndQueue {
         companies {
             id
-            name
-            actualChangeRequestCapacity
-            actualAnalysisCapacity
-            actualDevelopmentCapacity
-            actualTestingCapacity
-            
-            timeLeft
-            analysisTimeLeft
-            developmentTimeLeft
-            testingTimeLeft
-            
+            name         
             queueLength
-            analysisQueueLength
-            developmentQueueLength
-            testingQueueLength
         }
         
         dedicatedTeams {
             id
             name
-            actualChangeRequestCapacity
-            actualAnalysisCapacity
-            actualDevelopmentCapacity
-            actualTestingCapacity
-            
-            timeLeft
-            analysisTimeLeft
-            developmentTimeLeft
-            testingTimeLeft
-            
             queueLength
-            analysisQueueLength
-            developmentQueueLength
-            testingQueueLength
         }
         
         projectTeams {
             id
             name
-            actualChangeRequestCapacity
-            actualAnalysisCapacity
-            actualDevelopmentCapacity
-            actualTestingCapacity
-            
-            timeLeft
-            analysisTimeLeft
-            developmentTimeLeft
-            testingTimeLeft
-            
             queueLength
-            analysisQueueLength
-            developmentQueueLength
-            testingQueueLength
             
             dedicatedTeam {
                 name
@@ -74,7 +36,14 @@ const fetchCapacityAndQueue = gql`
 function ToolBarWithExport() {
   return (
     <GridToolbarContainer>
-      <GridToolbarExport />
+        <GridToolbarExport
+          csvOptions={{
+              delimiter: ";",
+              utf8WithBom: true,
+          }}
+        />
+
+
     </GridToolbarContainer>
   );
 }
@@ -92,10 +61,7 @@ class CapacityAndQueue extends Component {
                 return {
                     id: company.id,
                     name: company.name,
-                    queueLength: Math.round(company.queueLength / 22),
-                    analysisQueueLength: Math.round(company.analysisQueueLength / 22),
-                    developmentQueueLength: Math.round(company.developmentQueueLength / 22),
-                    testingQueueLength: Math.round(company.testingQueueLength / 22)
+                    queueLength: Math.round(company.queueLength),
                 }
             }
         )
@@ -105,10 +71,7 @@ class CapacityAndQueue extends Component {
                 return {
                     id: dedicatedTeam.id,
                     name: dedicatedTeam.name,
-                    queueLength: Math.round(dedicatedTeam.queueLength / 22),
-                    analysisQueueLength: Math.round(dedicatedTeam.analysisQueueLength / 22),
-                    developmentQueueLength: Math.round(dedicatedTeam.developmentQueueLength / 22),
-                    testingQueueLength: Math.round(dedicatedTeam.testingQueueLength / 22)
+                    queueLength: Math.round(dedicatedTeam.queueLength),
                 }
             }
         )
@@ -118,111 +81,50 @@ class CapacityAndQueue extends Component {
                 return {
                     id: projectTeam.id,
                     name: projectTeam.name + " : " + projectTeam.dedicatedTeam.name,
-                    queueLength: Math.round(projectTeam.queueLength / 22),
-                    manDaysLeft: Math.round(projectTeam.timeLeft / 8 * 10) / 10,
-                    fte: Math.round(projectTeam.actualChangeRequestCapacity / 8 * 10) / 10,
-                    analysisFte: Math.round(projectTeam.actualAnalysisCapacity / 8 * 10) / 10,
-                    analysisManDaysLeft: Math.round(projectTeam.analysisTimeLeft / 8 * 10) / 10,
-                    developmentFte: Math.round(projectTeam.actualDevelopmentCapacity / 8 * 10) / 10,
-                    developmentManDaysLeft: Math.round(projectTeam.developmentTimeLeft / 8 * 10) / 10,
-                    testingFte: Math.round(projectTeam.actualTestingCapacity / 8 * 10) / 10,
-                    testingManDaysLeft: Math.round(projectTeam.testingTimeLeft / 8 * 10) / 10,
-                    analysisQueueLength: Math.round(projectTeam.analysisQueueLength / 22),
-                    developmentQueueLength: Math.round(projectTeam.developmentQueueLength / 22),
-                    testingQueueLength: Math.round(projectTeam.testingQueueLength / 22)
+                    queueLength: Math.round(projectTeam.queueLength),
                 }
             }
         )
 
         const top10ProjectTeams = projectTeamsQueue.sort(
             function(a, b) {
-                return Math.max(
-                    b.queueLength,
-                    b.analysisQueueLength,
-                    b.developmentQueueLength,
-                    b.testingQueueLength
-                ) - Math.max(
-                    a.queueLength,
-                    a.analysisQueueLength,
-                    a.developmentQueueLength,
-                    a.testingQueueLength
-                )
+                return b.queueLength - a.queueLength
             }
         ).slice(0, 9)
 
         const top20To50ProjectTeams = projectTeamsQueue.sort(
             function(a, b) {
-                return Math.max(
-                    b.queueLength,
-                    b.analysisQueueLength,
-                    b.developmentQueueLength,
-                    b.testingQueueLength
-                ) - Math.max(
-                    a.queueLength,
-                    a.analysisQueueLength,
-                    a.developmentQueueLength,
-                    a.testingQueueLength
-                )
+                return b.queueLength - a.queueLength
             }
         ).slice(10)
 
-        const topDedicatedTeamsWithCompanies = companiesQueue.concat(dedicatedTeamsQueue).sort(
+        const topDedicatedTeams = dedicatedTeamsQueue.sort(
                         function(a, b) {
-                return Math.max(
-                    b.queueLength,
-                    b.analysisQueueLength,
-                    b.developmentQueueLength,
-                    b.testingQueueLength
-                ) - Math.max(
-                    a.queueLength,
-                    a.analysisQueueLength,
-                    a.developmentQueueLength,
-                    a.testingQueueLength
-                )
+                return b.queueLength - a.queueLength
             }
         )
 
-        const topDedicatedTeamsWithCompaniesColumns = [
+        const topDedicatedTeamsColumns = [
             {
                 field: 'name',
                 headerName: 'Название',
                 flex: 1,
+                renderCell: (params) => (
+                    <RouterLink to={ `/dedicatedTeams/${ params.getValue(params.id, 'id') }` }>
+                        { params.getValue(params.id, 'name') }
+                    </RouterLink>
+                ),
             },
             {
                 field: 'queueLength',
                 headerName: 'Очередь (мес)',
                 flex: 1,
             },
-            {
-                field: 'analysisQueueLength',
-                headerName: 'Очередь аналитики (мес)',
-                flex: 1,
-            },
-            {
-                field: 'developmentQueueLength',
-                headerName: 'Очередь разработки (мес)',
-                flex: 1,
-            },
-            {
-                field: 'testingQueueLength',
-                headerName: 'Очередь тестирования (мес)',
-                flex: 1,
-            },
         ];
 
         const topProjectTeams = projectTeamsQueue.sort(
                         function(a, b) {
-                return Math.max(
-                    b.queueLength,
-                    b.analysisQueueLength,
-                    b.developmentQueueLength,
-                    b.testingQueueLength
-                ) - Math.max(
-                    a.queueLength,
-                    a.analysisQueueLength,
-                    a.developmentQueueLength,
-                    a.testingQueueLength
-                )
+                return b.queueLength - a.queueLength
             }
         )
 
@@ -231,65 +133,15 @@ class CapacityAndQueue extends Component {
                 field: 'name',
                 headerName: 'Название',
                 flex: 1,
+                renderCell: (params) => (
+                    <RouterLink to={ `/projectTeams/${ params.getValue(params.id, 'id') }` }>
+                        { params.getValue(params.id, 'name') }
+                    </RouterLink>
+                ),
             },
             {
                 field: 'queueLength',
                 headerName: 'Очередь (мес)',
-                flex: 1,
-            },
-            {
-                field: 'manDaysLeft',
-                headerName: 'Трудоемкость (чел дней)',
-                flex: 1,
-            },
-            {
-                field: 'fte',
-                headerName: 'Трудомощность FTE',
-                flex: 1,
-            },
-            {
-                field: 'analysisQueueLength',
-                headerName: 'Очередь аналитики (мес)',
-                flex: 1,
-            },
-            {
-                field: 'analysisManDaysLeft',
-                headerName: 'Трудоемкость аналитики (чел дней)',
-                flex: 1,
-            },
-            {
-                field: 'analysisFte',
-                headerName: 'Трудомощность аналитики FTE',
-                flex: 1,
-            },
-            {
-                field: 'developmentQueueLength',
-                headerName: 'Очередь разработки (мес)',
-                flex: 1,
-            },
-            {
-                field: 'developmentManDaysLeft',
-                headerName: 'Трудоемкость разработки (чел дней)',
-                flex: 1,
-            },
-            {
-                field: 'developmentFte',
-                headerName: 'Трудомощность разработки FTE',
-                flex: 1,
-            },
-            {
-                field: 'testingQueueLength',
-                headerName: 'Очередь тестирования (мес)',
-                flex: 1,
-            },
-            {
-                field: 'testingManDaysLeft',
-                headerName: 'Трудоемкость тестирования (чел дней)',
-                flex: 1,
-            },
-            {
-                field: 'testingFte',
-                headerName: 'Трудомощность тестирования FTE',
                 flex: 1,
             },
         ];
@@ -302,7 +154,7 @@ class CapacityAndQueue extends Component {
                 <BarChart
                     width={1600}
                     height={800}
-                    data={topDedicatedTeamsWithCompanies}
+                    data={topDedicatedTeams}
                     margin={{
                         top: 5,
                         right: 30,
@@ -317,15 +169,13 @@ class CapacityAndQueue extends Component {
                     <YAxis domain={['auto', 'auto']} />
                     <Tooltip />
                     <Legend layout="horizontal" verticalAlign="top" align="center" />
-                    <Bar dataKey="analysisQueueLength" fill="red" name={"Аналитика"} />
-                    <Bar dataKey="developmentQueueLength" fill="green" name={"Разработка"} />
-                    <Bar dataKey="testingQueueLength" fill="blue" name={"Тестирование"} />
+                    <Bar dataKey="queueLength" name={"Очередь (мес)"} />
                 </BarChart>
 
                 <div>
                     <DataGridPro
-                        rows={topDedicatedTeamsWithCompanies}
-                        columns={topDedicatedTeamsWithCompaniesColumns}
+                        rows={topDedicatedTeams}
+                        columns={topDedicatedTeamsColumns}
                         components={{
                             Toolbar: ToolBarWithExport,
                         }}
@@ -354,9 +204,7 @@ class CapacityAndQueue extends Component {
                     <YAxis domain={['auto', 'auto']} />
                     <Tooltip />
                     <Legend layout="horizontal" verticalAlign="top" align="center" />
-                    <Bar dataKey="analysisQueueLength" fill="red" name={"Аналитика"} />
-                    <Bar dataKey="developmentQueueLength" fill="green" name={"Разработка"} />
-                    <Bar dataKey="testingQueueLength" fill="blue" name={"Тестирование"} />
+                    <Bar dataKey="queueLength" name={"Очередь (мес)"} />
                 </BarChart>
 
                 <Typography variant="body1">
@@ -380,9 +228,7 @@ class CapacityAndQueue extends Component {
                     <YAxis domain={['auto', 'auto']} />
                     <Tooltip />
                     <Legend layout="horizontal" verticalAlign="top" align="center" />
-                    <Bar dataKey="analysisQueueLength" fill="red" name={"Аналитика"} />
-                    <Bar dataKey="developmentQueueLength" fill="green" name={"Разработка"} />
-                    <Bar dataKey="testingQueueLength" fill="blue" name={"Тестирование"} />
+                    <Bar dataKey="queueLength" name={"Очередь (мес)"} />
                 </BarChart>
 
                 <div>

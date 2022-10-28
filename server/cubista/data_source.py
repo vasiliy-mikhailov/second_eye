@@ -1,4 +1,5 @@
 import cubista
+import time
 
 class DataSource:
     def __init__(self, tables):
@@ -18,22 +19,35 @@ class DataSource:
         for _, table in tables.items():
             table.check_references_raise_exception_otherwise()
 
-    def get_fields_to_evaluate(self):
+    def get_fields_to_evaluate(self, limited_fields_to_evaluate=None):
         tables = self.tables
-        result = []
+        result = {}
 
         for _, table in tables.items():
-            result = result + table.get_fields_to_evaluate()
+            fields_to_evaluate = table.get_fields_to_evaluate(limited_fields_to_evaluate=limited_fields_to_evaluate)
+
+            for fields_to_evaluate in fields_to_evaluate:
+                result[fields_to_evaluate] = table
 
         return result
 
     def evaluate_tables(self):
         fields_to_evaluate = self.get_fields_to_evaluate()
-        tables = self.tables
+        tables_to_evaluate = set(list(fields_to_evaluate.values()))
+
+        table_statistics = {}
 
         while len(fields_to_evaluate) > 0:
-            for _, table_object in tables.items():
+            for table_object in tables_to_evaluate:
+                start = time.time()
                 table_object.evaluate()
+                end = time.time()
+                duration = end - start
+
+                if table_object not in table_statistics:
+                    table_statistics[table_object] = 0
+
+                table_statistics[table_object] = table_statistics[table_object] + duration
 
             not_evaluated_fields = self.get_fields_to_evaluate()
 
@@ -41,3 +55,7 @@ class DataSource:
                 raise cubista.CannotEvaluateFields("{}".format(", ".join([str(field) for field in not_evaluated_fields])))
 
             fields_to_evaluate = not_evaluated_fields
+            tables_to_evaluate = set(list(fields_to_evaluate.values()))
+
+        for table_object, duration in dict(sorted(table_statistics.items(), key=lambda item: item[1], reverse=True)).items():
+            print("{} {}".format(duration, table_object))

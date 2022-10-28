@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import {Box, Link} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
+import ReengineeringByDatePeriodChart from "./ReengineeringByDatePeriodChart"
 import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
 import { DataGridPro } from "@mui/x-data-grid-pro";
 
@@ -17,6 +18,12 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                     calculatedFinishDate
                     dedicatedTeam {
                         name
+                        cio {
+                            name
+                        }
+                        cto {
+                            name
+                        }
                     }
                     planningPeriod {
                         name
@@ -29,9 +36,9 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                         timeSpentCumsumPrediction
                         timeSpentWithoutValuePercentCumsum
                         timeSpentWithValuePercentCumsum
+                        timeSpentForReengineeringPercentCumsum
+                        timeSpentNotForReengineeringPercentCumsum
                     }
-                    
-                    timeSpentCumsumAtEndPrediction
                     
                     projectTeamPlanningPeriods {
                         id
@@ -43,6 +50,7 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                         }
                         effortPerFunctionPoint
                         calculatedFinishDate
+                        timeSpentChronon
                     }
                     
                     dedicatedTeamPlanningPeriodSystems {
@@ -59,12 +67,32 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                     
                     changeRequests {
                         id
+                        key
                         estimate
                         timeLeft
                         hasValue
                         name
                         stateCategoryId
                         effortPerFunctionPoint
+                        calculatedFinishDate
+                        timeSpentChronon
+                    }
+                    
+                    positions {
+                        position {
+                            id
+                            name
+                            url
+                        }
+                        
+                        person {
+                            id
+                            key
+                            name
+                        }
+                        timeSpent
+                        timeSpentChrononFte
+                        totalCapacityFte
                     }
               }
         }
@@ -79,6 +107,8 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
         const dedicatedTeamPlanningPeriod = this.props.data.dedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId
 
         const dedicatedTeamName = dedicatedTeamPlanningPeriod.dedicatedTeam.name
+        const cioName = dedicatedTeamPlanningPeriod.dedicatedTeam.cio.name
+        const ctoName = dedicatedTeamPlanningPeriod.dedicatedTeam.cto.name
         const estimate = dedicatedTeamPlanningPeriod.estimate
         const effortPerFunctionPoint = dedicatedTeamPlanningPeriod.effortPerFunctionPoint
         const calculatedFinishDate = dedicatedTeamPlanningPeriod.calculatedFinishDate
@@ -88,12 +118,13 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
         const projectTeamPlanningPeriods = dedicatedTeamPlanningPeriod.projectTeamPlanningPeriods
         const dedicatedTeamPlanningPeriodSystems = dedicatedTeamPlanningPeriod.dedicatedTeamPlanningPeriodSystems
         const changeRequests = dedicatedTeamPlanningPeriod.changeRequests
+        const positions = dedicatedTeamPlanningPeriod.positions
 
         const timeSheetsByDate = dedicatedTeamPlanningPeriod.timeSheetsByDate
-        const timeSpentCumsumAtEndPrediction = dedicatedTeamPlanningPeriod.timeSpentCumsumAtEndPrediction
 
-        const xAxisStart = new Date(planningPeriodStart).getTime()
-        const xAxisEnd = new Date(planningPeriodEnd).getTime()
+        const fourWeeks = 1000 * 60 * 60 * 24 * 7 * 4
+        const xAxisStart = new Date(planningPeriodStart).getTime() - fourWeeks
+        const xAxisEnd = new Date(planningPeriodEnd).getTime() + fourWeeks
 
         const systemsTableContents = dedicatedTeamPlanningPeriodSystems.slice()
             .sort((a, b) => ((a.system.name > b.system.name) ? 1 : ((a.system.name < b.system.name) ? -1 : 0)))
@@ -105,7 +136,7 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                         systemId: dedicatedTeamPlanningPeriodSystem.system.id,
                         systemName: dedicatedTeamPlanningPeriodSystem.system.name,
                         effortPerFunctionPoint: dedicatedTeamPlanningPeriodSystem.effortPerFunctionPoint,
-                        calculatedFinishDate: dedicatedTeamPlanningPeriodSystem.calculatedFinishDate
+                        calculatedFinishDate: dedicatedTeamPlanningPeriodSystem.calculatedFinishDate,
                     }
             ))
 
@@ -131,21 +162,21 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                 headerName: 'Оценка (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'timeLeft',
                 headerName: 'Осталось (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'effortPerFunctionPoint',
                 headerName: 'Затраты на ф.т.',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
             },
         ];
 
@@ -159,7 +190,8 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                         projectTeamId: projectTeamPlanningPeriod.projectTeam.id,
                         projectTeamName: projectTeamPlanningPeriod.projectTeam.name,
                         effortPerFunctionPoint: projectTeamPlanningPeriod.effortPerFunctionPoint,
-                        calculatedFinishDate: projectTeamPlanningPeriod.calculatedFinishDate
+                        calculatedFinishDate: projectTeamPlanningPeriod.calculatedFinishDate,
+                        timeSpentChronon: projectTeamPlanningPeriod.timeSpentChronon
                     }
             ))
 
@@ -185,21 +217,28 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                 headerName: 'Оценка (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'timeLeft',
                 headerName: 'Осталось (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'effortPerFunctionPoint',
                 headerName: 'Затраты на ф.т.',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            },
+            {
+                field: 'timeSpentChronon',
+                headerName: 'Фактические трудозатраты за 28 дней (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
             },
         ];
 
@@ -216,12 +255,15 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
             .map(changeRequest => (
                     {
                         id: changeRequest.id,
+                        key: changeRequest.key,
                         name: changeRequest.name,
                         hasValue: changeRequest.hasValue,
                         estimate: changeRequest.estimate,
                         timeLeft: changeRequest.timeLeft,
                         stateCategoryId: changeRequest.stateCategoryId,
-                        effortPerFunctionPoint: changeRequest.effortPerFunctionPoint
+                        effortPerFunctionPoint: changeRequest.effortPerFunctionPoint,
+                        calculatedFinishDate: changeRequest.calculatedFinishDate,
+                        timeSpentChronon: changeRequest.timeSpentChronon
                     }
             ))
 
@@ -231,11 +273,17 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                 headerName: 'Название',
                 flex: 1,
                 renderCell: (params) => (
-                    <RouterLink style={{ textDecoration: params.getValue(params.id, 'stateCategoryId') === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${ params.getValue(params.id, 'id') }` }>
-                        { params.getValue(params.id, 'id') } &nbsp;
+                    <RouterLink style={{ textDecoration: params.getValue(params.id, 'stateCategoryId') === 3 ? 'line-through' : 'none' }} to={ `/changeRequests/${ params.getValue(params.id, 'key') }` }>
+                        { params.getValue(params.id, 'key') } &nbsp;
                         { params.getValue(params.id, 'name') }
                     </RouterLink>
                 ),
+            },
+            {
+                field: 'calculatedFinishDate',
+                headerName: 'Расчетная дата завершения',
+                width: 200,
+                align: 'center',
             },
             {
                 field: 'hasValue',
@@ -248,21 +296,80 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                 headerName: 'Оценка (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'timeLeft',
                 headerName: 'Осталось (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'effortPerFunctionPoint',
                 headerName: 'Затраты на ф.т.',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}) ,
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
+            },
+            {
+                field: 'timeSpentChronon',
+                headerName: 'Фактические трудозатраты за 28 дней (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
+            },
+        ];
+
+        const positionsTableContents = positions.slice()
+            .sort((a, b) =>  (
+                (a.timeSpentChrononFte > b.timeSpentChrononFte) ? -1 : (
+                    (a.timeSpentChrononFte == b.timeSpentChrononFte) ? 0 : 1
+                )
+            ))
+            .map(position => (
+                    {
+                        id: position.person.id,
+                        key: position.person.key,
+                        name: position.person.name,
+                        position: position.position.name,
+                        timeSpent: position.timeSpent,
+                        timeSpentChrononFte: position.timeSpentChrononFte,
+                        totalCapacityFte: position.totalCapacityFte
+                    }
+            ))
+
+        const positionsTableColumns = [
+            {
+                field: 'position',
+                headerName: 'Позиция',
+                flex: 1,
+            },
+            {
+                field: 'name',
+                headerName: 'Имя',
+                flex: 1,
+            },
+            {
+                field: 'timeSpent',
+                headerName: 'Списано всего (ч)',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
+            },
+            {
+                field: 'totalCapacityFte',
+                headerName: 'Плановый FTE',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => (value).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+            },
+            {
+                field: 'timeSpentChrononFte',
+                headerName: 'Фактический FTE',
+                width: 200,
+                align: 'right',
+                valueFormatter: ({ value }) => (value).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
             },
         ];
 
@@ -270,6 +377,10 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
             <Box>
                 <Typography variant="body" noWrap>
                     Выделенная команда { dedicatedTeamName }
+                    <br />
+                    Бизнес-партнер { cioName }
+                    <br />
+                    Руководитель разработки (CTO) { ctoName }
                     <br />
                     Период планирования { planningPeriodName } ({ planningPeriodStart }-{ planningPeriodEnd })
                     <br />
@@ -280,13 +391,13 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
 
                 <TimeSheetsByDatePeriodChart
                     planningPeriodEnd={ planningPeriodEnd }
-                    title="Аналитика + Разработка + Тестирование"
+                    title="Фактический объем работ:Аналитика + Разработка + Тестирование + Управление + Инциденты"
                     xAxisStart={ xAxisStart }
                     xAxisEnd={ xAxisEnd }
                     color="black"
                     timeSheetsByDate={ timeSheetsByDate }
                     estimate={ estimate }
-                    timeSpentCumsumAtEndPrediction={ timeSpentCumsumAtEndPrediction }
+                    calculatedFinishDate={ calculatedFinishDate }
                 />
 
                 <ValueByDatePeriodChart
@@ -296,6 +407,15 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                     xAxisEnd={ xAxisEnd }
                     color="black"
                     timeSpentPercentWithValueAndWithoutValueByDate={ timeSheetsByDate }
+                />
+
+                <ReengineeringByDatePeriodChart
+                    planningPeriodEnd={ planningPeriodEnd }
+                    title="Доля списаний на задачи технологического перевооружения и исправления проблем"
+                    xAxisStart={ xAxisStart }
+                    xAxisEnd={ xAxisEnd }
+                    color="black"
+                    timeSpentPercentForReengineeringAndNotForReengineeringByDate={ timeSheetsByDate }
                 />
 
                 <Typography variant="h6" noWrap>
@@ -332,6 +452,18 @@ class DedicatedTeamPlanningPeriodDetail extends Component {
                     <DataGridPro
                         rows={ changeRequestsTableContents }
                         columns={ changeRequestsTableColumns }
+                        autoHeight
+                    />
+                </div>
+
+                <br />
+                <Typography variant="h6" noWrap>
+                    Команда
+                </Typography>
+                <div>
+                    <DataGridPro
+                        rows={ positionsTableContents }
+                        columns={ positionsTableColumns }
                         autoHeight
                     />
                 </div>

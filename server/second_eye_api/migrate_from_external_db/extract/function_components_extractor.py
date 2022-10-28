@@ -9,11 +9,12 @@ class FunctionComponentsExtractor:
         with get_connection() as connection:
             query = """
                 select 
-                    project.pkey||'-'||function_component.issuenum as "id",
+                    function_component.id as "id",
+                    project.pkey||'-'||function_component.issuenum as "key",
                     'https://jira.mcb.ru/browse/'||project.pkey||'-'||function_component.issuenum as "url",
                     function_component.summary as "name",
                     function_component_status.id as "state_id",
-                    project.pkey||'-'||development_task.issuenum as "task_id",
+                    development_task.id as "task_id",
                     case function_component_kind.stringvalue
                         when '23966' then 1 -- вход
                         when '23967' then 2 -- выход
@@ -26,10 +27,20 @@ class FunctionComponentsExtractor:
                     jira60.jiraissue function_component
                     inner join jira60.project project on function_component.project=project.id
                     left join jira60.issuestatus function_component_status on function_component.issuestatus = function_component_status.id
-                    inner join jira60.issuelink link on (link.destination = function_component.id and link.linkType = 11401) -- Функциональная компонента -> Задача
-                    inner join jira60.jiraissue development_task on (link.source = development_task.id and development_task.issuetype = 12703) -- разработка
-                    inner join jira60.customFieldValue function_component_kind on function_component_kind.issue=function_component.id and function_component_kind.customField=16246 -- тип функциональной компоненты
-                    inner join jira60.customFieldValue function_component_count_cv on function_component_count_cv.issue=function_component.id and function_component_count_cv.customField=16286 -- количество функциональных компонент
+                    inner join (
+                        select
+                            issue_link.*, (ROW_NUMBER() OVER(PARTITION BY destination ORDER BY destination)) as rank
+                        from 
+                            jira60.issuelink issue_link
+                            inner join jira60.jiraissue development_task on (
+                                issue_link.source = development_task.id
+                                and issue_link.linktype = 11401 -- функциональная компонента -> задача
+                                and development_task.issuetype = 12703 -- разработка
+                            )
+                    ) issue_link on issue_link.destination = function_component.id and issue_link.rank = 1  -- -- ограничить связь только с первой (по возрастанию id) задачей
+                    inner join jira60.jiraissue development_task on issue_link.source = development_task.id and issue_link.linktype = 11401 -- задача
+                    inner join jira60.customFieldValue function_component_kind on function_component_kind.issue=function_component.id and function_component_kind.customField = 16246 -- тип функциональной компоненты
+                    left join jira60.customFieldValue function_component_count_cv on function_component_count_cv.issue=function_component.id and function_component_count_cv.customField = 16286 -- количество функциональных компонент
                 where
                     function_component.issuetype = 13101 -- функциональная компонента
             """

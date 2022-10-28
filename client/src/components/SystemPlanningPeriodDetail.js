@@ -13,6 +13,9 @@ const fetchSystemPlanningPeriodByPlanningPeriodIdAndSystemId = gql`
                 id
                 estimate
                 effortPerFunctionPoint
+                calculatedFinishDate
+                
+                
                 system {
                     name
                 }
@@ -28,7 +31,7 @@ const fetchSystemPlanningPeriodByPlanningPeriodIdAndSystemId = gql`
                     timeSpentCumsumPrediction
                 }
                 
-                analysisTimeSpentCumsumAtEndPrediction
+                analysisCalculatedFinishDate
                 
                 analysisEstimate
                 
@@ -38,7 +41,7 @@ const fetchSystemPlanningPeriodByPlanningPeriodIdAndSystemId = gql`
                     timeSpentCumsumPrediction
                 }
                 
-                developmentTimeSpentCumsumAtEndPrediction
+                developmentCalculatedFinishDate
                 
                 developmentEstimate
                 
@@ -48,7 +51,7 @@ const fetchSystemPlanningPeriodByPlanningPeriodIdAndSystemId = gql`
                     timeSpentCumsumPrediction
                 }
                 
-                testingTimeSpentCumsumAtEndPrediction
+                testingCalculatedFinishDate
                 
                 testingEstimate
 
@@ -58,16 +61,19 @@ const fetchSystemPlanningPeriodByPlanningPeriodIdAndSystemId = gql`
                     timeSpentCumsumPrediction
                 }
                 
-                timeSpentCumsumAtEndPrediction
-                
                 systemChangeRequests {
                     id
+                    key
                     estimate
                     timeLeft
                     hasValue
                     name
                     stateCategoryId
                     effortPerFunctionPoint
+                    mainDeveloper {
+                        id
+                        name
+                    }
                 }
           }
     }
@@ -82,6 +88,7 @@ class SystemPlanningPeriodDetail extends Component {
 
         const systemName = systemPlanningPeriod.system.name
         const estimate = systemPlanningPeriod.estimate
+        const calculatedFinishDate = systemPlanningPeriod.calculatedFinishDate
         const effortPerFunctionPoint = systemPlanningPeriod.effortPerFunctionPoint
         const planningPeriodName = systemPlanningPeriod.planningPeriod.name
         const planningPeriodStart = systemPlanningPeriod.planningPeriod.start
@@ -89,19 +96,18 @@ class SystemPlanningPeriodDetail extends Component {
         const systemChangeRequests = systemPlanningPeriod.systemChangeRequests
 
         const analysisTimeSheetsByDate = systemPlanningPeriod.analysisTimeSheetsByDate
-        const analysisTimeSpentCumsumAtEndPrediction = systemPlanningPeriod.analysisTimeSpentCumsumAtEndPrediction
         const analysisEstimate = systemPlanningPeriod.analysisEstimate
+        const analysisCalculatedFinishDate = systemPlanningPeriod.analysisCalculatedFinishDate
 
         const developmentTimeSheetsByDate = systemPlanningPeriod.developmentTimeSheetsByDate
-        const developmentTimeSpentCumsumAtEndPrediction = systemPlanningPeriod.developmentTimeSpentCumsumAtEndPrediction
         const developmentEstimate = systemPlanningPeriod.developmentEstimate
+        const developmentCalculatedFinishDate = systemPlanningPeriod.developmentCalculatedFinishDate
 
         const testingTimeSheetsByDate = systemPlanningPeriod.testingTimeSheetsByDate
-        const testingTimeSpentCumsumAtEndPrediction = systemPlanningPeriod.testingTimeSpentCumsumAtEndPrediction
         const testingEstimate = systemPlanningPeriod.testingEstimate
+        const testingCalculatedFinishDate = systemPlanningPeriod.testingCalculatedFinishDate
 
         const timeSheetsByDate = systemPlanningPeriod.timeSheetsByDate
-        const timeSpentCumsumAtEndPrediction = systemPlanningPeriod.timeSpentCumsumAtEndPrediction
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
@@ -119,12 +125,14 @@ class SystemPlanningPeriodDetail extends Component {
             .map(systemChangeRequest => (
                     {
                         id: systemChangeRequest.id,
+                        key: systemChangeRequest.key,
                         name: systemChangeRequest.name,
                         hasValue: systemChangeRequest.hasValue,
                         estimate: systemChangeRequest.estimate,
                         timeLeft: systemChangeRequest.timeLeft,
                         stateCategoryId: systemChangeRequest.stateCategoryId,
-                        effortPerFunctionPoint: systemChangeRequest.effortPerFunctionPoint
+                        effortPerFunctionPoint: systemChangeRequest.effortPerFunctionPoint,
+                        mainDeveloperName: systemChangeRequest.mainDeveloper.name,
                     }
             ))
 
@@ -134,8 +142,8 @@ class SystemPlanningPeriodDetail extends Component {
                 headerName: 'Название',
                 flex: 1,
                 renderCell: (params) => (
-                    <RouterLink style={{ textDecoration: params.getValue(params.id, 'stateCategoryId') === 3 ? 'line-through' : 'none' }} to={ `/systemChangeRequests/${ params.getValue(params.id, 'id') }` }>
-                        { params.getValue(params.id, 'id') } &nbsp;
+                    <RouterLink style={{ textDecoration: params.getValue(params.id, 'stateCategoryId') === 3 ? 'line-through' : 'none' }} to={ `/systemChangeRequests/${ params.getValue(params.id, 'key') }` }>
+                        { params.getValue(params.id, 'key') } &nbsp;
                         { params.getValue(params.id, 'name') }
                     </RouterLink>
                 ),
@@ -151,43 +159,48 @@ class SystemPlanningPeriodDetail extends Component {
                 headerName: 'Оценка (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'timeLeft',
                 headerName: 'Осталось (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'effortPerFunctionPoint',
                 headerName: 'Затраты на ф.т.',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}) ,
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
+            },
+            {
+                field: 'mainDeveloperName',
+                headerName: 'Основной разработчик',
+                width: 200,
+                align: 'left',
             },
         ];
 
         return (
             <Box>
                 <Typography variant="body" noWrap>
-                    Система { systemName }
-                    <br />
-                    Период планирования { planningPeriodName } ({ planningPeriodStart }-{ planningPeriodEnd })
-                    <br />
-                    Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка
+                    Система { systemName }<br />
+                    Период планирования { planningPeriodName } ({ planningPeriodStart }-{ planningPeriodEnd })<br />
+                    Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка<br />
+                    Расчетная дата завершения { calculatedFinishDate }
                 </Typography>
 
                 <TimeSheetsByDatePeriodChart
                     planningPeriodEnd={ planningPeriodEnd }
-                    title="Аналитика + Разработка + Тестирование"
+                    title="Фактический объем работ: Аналитика + Разработка + Тестирование + Управление"
                     xAxisStart={ xAxisStart }
                     xAxisEnd={ xAxisEnd }
                     color="black"
                     timeSheetsByDate={ timeSheetsByDate }
                     estimate={ estimate }
-                    timeSpentCumsumAtEndPrediction={ timeSpentCumsumAtEndPrediction }
+                    calculatedFinishDate ={ calculatedFinishDate }
                 />
 
                 <TimeSheetsByDatePeriodChart
@@ -198,7 +211,7 @@ class SystemPlanningPeriodDetail extends Component {
                     color="black"
                     timeSheetsByDate={ analysisTimeSheetsByDate }
                     estimate={ analysisEstimate }
-                    timeSpentCumsumAtEndPrediction={ analysisTimeSpentCumsumAtEndPrediction }
+                    calculatedFinishDate={ analysisCalculatedFinishDate }
                 />
 
                 <TimeSheetsByDatePeriodChart
@@ -209,7 +222,7 @@ class SystemPlanningPeriodDetail extends Component {
                     color="black"
                     timeSheetsByDate={ developmentTimeSheetsByDate }
                     estimate={ developmentEstimate }
-                    timeSpentCumsumAtEndPrediction={ developmentTimeSpentCumsumAtEndPrediction }
+                    calculatedFinishDate={ developmentCalculatedFinishDate }
                 />
 
                 <TimeSheetsByDatePeriodChart
@@ -220,8 +233,9 @@ class SystemPlanningPeriodDetail extends Component {
                     color="black"
                     timeSheetsByDate={ testingTimeSheetsByDate }
                     estimate={ testingEstimate }
-                    timeSpentCumsumAtEndPrediction={ testingTimeSpentCumsumAtEndPrediction }
+                    calculatedFinishDate={ testingCalculatedFinishDate }
                 />
+
                <Typography variant="h6" noWrap>
                     Заявки на доработку системы
                 </Typography>

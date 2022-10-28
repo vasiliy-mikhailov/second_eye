@@ -24,3 +24,6 @@ class PrimaryKeyCannotHaveNulls(Exception):
 
 class CannotEvaluateFields(Exception):
     pass
+
+class DefaultValueTypeMismatch(Exception):
+    pass

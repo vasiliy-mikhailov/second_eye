@@ -5,10 +5,11 @@ import Typography from '@material-ui/core/Typography';
 import {Box, Link} from "@material-ui/core";
 import TimeSheetsByDateIssueChart from './TimeSheetsByDateIssueChart'
 
-const fetchSystemChangeRequest = gql`
-    query SystemChangeRequestByIdQuery($id: String!) {
-        systemChangeRequestById(id: $id) {
-            id 
+const fetchSystemChangeRequestByKey = gql`
+    query SystemChangeRequestByKeyQuery($key: String!) {
+        systemChangeRequestByKey(key: $key) {
+            id
+            key
             url
             name
             state {
@@ -46,7 +47,10 @@ const fetchSystemChangeRequest = gql`
             timeSheetsByDate {
                 date
                 timeSpentCumsum
+                timeSpentCumsumPrediction
             }
+            
+            calculatedFinishDate
             
             changeRequest {
                 plannedInstallDate
@@ -59,7 +63,8 @@ class SystemChangeRequestDetail extends Component {
     render() {
         if (this.props.data.loading) { return <div>Loading ...</div> }
 
-        const systemChangeRequest = this.props.data.systemChangeRequestById
+        const systemChangeRequestKey = this.props.match.params.key
+        const systemChangeRequest = this.props.data.systemChangeRequestByKey
         const changeRequest = systemChangeRequest.changeRequest
         const plannedInstallDate = changeRequest.plannedInstallDate ? new Date(changeRequest.plannedInstallDate).getTime() : null
         const timeSheetsByDate = systemChangeRequest.timeSheetsByDate
@@ -74,6 +79,8 @@ class SystemChangeRequestDetail extends Component {
 
         const testingTimeSheetsByDate = systemChangeRequest.testingTimeSheetsByDate
         const testingEstimate = systemChangeRequest.testingEstimate
+
+        const calculatedFinishDate = systemChangeRequest.calculatedFinishDate
 
         const today = (new Date()).getTime()
         const firstTimeSheetDate = timeSheetsByDate.length > 0 ? new Date(timeSheetsByDate[0].date).getTime() : null
@@ -92,14 +99,18 @@ class SystemChangeRequestDetail extends Component {
             allEdgeDates.push(lastTimeSheetDate)
         }
 
+        if (calculatedFinishDate) {
+            allEdgeDates.push(new Date(calculatedFinishDate).getTime())
+        }
+
         const xAxisStart = Math.min(...allEdgeDates) - 1000 * 60 * 60 * 24 * 28
         const xAxisEnd = Math.max(...allEdgeDates) + 1000 * 60 * 60 * 24 * 28
 
         return (
             <Box>
                 <Typography variant="body1" noWrap>
-                    <Link href={ this.props.location.pathname }>
-                        { systemChangeRequest.id }
+                    <Link href={ this.props.location.pathname } target="_blank">
+                        { systemChangeRequestKey }
                     </Link> &nbsp;
                     { systemChangeRequest.name } &nbsp;
                     { systemChangeRequest.state.name } &nbsp;
@@ -107,21 +118,22 @@ class SystemChangeRequestDetail extends Component {
                         [ источник ]
                     </Link>
                     <br />
-                    Осталось { Math.round(systemChangeRequest.timeLeft) } ч ( { (systemChangeRequest.timeLeft / systemChangeRequest.estimate * 100).toFixed(2) }% ) <br />
-                    Сделано { Math.round(systemChangeRequest.timeSpent) } ч <br />
-                    Оценка { Math.round(systemChangeRequest.estimate) } ч <br />
+                    Осталось { systemChangeRequest.timeLeft.toFixed(1) } ч ( { (systemChangeRequest.timeLeft / systemChangeRequest.estimate * 100).toFixed(2) }% ) <br />
+                    Сделано { systemChangeRequest.timeSpent.toFixed(1) } ч <br />
+                    Оценка { systemChangeRequest.estimate.toFixed(1) } ч <br />
                     Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка
                 </Typography>
                 <br />
 
                 <TimeSheetsByDateIssueChart
                     plannedInstallDate={ plannedInstallDate }
-                    title="Аналитика + Разработка + Тестирование"
+                    title="Фактический объем работ: Аналитика + Разработка + Тестирование + Управление"
                     xAxisStart={ xAxisStart }
                     xAxisEnd={ xAxisEnd }
                     color="black"
                     timeSheetsByDate={ timeSheetsByDate }
                     estimate={ estimate }
+                    calculatedFinishDate={ calculatedFinishDate }
                 />
 
                 <TimeSheetsByDateIssueChart
@@ -132,6 +144,7 @@ class SystemChangeRequestDetail extends Component {
                     color="red"
                     timeSheetsByDate={ analysisTimeSheetsByDate }
                     estimate={ analysisEstimate }
+                    calculatedFinishDate={ calculatedFinishDate }
                 />
 
                 <TimeSheetsByDateIssueChart
@@ -142,6 +155,7 @@ class SystemChangeRequestDetail extends Component {
                     color="green"
                     timeSheetsByDate={ developmentTimeSheetsByDate }
                     estimate={ developmentEstimate }
+                    calculatedFinishDate={ calculatedFinishDate }
                 />
 
                 <TimeSheetsByDateIssueChart
@@ -152,12 +166,13 @@ class SystemChangeRequestDetail extends Component {
                     color="blue"
                     timeSheetsByDate={ testingTimeSheetsByDate }
                     estimate={ testingEstimate }
+                    calculatedFinishDate={ calculatedFinishDate }
                 />
             </Box>
         );
     }
 }
 
-export default graphql(fetchSystemChangeRequest, {
-    options: (props) => { return { variables: { id: props.match.params.id }}}
+export default graphql(fetchSystemChangeRequestByKey, {
+    options: (props) => { return { variables: { key: props.match.params.key }}}
 })(SystemChangeRequestDetail);

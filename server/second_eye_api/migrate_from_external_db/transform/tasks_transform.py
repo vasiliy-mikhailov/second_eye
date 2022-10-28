@@ -1,7 +1,7 @@
-from .utils import *
+import pandas as pd
+
 from .state import StateCategory
 from .skill import Skill
-import pandas as pd
 
 def make_filler_analysis_tasks_summing_up_to_system_change_request_analysis_estimate(tasks, system_change_requests):
     system_change_requests_dont_having_enough_analysis_tasks = system_change_requests[
@@ -25,7 +25,7 @@ def make_filler_analysis_tasks_summing_up_to_system_change_request_analysis_esti
         inplace=True
     )
     additional_tasks["url"] = "https://none.com"
-    additional_tasks["name"] = "Заполнитель"
+    additional_tasks["name"] = "(не декомпозированный объем работ вышестоящей задачи)"
     additional_tasks["skill_id"] = Skill.ANALYSIS
     additional_tasks["system_id"] = -1
     additional_tasks["preliminary_estimate"] = additional_tasks["estimate"]
@@ -43,7 +43,12 @@ def make_filler_analysis_tasks_summing_up_to_system_change_request_analysis_esti
     tasks.reset_index(inplace=True, drop=True) # to prevent duplicate row names
 
     tasks["id"] = tasks.apply(lambda x:
-        str(-x.name - 1) if pd.isnull(x["id"]) else x["id"],
+        int(-x.name - 1) if pd.isnull(x["id"]) else x["id"],
+        axis=1
+    )
+
+    tasks["key"] = tasks.apply(lambda x:
+        str(-x.name - 1) if pd.isnull(x["key"]) else x["key"],
         axis=1
     )
 
@@ -71,7 +76,7 @@ def make_filler_development_tasks_summing_up_to_system_change_request_developmen
         inplace=True
     )
     additional_tasks["url"] = "https://none.com"
-    additional_tasks["name"] = "Заполнитель"
+    additional_tasks["name"] = "(не декомпозированный объем работ вышестоящей задачи)"
     additional_tasks["skill_id"] = Skill.DEVELOPMENT
     additional_tasks["system_id"] = -1
     additional_tasks["preliminary_estimate"] = additional_tasks["estimate"]
@@ -89,7 +94,12 @@ def make_filler_development_tasks_summing_up_to_system_change_request_developmen
     tasks.reset_index(inplace=True, drop=True) # to prevent duplicate row names
 
     tasks["id"] = tasks.apply(lambda x:
-        str(-x.name - 1) if pd.isnull(x["id"]) else x["id"],
+        int(-x.name - 1) if pd.isnull(x["id"]) else x["id"],
+        axis=1
+    )
+
+    tasks["key"] = tasks.apply(lambda x:
+        str(-x.name - 1) if pd.isnull(x["key"]) else x["key"],
         axis=1
     )
 
@@ -117,7 +127,7 @@ def make_filler_testing_tasks_summing_up_to_system_change_request_testing_estima
         inplace=True
     )
     additional_tasks["url"] = "https://none.com"
-    additional_tasks["name"] = "Заполнитель"
+    additional_tasks["name"] = "(не декомпозированный объем работ вышестоящей задачи)"
     additional_tasks["skill_id"] = Skill.TESTING
     additional_tasks["system_id"] = -1
     additional_tasks["preliminary_estimate"] = additional_tasks["estimate"]
@@ -135,7 +145,12 @@ def make_filler_testing_tasks_summing_up_to_system_change_request_testing_estima
     tasks.reset_index(inplace=True, drop=True) # to prevent duplicate row names
 
     tasks["id"] = tasks.apply(lambda x:
-        str(-x.name - 1) if pd.isnull(x["id"]) else x["id"],
+        int(-x.name - 1) if pd.isnull(x["id"]) else x["id"],
+        axis=1
+    )
+
+    tasks["key"] = tasks.apply(lambda x:
+        str(-x.name - 1) if pd.isnull(x["key"]) else x["key"],
         axis=1
     )
 

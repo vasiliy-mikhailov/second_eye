@@ -9,7 +9,8 @@ class SystemChangeRequestsExtractor:
         with get_connection() as connection:
             query = """
                 select distinct
-                    project.pkey||'-'||issue.issuenum as "id",
+                    issue.id as "id",
+                    project.pkey||'-'||issue.issuenum as "key",
                     'https://jira.mcb.ru/browse/'||project.pkey||'-'||issue.issuenum as "url",
                     issue.summary as "name",
                     to_number(system_cv_id.stringValue) as "system_id",
@@ -19,7 +20,7 @@ class SystemChangeRequestsExtractor:
                     analysis_hours_plan_cv.numbervalue as "analysis_planned_estimate",
                     dev_planned_estimate_cv.numbervalue as "dev_planned_estimate",
                     testing_hours_plan_cv.numbervalue as "testing_planned_estimate",
-                    project.pkey||'-'||change_request_issue.issuenum as "change_request_id",
+                    change_request_issue.id as "change_request_id",
                     issue.issuestatus as "state_id"
                 from 
                     jira60.jiraissue issue
@@ -51,6 +52,7 @@ class SystemChangeRequestsExtractor:
             system_change_requests['system_id'].fillna(-1, inplace=True)
 
             system_change_request_not_specified = pd.DataFrame([[
+                -1,
                 "-1",
                 "",
                 "Не указано",
@@ -61,10 +63,11 @@ class SystemChangeRequestsExtractor:
                 0,
                 0,
                 0,
-                "-1",
+                -1,
                 "-1",
             ]], columns=[
                 "id",
+                "key",
                 "url",
                 "name",
                 "system_id",

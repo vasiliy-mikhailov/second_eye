@@ -25,7 +25,7 @@ def refill_internal_db():
         dsn=dsn,
         encoding='UTF-8',
         min=2,
-        max=15,
+        max=30,
         increment=1,
         getmode=cx_Oracle.SPOOL_ATTRVAL_WAIT,
         threaded=True

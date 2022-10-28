@@ -1,16 +1,21 @@
 import graphene_frame
-from . import system
+
+from . import change_request
+from . import dedicated_team
+from . import function_component
+from . import person
+from . import person_system_change_request
+from . import planning_period
+from . import project_team
 from . import state
 from . import state_category
-from . import dedicated_team
-from . import project_team
-from . import change_request
-from . import planning_period
+from . import system
 from . import task
 
 class SystemChangeRequest(graphene_frame.DataFrameObjectType):
     class Fields:
-        id = graphene_frame.PrimaryKey(graphene_frame.String())
+        id = graphene_frame.PrimaryKey(graphene_frame.Int())
+        key = graphene_frame.String()
         url = graphene_frame.String()
         name = graphene_frame.String()
 
@@ -19,6 +24,7 @@ class SystemChangeRequest(graphene_frame.DataFrameObjectType):
         state = graphene_frame.Field(to_entity=lambda: state.State)
 
         has_value = graphene_frame.Boolean()
+        is_reengineering = graphene_frame.Boolean()
 
         state_category_id = graphene_frame.Int()
         state_category = graphene_frame.Field(to_entity=lambda: state_category.StateCategory)
@@ -66,6 +72,11 @@ class SystemChangeRequest(graphene_frame.DataFrameObjectType):
             to_field='system_change_request_id'
         )
 
+        function_components = graphene_frame.List(
+            to_entity=lambda: function_component.FunctionComponent,
+            to_field='system_change_request_id'
+        )
+
         analysis_time_sheets_by_date = graphene_frame.List(
             to_entity=lambda: SystemChangeRequestAnalysisTimeSheetsByDate,
             to_field='system_change_request_id'
@@ -90,6 +101,12 @@ class SystemChangeRequest(graphene_frame.DataFrameObjectType):
         function_points_effort = graphene_frame.Float()
         effort_per_function_point = graphene_frame.Float()
 
+        calculated_finish_date = graphene_frame.Date()
+
+        persons = graphene_frame.List(to_entity=lambda: person_system_change_request.PersonSystemChangeRequestTimeSpent, to_field="system_change_request_id")
+
+        main_developer = graphene_frame.Field(to_entity=lambda: person.Person)
+
     def __str__(self):
         return self.name
 
@@ -100,6 +117,7 @@ class SystemChangeRequestAnalysisTimeSheetsByDate(graphene_frame.DataFrameObject
 
         time_spent = graphene_frame.Float()
         time_spent_cumsum = graphene_frame.Float()
+        time_spent_cumsum_prediction = graphene_frame.Float()
 
         system_change_request = graphene_frame.Field(to_entity=lambda: SystemChangeRequest)
 
@@ -110,6 +128,7 @@ class SystemChangeRequestDevelopmentTimeSheetsByDate(graphene_frame.DataFrameObj
 
         time_spent = graphene_frame.Float()
         time_spent_cumsum = graphene_frame.Float()
+        time_spent_cumsum_prediction = graphene_frame.Float()
 
         system_change_request = graphene_frame.Field(to_entity=lambda: SystemChangeRequest)
 
@@ -120,6 +139,7 @@ class SystemChangeRequestTestingTimeSheetsByDate(graphene_frame.DataFrameObjectT
 
         time_spent = graphene_frame.Float()
         time_spent_cumsum = graphene_frame.Float()
+        time_spent_cumsum_prediction = graphene_frame.Float()
 
         system_change_request = graphene_frame.Field(to_entity=lambda: SystemChangeRequest)
 
@@ -130,6 +150,7 @@ class SystemChangeRequestTimeSheetsByDate(graphene_frame.DataFrameObjectType):
 
         time_spent = graphene_frame.Float()
         time_spent_cumsum = graphene_frame.Float()
+        time_spent_cumsum_prediction = graphene_frame.Float()
 
         system_change_request = graphene_frame.Field(to_entity=lambda: SystemChangeRequest)
 

@@ -8,4 +8,4 @@ def run_tasks_in_parallel(tasks):
 
     for thread in threads:
         thread.join()
-        print("{} done".format(thread))
+        # print("{} done".format(thread))

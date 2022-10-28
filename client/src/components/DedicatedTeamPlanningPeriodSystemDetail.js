@@ -12,10 +12,12 @@ const fetchDedicatedTeamPlanningPeriodSystemByDedicatedTeamIdPlanningPeriodIdAnd
           dedicatedTeamPlanningPeriodSystemByDedicatedTeamIdPlanningPeriodIdAndSystemId(dedicatedTeamId: $dedicatedTeamId, planningPeriodId: $planningPeriodId, systemId: $systemId) {
                 id
                 estimate
+                calculatedFinishDate
                 effortPerFunctionPoint
                 system {
                     name
                 }
+                
                 planningPeriod {
                     name
                     start
@@ -28,10 +30,9 @@ const fetchDedicatedTeamPlanningPeriodSystemByDedicatedTeamIdPlanningPeriodIdAnd
                     timeSpentCumsumPrediction
                 }
                 
-                timeSpentCumsumAtEndPrediction
-                
                 systemChangeRequests {
                     id
+                    key
                     estimate
                     timeLeft
                     hasValue
@@ -52,6 +53,7 @@ class DedicatedTeamPlanningPeriodSystemDetail extends Component {
 
         const systemName = dedicatedTeamPlanningPeriodSystem.system.name
         const estimate = dedicatedTeamPlanningPeriodSystem.estimate
+        const calculatedFinishDate = dedicatedTeamPlanningPeriodSystem.calculatedFinishDate
         const effortPerFunctionPoint = dedicatedTeamPlanningPeriodSystem.effortPerFunctionPoint
         const planningPeriodName = dedicatedTeamPlanningPeriodSystem.planningPeriod.name
         const planningPeriodStart = dedicatedTeamPlanningPeriodSystem.planningPeriod.start
@@ -59,7 +61,6 @@ class DedicatedTeamPlanningPeriodSystemDetail extends Component {
         const systemChangeRequests = dedicatedTeamPlanningPeriodSystem.systemChangeRequests
 
         const timeSheetsByDate = dedicatedTeamPlanningPeriodSystem.timeSheetsByDate
-        const timeSpentCumsumAtEndPrediction = dedicatedTeamPlanningPeriodSystem.timeSpentCumsumAtEndPrediction
 
         const xAxisStart = new Date(planningPeriodStart).getTime()
         const xAxisEnd = new Date(planningPeriodEnd).getTime()
@@ -77,6 +78,7 @@ class DedicatedTeamPlanningPeriodSystemDetail extends Component {
             .map(systemChangeRequest => (
                     {
                         id: systemChangeRequest.id,
+                        key: systemChangeRequest.key,
                         name: systemChangeRequest.name,
                         hasValue: systemChangeRequest.hasValue,
                         estimate: systemChangeRequest.estimate,
@@ -92,8 +94,8 @@ class DedicatedTeamPlanningPeriodSystemDetail extends Component {
                 headerName: 'Название',
                 flex: 1,
                 renderCell: (params) => (
-                    <RouterLink style={{ textDecoration: params.getValue(params.id, 'stateCategoryId') === 3 ? 'line-through' : 'none' }} to={ `/systemChangeRequests/${ params.getValue(params.id, 'id') }` }>
-                        { params.getValue(params.id, 'id') } &nbsp;
+                    <RouterLink style={{ textDecoration: params.getValue(params.id, 'stateCategoryId') === 3 ? 'line-through' : 'none' }} to={ `/systemChangeRequests/${ params.getValue(params.id, 'key') }` }>
+                        { params.getValue(params.id, 'key') } &nbsp;
                         { params.getValue(params.id, 'name') }
                     </RouterLink>
                 ),
@@ -109,43 +111,42 @@ class DedicatedTeamPlanningPeriodSystemDetail extends Component {
                 headerName: 'Оценка (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'timeLeft',
                 headerName: 'Осталось (ч)',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0}),
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
                 field: 'effortPerFunctionPoint',
                 headerName: 'Затраты на ф.т.',
                 width: 200,
                 align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 2}) ,
+                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
             },
         ];
 
         return (
             <Box>
                 <Typography variant="body" noWrap>
-                    Система { systemName }
-                    <br />
-                    Период планирования { planningPeriodName } ({ planningPeriodStart }-{ planningPeriodEnd })
-                    <br />
-                    Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка
+                    Система { systemName }<br />
+                    Период планирования { planningPeriodName } ({ planningPeriodStart }-{ planningPeriodEnd })<br />
+                    Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка<br />
+                    Расчетная дата завершения { calculatedFinishDate }
                 </Typography>
 
                 <TimeSheetsByDatePeriodChart
                     planningPeriodEnd={ planningPeriodEnd }
-                    title="Аналитика + Разработка + Тестирование"
+                    title="Фактический объем работ: Аналитика + Разработка + Тестирование+ Управление"
                     xAxisStart={ xAxisStart }
                     xAxisEnd={ xAxisEnd }
                     color="black"
                     timeSheetsByDate={ timeSheetsByDate }
                     estimate={ estimate }
-                    timeSpentCumsumAtEndPrediction={ timeSpentCumsumAtEndPrediction }
+                    calculatedFinishDate={ calculatedFinishDate }
                 />
 
                <Typography variant="h6" noWrap>
