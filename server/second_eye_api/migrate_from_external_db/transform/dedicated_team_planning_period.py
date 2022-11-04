@@ -82,9 +82,12 @@ class DedicatedTeamPlanningPeriod(cubista.AggregatedTable):
         )
 
         calculated_finish_date = cubista.CalculatedField(
-            lambda_expression=lambda x: x["planning_period_end"] if x["time_sheets_by_date_model_m"] == 0 else
-                x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"]),
-            source_fields=["time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+            lambda_expression=lambda x: x["last_timesheet_date"] if x["time_left"] == 0 else (
+                x["planning_period_end"] if x["time_sheets_by_date_model_m"] == 0 else (
+                    x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"])
+                )
+            ),
+            source_fields=["last_timesheet_date", "time_left", "time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )
 
         time_spent_for_reengineering_percent = cubista.PullMinByRelatedField(
@@ -94,6 +97,15 @@ class DedicatedTeamPlanningPeriod(cubista.AggregatedTable):
             min_field_name="id",
             pulled_field_name="time_spent_for_reengineering_percent_cumsum",
             default=0
+        )
+
+        last_timesheet_date = cubista.PullMaxByRelatedField(
+            foreign_table=lambda: time_sheet.DedicatedTeamQuarterTimeSheetByDate,
+            related_field_names=["id"],
+            foreign_field_names=["dedicated_team_quarter_id"],
+            max_field_name="time_spent_cumsum",
+            pulled_field_name="date",
+            default=datetime.date.today()
         )
 
     class FieldPacks:
@@ -145,6 +157,8 @@ class DedicatedTeamPlanningPeriodPositionPersonTimeSpent(cubista.OuterJoinedTabl
         right_fields = {
             "person_id": "person_id",
             "dedicated_team_planning_period_id": "dedicated_team_planning_period_id",
+            "time_spent": "time_spent",
+            "time_spent_chronon_fte": "time_spent_chronon_fte"
         }
 
         on_fields = ["person_id", "dedicated_team_planning_period_id"]
@@ -156,8 +170,10 @@ class DedicatedTeamPlanningPeriodPositionPersonTimeSpent(cubista.OuterJoinedTabl
         dedicated_team_planning_period_id = cubista.OuterJoinedTableOuterJoinedField(source="dedicated_team_planning_period_id", default=-1)
         total_capacity = cubista.OuterJoinedTableOuterJoinedField(source="total_capacity", default=0)
         total_capacity_fte = cubista.OuterJoinedTableOuterJoinedField(source="total_capacity_fte", default=0)
+        time_spent = cubista.OuterJoinedTableOuterJoinedField(source="time_spent", default=0)
+        time_spent_chronon_fte = cubista.OuterJoinedTableOuterJoinedField(source="time_spent_chronon_fte", default=0)
 
-class DedicatedTeamPlanningPeriodTimeSpentPrevious28Days(cubista.AggregatedTable):
+class DedicatedTeamPlanningPeriodTimeSpentChronon(cubista.AggregatedTable):
     class Aggregation:
         source = lambda: time_sheet.TaskTimeSheet
         sort_by: [str] = []
@@ -168,7 +184,7 @@ class DedicatedTeamPlanningPeriodTimeSpentPrevious28Days(cubista.AggregatedTable
     class Fields:
         id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
         dedicated_team_planning_period_id = cubista.AggregatedTableGroupField(source="dedicated_team_planning_period_id")
-        new_functions_time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
+        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
 
 # class ProjectTeamPositionPersonTimeSpent(cubista.OuterJoinedTable):
 #     class OuterJoin:

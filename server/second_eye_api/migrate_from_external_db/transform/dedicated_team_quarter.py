@@ -95,9 +95,12 @@ class DedicatedTeamQuarter(cubista.AggregatedTable):
         )
 
         calculated_finish_date = cubista.CalculatedField(
-            lambda_expression=lambda x: x["quarter_end"] if x["time_sheets_by_date_model_m"] == 0 else
-                x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"]),
-            source_fields=["time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "quarter_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+            lambda_expression=lambda x: x["last_timesheet_date"] if x["time_left"] == 0 else (
+                x["quarter_end"] if x["time_sheets_by_date_model_m"] == 0 else (
+                    x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"])
+                )
+            ),
+            source_fields=["last_timesheet_date", "time_left", "time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "quarter_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )
 
         time_spent_for_reengineering_percent = cubista.PullMinByRelatedField(
@@ -129,8 +132,25 @@ class DedicatedTeamQuarter(cubista.AggregatedTable):
             lambda_expression=lambda x: 1 - x["change_request_calculated_date_after_quarter_end_issue_count"] / x["change_request_count"] if x["change_request_count"] else 1,
             source_fields=["change_request_calculated_date_after_quarter_end_issue_count", "change_request_count"]
         )
+
+        last_timesheet_date = cubista.PullMaxByRelatedField(
+            foreign_table=lambda: time_sheet.DedicatedTeamQuarterTimeSheetByDate,
+            related_field_names=["id"],
+            foreign_field_names=["dedicated_team_quarter_id"],
+            max_field_name="time_spent_cumsum",
+            pulled_field_name="date",
+            default=datetime.date.today()
+        )
+
     class FieldPacks:
         field_packs = [
-            lambda: field_pack.TimeSpentFieldPackForAggregatedTable(),
+            lambda: field_pack.ChrononFieldPackAsAggregatedForeignFields(
+                foreign_table=lambda: time_sheet.WorkItemTimeSheet,
+                foreign_field_name="dedicated_team_quarter_id"
+            ),
+            lambda: field_pack.TimeSpentFieldPackAsAggregatedForeignFields(
+                foreign_table=lambda: time_sheet.WorkItemTimeSheet,
+                foreign_field_name="dedicated_team_quarter_id"
+            ),
         ]
 

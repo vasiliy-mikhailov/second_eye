@@ -110,7 +110,7 @@ class ChangeRequest(graphene_frame.DataFrameObjectType):
 
         persons = graphene_frame.List(to_entity=lambda: person_change_request.PersonChangeRequestTimeSpent, to_field="change_request_id")
 
-        new_functions_time_spent_in_current_quarter = graphene_frame.Float()
+        time_spent_in_current_quarter = graphene_frame.Float()
 
     class FieldPacks:
         field_packs = [

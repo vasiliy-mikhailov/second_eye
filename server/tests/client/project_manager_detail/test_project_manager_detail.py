@@ -16,7 +16,7 @@ def test_when_project_manager_has_change_request_and_incident_both_are_summed_up
     two_weeks = datetime.timedelta(days=14)
     two_weeks_ago = today - two_weeks
     two_weeks_ago_string = two_weeks_ago.strftime('%Y-%m-%d')
-    first_day_of_month_two_weeks_ago = datetime.date(year=two_weeks_ago.year, month=today.month, day=1).strftime('%Y-%m-%d')
+    first_day_of_month_two_weeks_ago = datetime.date(year=two_weeks_ago.year, month=two_weeks_ago.month, day=1).strftime('%Y-%m-%d')
     current_year = today.year
     working_days_in_month_occured = utils.working_days_in_month_occured(for_date=two_weeks_ago, sys_date=today)
 

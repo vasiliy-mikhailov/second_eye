@@ -43,7 +43,7 @@ class DedicatedTeamPlanningPeriod(graphene_frame.DataFrameObjectType):
 
         calculated_finish_date = graphene_frame.Date()
 
-        positions = graphene_frame.List(to_entity=lambda: dedicated_team_planning_period.DedicatedTeamPlanningPeriodPositionPersonTimeSpent, to_field="dedicated_team_planning_period_id")
+        positionPersons = graphene_frame.List(to_entity=lambda: dedicated_team_planning_period.DedicatedTeamPlanningPeriodPositionPersonTimeSpent, to_field="dedicated_team_planning_period_id")
 
         time_spent_for_reengineering_percent = graphene_frame.Float()
 
@@ -76,7 +76,7 @@ class DedicatedTeamPlanningPeriodPositionPersonTimeSpent(graphene_frame.DataFram
         position = graphene_frame.Field(to_entity=lambda: dedicated_team.DedicatedTeamPosition)
         person = graphene_frame.Field(to_entity=lambda: person.Person)
         dedicated_team_planning_period = graphene_frame.Field(to_entity=lambda: dedicated_team_planning_period.DedicatedTeamPlanningPeriod)
-        totalCapacityFte = graphene_frame.Float()
+        total_capacity_fte = graphene_frame.Float()
 
     class FieldPacks:
         field_packs = [

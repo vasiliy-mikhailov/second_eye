@@ -218,9 +218,19 @@ def get_year_and_quarter_number(date):
 
 def get_quarter_key(date):
     year = date.year
-    quarter_number = ((date.month - 1) // 3 + 1)
+    quarter_number = get_quarter_number(date=date)
     quarter_roman_number = quarter.Quarter.QUARTER_ROMAN_NUMBERS[quarter_number]
     return "{}-{}".format(year, quarter_roman_number)
+
+def get_quarter_start_date(date):
+    quarter_number = get_quarter_number(date=date)
+    return datetime.date(year=date.year, month=((quarter_number - 1) * 3) + 1, day=1)
+
+def get_quarter_end_date(date):
+    quarter_number = get_quarter_number(date=date)
+    one_day = datetime.timedelta(days=1)
+    first_day_of_next_quarter = datetime.date(year=date.year + 3 * quarter_number // 12, month=3 * quarter_number % 12 + 1, day=1)
+    return first_day_of_next_quarter - one_day
 
 def is_in_current_quarter(for_date):
     quarter_number = get_year_and_quarter_number(date=for_date)

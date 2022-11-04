@@ -2,6 +2,7 @@ import graphene_frame
 
 from . import change_request
 from . import dedicated_team
+from . import field_pack
 from . import issue
 from . import project_team
 from . import project_team_quarter
@@ -33,13 +34,6 @@ class DedicatedTeamQuarter(graphene_frame.DataFrameObjectType):
             to_field="dedicated_team_quarter_id"
         )
 
-        analysis_time_spent = graphene_frame.Float()
-        development_time_spent = graphene_frame.Float()
-        testing_time_spent = graphene_frame.Float()
-        management_time_spent = graphene_frame.Float()
-        incident_fixing_time_spent = graphene_frame.Float()
-        time_spent = graphene_frame.Float()
-
         estimate = graphene_frame.Float()
         time_left = graphene_frame.Float()
 
@@ -59,6 +53,12 @@ class DedicatedTeamQuarter(graphene_frame.DataFrameObjectType):
         change_request_calculated_date_after_quarter_end_issue_count = graphene_frame.Int()
         change_request_count = graphene_frame.Int()
         change_request_calculated_date_before_quarter_end_share = graphene_frame.Float()
+
+    class FieldPacks:
+        field_packs = [
+            lambda: field_pack.ChrononFieldPack(),
+            lambda: field_pack.TimeSpentFieldPack(),
+        ]
 
 class DedicatedTeamQuarterTimeSheetsByDate(graphene_frame.DataFrameObjectType):
     class Fields:

@@ -2,12 +2,14 @@ import cubista
 import datetime
 
 from . import dedicated_team_planning_period
+from . import dedicated_team_quarter
+from . import dedicated_team_quarter_system
 from . import project_team_planning_period
+from . import project_team_quarter
 from . import person
 from . import time_sheet
 
 "system_change_request_id", "change_request_id", "epic_id",
-"project_team_quarter_id", "dedicated_team_quarter_id",
 "project_team_planning_period_system_id", "project_team_quarter_system_id",
 "dedicated_team_planning_period_system_id", "dedicated_team_quarter_system_id",
 "system_planning_period_id"
@@ -78,8 +80,6 @@ class WorkItemTimeSheet(cubista.UnionTable):
             "is_reengineering",
             "system_id",
             "planning_period_id",
-            "dedicated_team_quarter_id",
-            "project_team_quarter_id",
             "time_spent_with_value",
             "time_spent_without_value",
             "time_spent_for_reengineering",
@@ -146,8 +146,6 @@ class WorkItemTimeSheet(cubista.UnionTable):
         is_reengineering = cubista.UnionTableUnionField(source="is_reengineering")
         system_id = cubista.UnionTableUnionField(source="system_id")
         planning_period_id = cubista.UnionTableUnionField(source="planning_period_id")
-        dedicated_team_quarter_id = cubista.UnionTableUnionField(source="dedicated_team_quarter_id")
-        project_team_quarter_id = cubista.UnionTableUnionField(source="project_team_quarter_id")
         time_spent_with_value = cubista.UnionTableUnionField(source="time_spent_with_value")
         time_spent_without_value = cubista.UnionTableUnionField(source="time_spent_without_value")
         time_spent_for_reengineering = cubista.UnionTableUnionField(source="time_spent_for_reengineering")
@@ -188,4 +186,27 @@ class WorkItemTimeSheet(cubista.UnionTable):
             default=-1
         )
 
+        dedicated_team_quarter_id = cubista.PullByRelatedField(
+            foreign_table=lambda: dedicated_team_quarter.DedicatedTeamQuarter,
+            related_field_names=["dedicated_team_id", "quarter_id"],
+            foreign_field_names=["dedicated_team_id", "quarter_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        dedicated_team_quarter_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: dedicated_team_quarter_system.DedicatedTeamQuarterSystem,
+            related_field_names=["dedicated_team_id", "quarter_id", "system_id"],
+            foreign_field_names=["dedicated_team_id", "quarter_id", "system_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        project_team_quarter_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team_quarter.ProjectTeamQuarter,
+            related_field_names=["project_team_id", "quarter_id"],
+            foreign_field_names=["project_team_id", "quarter_id"],
+            pulled_field_name="id",
+            default=-1
+        )
 

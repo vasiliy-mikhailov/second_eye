@@ -78,13 +78,13 @@ class Transformer:
         dedicated_team = DedicatedTeam(data_frame=input_data.dedicated_teams)
         dedicated_team_dedicated_team_planning_period_position = DedicatedTeamDedicatedTeamPlanningPeriodPosition()
         dedicated_team_planning_period = DedicatedTeamPlanningPeriod()
-        dedicated_team_planning_period_position_person_time_spent_previous_28_days = DedicatedTeamPlanningPeriodPositionPersonTimeSpent()
+        dedicated_team_planning_period_position_person_time_spent = DedicatedTeamPlanningPeriodPositionPersonTimeSpent()
         dedicated_team_planning_period_system = DedicatedTeamPlanningPeriodSystem()
         dedicated_team_planning_period_system_time_sheet_by_date = DedicatedTeamPlanningPeriodSystemTimeSheetByDate()
         dedicated_team_planning_period_system_time_sheet_by_date_model = DedicatedTeamPlanningPeriodSystemTimeSheetByDateModel()
         dedicated_team_planning_period_time_sheet_by_date = DedicatedTeamPlanningPeriodTimeSheetByDate()
         dedicated_team_planning_period_time_sheet_by_date_model = DedicatedTeamPlanningPeriodTimeSheetByDateModel()
-        dedicated_team_planning_period_time_spent_previous_28_days = DedicatedTeamPlanningPeriodTimeSpentPrevious28Days()
+        dedicated_team_planning_period_time_spent_previous_28_days = DedicatedTeamPlanningPeriodTimeSpentChronon()
         dedicated_team_position = DedicatedTeamPosition(data_frame=input_data.dedicated_team_positions)
         dedicated_team_quarter = DedicatedTeamQuarter()
         dedicated_team_quarter_system = DedicatedTeamQuarterSystem()
@@ -222,7 +222,7 @@ class Transformer:
             dedicated_team,
             dedicated_team_dedicated_team_planning_period_position,
             dedicated_team_planning_period,
-            dedicated_team_planning_period_position_person_time_spent_previous_28_days,
+            dedicated_team_planning_period_position_person_time_spent,
             dedicated_team_planning_period_system,
             dedicated_team_planning_period_system_time_sheet_by_date,
             dedicated_team_planning_period_system_time_sheet_by_date_model,
@@ -374,7 +374,7 @@ class Transformer:
         output_data.dedicated_team_planning_period_system_time_sheet_by_date_model = data_source.tables[DedicatedTeamPlanningPeriodSystemTimeSheetByDateModel].data_frame
         output_data.dedicated_team_planning_period_time_sheets_by_date = data_source.tables[DedicatedTeamPlanningPeriodTimeSheetByDate].data_frame
         output_data.dedicated_team_planning_period_time_sheets_by_date_model = data_source.tables[DedicatedTeamPlanningPeriodTimeSheetByDateModel].data_frame
-        output_data.dedicated_team_planning_period_time_spent_previous_28_days = data_source.tables[DedicatedTeamPlanningPeriodTimeSpentPrevious28Days].data_frame
+        output_data.dedicated_team_planning_period_time_spent_previous_28_days = data_source.tables[DedicatedTeamPlanningPeriodTimeSpentChronon].data_frame
         output_data.dedicated_team_quarter = data_source.tables[DedicatedTeamQuarter].data_frame
         output_data.dedicated_team_quarter_system = data_source.tables[DedicatedTeamQuarterSystem].data_frame
         output_data.dedicated_team_quarter_system_time_sheet_by_date = data_source.tables[DedicatedTeamQuarterSystemTimeSheetByDate].data_frame

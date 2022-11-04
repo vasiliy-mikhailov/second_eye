@@ -10,6 +10,7 @@ from second_eye_api.migrate_from_external_db.test_data_creator.states_creator im
 from django.conf import settings
 from second_eye_api.migrate_from_external_db.transform import skill
 from second_eye_api.migrate_from_external_db.transform import utils
+from tests.utils import AnyValue
 
 def test_dedicated_team_planning_period():
     creator = test_data_creator.TestDataCreator()
@@ -144,7 +145,7 @@ def test_dedicated_team_planning_period():
                     }
                     
                     projectTeamPlanningPeriods {
-                        #id
+                        id
                         estimate
                         timeLeft
                         projectTeam {
@@ -157,7 +158,7 @@ def test_dedicated_team_planning_period():
                     }
                     
                     dedicatedTeamPlanningPeriodSystems {
-                        #id
+                        id
                         estimate
                         timeLeft
                         system {
@@ -181,7 +182,7 @@ def test_dedicated_team_planning_period():
                         timeSpentChronon
                     }
                     
-                    positions {
+                    positionPersons {
                         position {
                             id
                             name
@@ -207,7 +208,7 @@ def test_dedicated_team_planning_period():
             "dedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId": {
                 "estimate": 15.5,
                 "effortPerFunctionPoint": 0.0,
-                "calculatedFinishDate": "2022-12-31",
+                "calculatedFinishDate": today_minus_10_working_days_string,
                 "dedicatedTeam": {
                     "name": "Корпоративный блок",
                     "cio": {
@@ -232,6 +233,7 @@ def test_dedicated_team_planning_period():
                     "timeSpentNotForReengineeringPercentCumsum": pytest.approx(1 - 1.5 / 15.5),
                 }],
                 "projectTeamPlanningPeriods": [{
+                    "id": AnyValue(),
                     "estimate": 15.5,
                     "timeLeft": 0.0,
                     "projectTeam": {
@@ -243,6 +245,7 @@ def test_dedicated_team_planning_period():
                     "timeSpentChronon": 15.5,
                 }],
                 "dedicatedTeamPlanningPeriodSystems": [{
+                    "id": AnyValue(),
                     "estimate": 9.0,
                     "timeLeft": 0.0,
                     "system": {
@@ -261,10 +264,10 @@ def test_dedicated_team_planning_period():
                     "name": "Заявка на доработку кредитного процесса",
                     "stateCategoryId": 3,
                     "effortPerFunctionPoint": 0.0,
-                    "calculatedFinishDate": last_day_of_current_year_string,
+                    "calculatedFinishDate": today_minus_10_working_days_string,
                     "timeSpentChronon": 14.0,
                 }],
-                "positions": [{
+                "positionPersons": [{
                     "position": {
                         "id": -1,
                         "name": "Не указано",

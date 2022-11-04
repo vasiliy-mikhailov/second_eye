@@ -2,6 +2,7 @@ import graphene_frame
 
 from . import change_request
 from . import dedicated_team
+from . import field_pack
 from . import issue
 from . import project_team
 from . import project_team_quarter
@@ -26,13 +27,6 @@ class ProjectTeamQuarter(graphene_frame.DataFrameObjectType):
             to_field="project_team_quarter_id"
         )
 
-        analysis_time_spent = graphene_frame.Float()
-        development_time_spent = graphene_frame.Float()
-        testing_time_spent = graphene_frame.Float()
-        management_time_spent = graphene_frame.Float()
-        incident_fixing_time_spent = graphene_frame.Float()
-        time_spent = graphene_frame.Float()
-
         estimate = graphene_frame.Float()
         time_left = graphene_frame.Float()
 
@@ -42,9 +36,9 @@ class ProjectTeamQuarter(graphene_frame.DataFrameObjectType):
 
         calculated_finish_date = graphene_frame.Date()
 
-        new_functions_time_spent_in_current_quarter = graphene_frame.Float()
-        new_functions_time_spent_in_current_quarter_by_project_team = graphene_frame.Float()
-        new_functions_time_spent_in_current_quarter_for_quarter_change_requests_share = graphene_frame.Float()
+        time_spent_in_current_quarter = graphene_frame.Float()
+        time_spent_in_current_quarter_by_project_team = graphene_frame.Float()
+        time_spent_in_current_quarter_for_quarter_change_requests_share = graphene_frame.Float()
 
         resource_planning_error_numerator = graphene_frame.Float()
         resource_planning_error_denominator = graphene_frame.Float()
@@ -58,6 +52,12 @@ class ProjectTeamQuarter(graphene_frame.DataFrameObjectType):
         change_request_calculated_date_after_quarter_end_issue_count = graphene_frame.Int()
         change_request_count = graphene_frame.Int()
         change_request_calculated_date_before_quarter_end_share = graphene_frame.Float()
+
+    class FieldPacks:
+        field_packs = [
+            lambda: field_pack.ChrononFieldPack(),
+            lambda: field_pack.TimeSpentFieldPack(),
+        ]
 
 class ProjectTeamQuarterTimeSheetsByDate(graphene_frame.DataFrameObjectType):
     class Fields:

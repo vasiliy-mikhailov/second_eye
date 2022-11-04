@@ -78,4 +78,3 @@ class WorkItem(cubista.UnionTable):
 
 
 
-

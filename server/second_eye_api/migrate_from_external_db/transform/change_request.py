@@ -2,6 +2,7 @@ import datetime
 import cubista
 import pandas as pd
 
+from . import change_request
 from . import dedicated_team_planning_period
 from . import dedicated_team_quarter
 from . import epic
@@ -351,9 +352,11 @@ class ChangeRequest(cubista.Table):
         )
 
         calculated_finish_date = cubista.CalculatedField(
-            lambda_expression=lambda x: x["planning_period_end"] if x["time_sheets_by_date_model_m"] == 0 else
-                x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"]),
-            source_fields=["time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+            lambda_expression=lambda x: x["last_timesheet_date"] if x["time_left"] == 0 else (
+                x["planning_period_end"] if x["time_sheets_by_date_model_m"] == 0 else (
+                    x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"])
+                )),
+            source_fields=["last_timesheet_date", "time_left", "time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )
 
         planned_finish_date = cubista.CalculatedField(
@@ -411,6 +414,15 @@ class ChangeRequest(cubista.Table):
             foreign_field_names=["change_request_id"],
             pulled_field_name="time_spent_chronon",
             default=0
+        )
+
+        last_timesheet_date = cubista.PullMaxByRelatedField(
+            foreign_table=lambda: time_sheet.ChangeRequestTimeSheetByDate,
+            related_field_names=["id"],
+            foreign_field_names=["change_request_id"],
+            max_field_name="time_spent_cumsum",
+            pulled_field_name="date",
+            default=datetime.date.today()
         )
 
 class ChangeRequestTimeSpent(cubista.AggregatedTable):

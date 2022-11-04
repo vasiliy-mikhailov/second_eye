@@ -6,7 +6,7 @@ from . import time_sheet
 
 class PersonDedicatedTeamPlanningPeriod(cubista.AggregatedTable):
     class Aggregation:
-        source = lambda: time_sheet.TaskTimeSheet
+        source = lambda: time_sheet.WorkItemTimeSheet
         sort_by: [str] = []
         group_by: [str] = ["person_id", "dedicated_team_planning_period_id", "dedicated_team_id"]
         filter = None
@@ -21,4 +21,5 @@ class PersonDedicatedTeamPlanningPeriod(cubista.AggregatedTable):
     class FieldPacks:
         field_packs = [
             lambda: field_pack.ChrononFieldPackForAggregatedTable(),
+            lambda: field_pack.TimeSpentFieldPackForAggregatedTable(),
         ]

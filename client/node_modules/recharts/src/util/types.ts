@@ -525,6 +525,52 @@ export type DOMAttributesAdaptChildEvent<P, T> = {
 };
 const SVGContainerPropKeys = ['viewBox', 'children'];
 const SVGElementPropKeys = [
+  'aria-activedescendant',
+  'aria-atomic',
+  'aria-autocomplete',
+  'aria-busy',
+  'aria-checked',
+  'aria-colcount',
+  'aria-colindex',
+  'aria-colspan',
+  'aria-controls',
+  'aria-current',
+  'aria-describedby',
+  'aria-details',
+  'aria-disabled',
+  'aria-errormessage',
+  'aria-expanded',
+  'aria-flowto',
+  'aria-haspopup',
+  'aria-hidden',
+  'aria-invalid',
+  'aria-keyshortcuts',
+  'aria-label',
+  'aria-labelledby',
+  'aria-level',
+  'aria-live',
+  'aria-modal',
+  'aria-multiline',
+  'aria-multiselectable',
+  'aria-orientation',
+  'aria-owns',
+  'aria-placeholder',
+  'aria-posinset',
+  'aria-pressed',
+  'aria-readonly',
+  'aria-relevant',
+  'aria-required',
+  'aria-roledescription',
+  'aria-rowcount',
+  'aria-rowindex',
+  'aria-rowspan',
+  'aria-selected',
+  'aria-setsize',
+  'aria-sort',
+  'aria-valuemax',
+  'aria-valuemin',
+  'aria-valuenow',
+  'aria-valuetext',
   'className',
   'color',
   'height',
@@ -985,7 +1031,11 @@ export type D3Scale<T> = D3ScaleContinuousNumeric<T, number>;
 
 export type AxisDomainItem = string | number | Function | 'auto' | 'dataMin' | 'dataMax';
 /** The domain of axis */
-export type AxisDomain = string[] | number[] | [AxisDomainItem, AxisDomainItem];
+export type AxisDomain =
+  | string[]
+  | number[]
+  | [AxisDomainItem, AxisDomainItem]
+  | (([dataMin, dataMax]: [number, number], allowDataOverflow: boolean) => [number, number]);
 
 /** The props definition of base axis */
 export interface BaseAxisProps {
@@ -1109,25 +1159,29 @@ export const filterProps = (
   return out;
 };
 
+type RecordString<T> = Record<string, T>;
+
+type AdaptEventHandlersReturn = RecordString<(e?: Event) => any> | RecordString<(e: Event) => void> | null;
+
 export const adaptEventHandlers = (
-  props: Record<string, any> | Component | FunctionComponent | boolean,
+  props: RecordString<any> | Component | FunctionComponent | boolean,
   newHandler?: (e?: Event) => any,
-): Record<string, (e?: Event) => any> => {
+): AdaptEventHandlersReturn => {
   if (!props || typeof props === 'function' || typeof props === 'boolean') {
     return null;
   }
 
-  let inputProps = props as Record<string, any>;
+  let inputProps = props as RecordString<any>;
 
   if (isValidElement(props)) {
-    inputProps = props.props as Record<string, any>;
+    inputProps = props.props as RecordString<any>;
   }
 
   if (!_.isObject(inputProps)) {
     return null;
   }
 
-  const out: Record<string, (e: Event) => void> = {};
+  const out: RecordString<(e: Event) => void> = {};
 
   Object.keys(inputProps).forEach(key => {
     if (EventKeys.includes(key)) {
@@ -1138,30 +1192,33 @@ export const adaptEventHandlers = (
   return out;
 };
 
-const getEventHandlerOfChild = (originalHandler: Function, data: any, index: number) => (e: Event): void => {
+const getEventHandlerOfChild = (originalHandler: Function, data: any, index: number) => (e: Event): null => {
   originalHandler(data, index, e);
 
   return null;
 };
 
 export const adaptEventsOfChild = (
-  props: Record<string, any>,
+  props: RecordString<any>,
   data: any,
   index: number,
-): Record<string, (e?: Event) => any> => {
+): RecordString<(e?: Event) => any> | null => {
   if (!_.isObject(props) || typeof props !== 'object') {
     return null;
   }
 
-  let out: Record<string, (e: Event) => void> = null;
+  let out: RecordString<(e: Event) => void> | null = null;
 
   Object.keys(props).forEach((key: string) => {
     const item = (props as any)[key];
+
     if (EventKeys.includes(key) && typeof item === 'function') {
       if (!out) out = {};
+
       out[key] = getEventHandlerOfChild(item, data, index);
     }
   });
+
   return out;
 };
 

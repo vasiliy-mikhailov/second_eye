@@ -169,9 +169,12 @@ class Quarter(cubista.Table):
         )
 
         calculated_finish_date = cubista.CalculatedField(
-            lambda_expression=lambda x: x["end"] if x["time_sheets_by_date_model_m"] < 1e-2 else
-                x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"]),
-            source_fields=["time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+            lambda_expression=lambda x: x["last_timesheet_date"] if x["time_left"] == 0 else (
+                x["end"] if x["time_sheets_by_date_model_m"] < 1e-2 else (
+                    x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"])
+                )
+            ),
+            source_fields=["last_timesheet_date", "time_left", "time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )
 
         change_request_calculated_date_after_quarter_end_issue_count = cubista.AggregatedForeignField(
@@ -193,6 +196,15 @@ class Quarter(cubista.Table):
         change_request_calculated_date_before_quarter_end_share = cubista.CalculatedField(
             lambda_expression=lambda x: 1 - x["change_request_calculated_date_after_quarter_end_issue_count"] / x["change_request_count"] if x["change_request_count"] else 1,
             source_fields=["change_request_calculated_date_after_quarter_end_issue_count", "change_request_count"]
+        )
+
+        last_timesheet_date = cubista.PullMaxByRelatedField(
+            foreign_table=lambda: time_sheet.QuarterTimeSheetByDate,
+            related_field_names=["id"],
+            foreign_field_names=["quarter_id"],
+            max_field_name="time_spent_cumsum",
+            pulled_field_name="date",
+            default=datetime.date.today()
         )
 
     class FieldPacks:
