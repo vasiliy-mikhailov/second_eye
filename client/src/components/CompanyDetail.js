@@ -353,17 +353,17 @@ class CompanyDetail extends Component {
                 </Typography>
                 <br />
 
-                {/*<Typography variant="h6" noWrap>*/}
-                {/*    Кварталы*/}
-                {/*</Typography>*/}
+                <Typography variant="h6" noWrap>
+                    Кварталы
+                </Typography>
 
-                {/*<div>*/}
-                {/*    <DataGridPro*/}
-                {/*        rows={ quartersTableContents }*/}
-                {/*        columns={ quartersTableColumns }*/}
-                {/*        autoHeight*/}
-                {/*    />*/}
-                {/*</div>*/}
+                <div>
+                    <DataGridPro
+                        rows={ quartersTableContents }
+                        columns={ quartersTableColumns }
+                        autoHeight
+                    />
+                </div>
 
                 {/*<Typography variant="h6" noWrap>*/}
                 {/*    Периоды*/}

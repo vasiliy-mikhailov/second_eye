@@ -8,7 +8,7 @@ from .. import utils
 
 class SystemChangeRequestTimeSheetByDate(cubista.AggregatedTable):
     class Aggregation:
-        source = lambda: time_sheet.TaskTimeSheetByDate
+        source = lambda: time_sheet.WorkItemTimeSheet
         sort_by: [str] = ["ordinal_date"]
         group_by: [str] = [
             "system_change_request_id", "change_request_id", "project_team_id", "dedicated_team_id", "company_id", "system_id", "epic_id", "planning_period_id",

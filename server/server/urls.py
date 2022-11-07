@@ -16,9 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
-from second_eye_api.refill_internal_db import refill_internal_db_in_cycle_in_background
+from second_eye_api.refill_internal_db import refill_internal_db
 import sys
 from graphene_django.views import GraphQLView
+import os
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -26,6 +27,7 @@ urlpatterns = [
 ]
 
 is_runserver = any(arg.casefold() == "runserver" for arg in sys.argv)
+is_demo = "demo" in os.environ
 
 if is_runserver:
-    refill_internal_db_in_cycle_in_background()
+    refill_internal_db(is_demo=is_demo)

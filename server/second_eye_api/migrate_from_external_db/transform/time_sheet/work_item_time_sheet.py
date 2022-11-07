@@ -2,15 +2,18 @@ import cubista
 import datetime
 
 from . import dedicated_team_planning_period
+from . import dedicated_team_planning_period_system
 from . import dedicated_team_quarter
 from . import dedicated_team_quarter_system
 from . import project_team_planning_period
+from . import project_team_planning_period_system
 from . import project_team_quarter
+from . import project_team_quarter_system
 from . import person
+from . import system_planning_period
 from . import time_sheet
 
 "system_change_request_id", "change_request_id", "epic_id",
-"project_team_planning_period_system_id", "project_team_quarter_system_id",
 "dedicated_team_planning_period_system_id", "dedicated_team_quarter_system_id",
 "system_planning_period_id"
 
@@ -178,10 +181,26 @@ class WorkItemTimeSheet(cubista.UnionTable):
             default=-1
         )
 
+        dedicated_team_planning_period_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: dedicated_team_planning_period_system.DedicatedTeamPlanningPeriodSystem,
+            related_field_names=["dedicated_team_id", "planning_period_id", "system_id"],
+            foreign_field_names=["dedicated_team_id", "planning_period_id", "system_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
         project_team_planning_period_id = cubista.PullByRelatedField(
             foreign_table=lambda: project_team_planning_period.ProjectTeamPlanningPeriod,
             related_field_names=["project_team_id", "planning_period_id"],
             foreign_field_names=["project_team_id", "planning_period_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        project_team_planning_period_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team_planning_period_system.ProjectTeamPlanningPeriodSystem,
+            related_field_names=["project_team_id", "planning_period_id", "system_id"],
+            foreign_field_names=["project_team_id", "planning_period_id", "system_id"],
             pulled_field_name="id",
             default=-1
         )
@@ -206,6 +225,22 @@ class WorkItemTimeSheet(cubista.UnionTable):
             foreign_table=lambda: project_team_quarter.ProjectTeamQuarter,
             related_field_names=["project_team_id", "quarter_id"],
             foreign_field_names=["project_team_id", "quarter_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        project_team_quarter_system_id = cubista.PullByRelatedField(
+            foreign_table=lambda: project_team_quarter_system.ProjectTeamQuarterSystem,
+            related_field_names=["project_team_id", "quarter_id", "system_id"],
+            foreign_field_names=["project_team_id", "quarter_id", "system_id"],
+            pulled_field_name="id",
+            default=-1
+        )
+
+        system_planning_period_id = cubista.PullByRelatedField(
+            foreign_table=lambda: system_planning_period.SystemPlanningPeriod,
+            related_field_names=["system_id", "planning_period_id"],
+            foreign_field_names=["system_id", "planning_period_id"],
             pulled_field_name="id",
             default=-1
         )

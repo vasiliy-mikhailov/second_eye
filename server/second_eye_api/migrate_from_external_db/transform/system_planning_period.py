@@ -78,7 +78,7 @@ class SystemPlanningPeriod(cubista.AggregatedTable):
         )
 
         calculated_finish_date = cubista.CalculatedField(
-            lambda_expression=lambda x: x["planning_period_end"] if x["time_sheets_by_date_model_m"] == 0 else
+            lambda_expression=lambda x: x["planning_period_end"] if x["time_sheets_by_date_model_m"] < 1e-2 else
                 x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"]),
             source_fields=["time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )

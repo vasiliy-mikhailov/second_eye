@@ -293,9 +293,12 @@ class Company(cubista.Table):
         )
 
         calculated_finish_date = cubista.CalculatedField(
-            lambda_expression=lambda x: datetime.date(year=2100, month=12, day=31) if x["time_sheets_by_date_model_m"] == 0 else
-                x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"]),
-            source_fields=["time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+            lambda_expression=lambda x: x["last_timesheet_date"] if x["time_left"] == 0 else (
+                datetime.date(year=2100, month=12, day=31) if x["time_sheets_by_date_model_m"] == 0 else (
+                    x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"])
+                )
+            ),
+            source_fields=["last_timesheet_date", "time_left", "time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )
 
         queue_length = cubista.CalculatedField(
@@ -310,6 +313,15 @@ class Company(cubista.Table):
             min_field_name="id",
             pulled_field_name="time_spent_for_reengineering_percent_cumsum",
             default=0
+        )
+
+        last_timesheet_date = cubista.PullMaxByRelatedField(
+            foreign_table=lambda: time_sheet.CompanyTimeSheetByDate,
+            related_field_names=["id"],
+            foreign_field_names=["company_id"],
+            max_field_name="time_spent_cumsum",
+            pulled_field_name="date",
+            default=datetime.date.today()
         )
 
 class CompanyTimeSpent(cubista.AggregatedTable):

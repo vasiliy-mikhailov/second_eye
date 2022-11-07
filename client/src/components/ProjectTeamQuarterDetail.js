@@ -19,7 +19,7 @@ const fetchProjectTeamQuarterByQuarterKeyAndProjectTeamId = gql`
                 changeRequestCalculatedDateAfterQuarterEndIssueCount
                 changeRequestCount
                 changeRequestCalculatedDateBeforeQuarterEndShare
-                newFunctionsTimeSpentInCurrentQuarterForQuarterChangeRequestsShare
+                timeSpentInCurrentQuarterForQuarterChangeRequestsShare
                 
                 projectTeam {
                     name
@@ -36,7 +36,7 @@ const fetchProjectTeamQuarterByQuarterKeyAndProjectTeamId = gql`
                             stateCategoryId
                             effortPerFunctionPoint
                             calculatedFinishDate
-                            newFunctionsTimeSpentInCurrentQuarter
+                            timeSpentInCurrentQuarter
                         }
                     }
                     
@@ -47,7 +47,7 @@ const fetchProjectTeamQuarterByQuarterKeyAndProjectTeamId = gql`
                             key
                             name
                       }
-                      newFunctionsTimeSpentInCurrentQuarter
+                      timeSpentInCurrentQuarter
                     }
                 }
                 quarter {
@@ -88,7 +88,7 @@ const fetchProjectTeamQuarterByQuarterKeyAndProjectTeamId = gql`
                     stateCategoryId
                     effortPerFunctionPoint
                     calculatedFinishDate
-                    newFunctionsTimeSpentInCurrentQuarter
+                    timeSpentInCurrentQuarter
                 }
           }
     }
@@ -108,7 +108,7 @@ class ProjectTeamQuarterDetail extends Component {
         const effortPerFunctionPoint = projectTeamQuarter.effortPerFunctionPoint
         const calculatedFinishDate = projectTeamQuarter.calculatedFinishDate
         const changeRequestCalculatedDateBeforeQuarterEndShare = projectTeamQuarter.changeRequestCalculatedDateBeforeQuarterEndShare
-        const newFunctionsTimeSpentInCurrentQuarterForQuarterChangeRequestsShare = projectTeamQuarter.newFunctionsTimeSpentInCurrentQuarterForQuarterChangeRequestsShare
+        const timeSpentInCurrentQuarterForQuarterChangeRequestsShare = projectTeamQuarter.timeSpentInCurrentQuarterForQuarterChangeRequestsShare
         const quarterName = projectTeamQuarter.quarter.name
         const quarterStart = projectTeamQuarter.quarter.start
         const quarterEnd = projectTeamQuarter.quarter.end
@@ -197,7 +197,7 @@ class ProjectTeamQuarterDetail extends Component {
                         stateCategoryId: changeRequest.stateCategoryId,
                         effortPerFunctionPoint: changeRequest.effortPerFunctionPoint,
                         calculatedFinishDate: changeRequest.calculatedFinishDate,
-                        newFunctionsTimeSpentInCurrentQuarter: changeRequest.newFunctionsTimeSpentInCurrentQuarter
+                        timeSpentInCurrentQuarter: changeRequest.timeSpentInCurrentQuarter
                     }
             ))
 
@@ -247,7 +247,7 @@ class ProjectTeamQuarterDetail extends Component {
                 valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
             },
             {
-                field: 'newFunctionsTimeSpentInCurrentQuarter',
+                field: 'timeSpentInCurrentQuarter',
                 headerName: 'Фактические трудозатраты с начала квартала (ч)',
                 width: 200,
                 align: 'right',
@@ -276,7 +276,7 @@ class ProjectTeamQuarterDetail extends Component {
                         stateCategoryId: changeRequestWithTimeSpentInCurrentQuarterWhileItIsNotInCurrentQuarter.changeRequest.stateCategoryId,
                         effortPerFunctionPoint: changeRequestWithTimeSpentInCurrentQuarterWhileItIsNotInCurrentQuarter.changeRequest.effortPerFunctionPoint,
                         calculatedFinishDate: changeRequestWithTimeSpentInCurrentQuarterWhileItIsNotInCurrentQuarter.changeRequest.calculatedFinishDate,
-                        newFunctionsTimeSpentInCurrentQuarter: changeRequestWithTimeSpentInCurrentQuarterWhileItIsNotInCurrentQuarter.changeRequest.newFunctionsTimeSpentInCurrentQuarter
+                        timeSpentInCurrentQuarter: changeRequestWithTimeSpentInCurrentQuarterWhileItIsNotInCurrentQuarter.changeRequest.timeSpentInCurrentQuarter
                     }
             ))
 
@@ -326,7 +326,7 @@ class ProjectTeamQuarterDetail extends Component {
                 valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
             },
             {
-                field: 'newFunctionsTimeSpentInCurrentQuarter',
+                field: 'timeSpentInCurrentQuarter',
                 headerName: 'Фактические трудозатраты с начала квартала (ч)',
                 width: 200,
                 align: 'right',
@@ -336,8 +336,8 @@ class ProjectTeamQuarterDetail extends Component {
 
         const personsWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNotInCurrentQuarterTableContents = personsWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNotInCurrentQuarter.slice()
             .sort((a, b) =>  (
-                (a.newFunctionsTimeSpentInCurrentQuarter < b.newFunctionsTimeSpentInCurrentQuarter) ? 1 : (
-                    (a.newFunctionsTimeSpentInCurrentQuarter > b.newFunctionsTimeSpentInCurrentQuarter) ? -1 : 0
+                (a.timeSpentInCurrentQuarter < b.timeSpentInCurrentQuarter) ? 1 : (
+                    (a.timeSpentInCurrentQuarter > b.timeSpentInCurrentQuarter) ? -1 : 0
                 )
             ))
             .map(personWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNotInCurrentQuarter => (
@@ -345,7 +345,7 @@ class ProjectTeamQuarterDetail extends Component {
                         id: personWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNotInCurrentQuarter.id,
                         key: personWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNotInCurrentQuarter.key,
                         name: personWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNotInCurrentQuarter.person.name,
-                        newFunctionsTimeSpentInCurrentQuarter: personWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNotInCurrentQuarter.newFunctionsTimeSpentInCurrentQuarter,
+                        timeSpentInCurrentQuarter: personWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNotInCurrentQuarter.timeSpentInCurrentQuarter,
                     }
             ))
 
@@ -356,7 +356,7 @@ class ProjectTeamQuarterDetail extends Component {
                 flex: 1,
             },
             {
-                field: 'newFunctionsTimeSpentInCurrentQuarter',
+                field: 'timeSpentInCurrentQuarter',
                 headerName: 'Затрачено времени (ч)',
                 width: 200,
                 align: 'right',
@@ -377,7 +377,7 @@ class ProjectTeamQuarterDetail extends Component {
                     <br />
                     Прогноз исполнения плана по заявкам на доработку ПО: { (changeRequestCalculatedDateBeforeQuarterEndShare * 100).toLocaleString(undefined, { maximumFractionDigits: 0 }) }%
                     <br />
-                    Процент трудозатрат на задачи квартала { (newFunctionsTimeSpentInCurrentQuarterForQuarterChangeRequestsShare * 100).toLocaleString(undefined, { maximumFractionDigits: 0 }) }%
+                    Процент трудозатрат на задачи квартала { (timeSpentInCurrentQuarterForQuarterChangeRequestsShare * 100).toLocaleString(undefined, { maximumFractionDigits: 0 }) }%
                     <br />
                     <br />
                 </Typography>

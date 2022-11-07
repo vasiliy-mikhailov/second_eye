@@ -56,7 +56,7 @@ const fetchDedicatedTeamQuarterByQuarterKeyAndDedicatedTeamId = gql`
                         }
                         effortPerFunctionPoint
                         calculatedFinishDate
-                        newFunctionsTimeSpentInCurrentQuarter
+                        timeSpentInCurrentQuarter
                         changeRequestCalculatedDateBeforeQuarterEndShare
                     }
                     
@@ -82,7 +82,7 @@ const fetchDedicatedTeamQuarterByQuarterKeyAndDedicatedTeamId = gql`
                         stateCategoryId
                         effortPerFunctionPoint
                         calculatedFinishDate
-                        newFunctionsTimeSpentInCurrentQuarter
+                        timeSpentInCurrentQuarter
                     }
               }
         }
@@ -182,7 +182,7 @@ class DedicatedTeamQuarterDetail extends Component {
                         projectTeamName: projectTeamQuarter.projectTeam.name,
                         effortPerFunctionPoint: projectTeamQuarter.effortPerFunctionPoint,
                         calculatedFinishDate: projectTeamQuarter.calculatedFinishDate,
-                        newFunctionsTimeSpentInCurrentQuarter: projectTeamQuarter.newFunctionsTimeSpentInCurrentQuarter,
+                        timeSpentInCurrentQuarter: projectTeamQuarter.timeSpentInCurrentQuarter,
                         changeRequestCalculatedDateBeforeQuarterEndShare: projectTeamQuarter.changeRequestCalculatedDateBeforeQuarterEndShare,
                     }
             ))
@@ -226,7 +226,7 @@ class DedicatedTeamQuarterDetail extends Component {
                 valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
             },
             {
-                field: 'newFunctionsTimeSpentInCurrentQuarter',
+                field: 'timeSpentInCurrentQuarter',
                 headerName: 'Фактические трудозатраты с начала квартала (ч)',
                 width: 200,
                 align: 'right',
@@ -262,7 +262,7 @@ class DedicatedTeamQuarterDetail extends Component {
                         stateCategoryId: changeRequest.stateCategoryId,
                         effortPerFunctionPoint: changeRequest.effortPerFunctionPoint,
                         calculatedFinishDate: changeRequest.calculatedFinishDate,
-                        newFunctionsTimeSpentInCurrentQuarter: changeRequest.newFunctionsTimeSpentInCurrentQuarter
+                        timeSpentInCurrentQuarter: changeRequest.timeSpentInCurrentQuarter
                     }
             ))
 
@@ -312,7 +312,7 @@ class DedicatedTeamQuarterDetail extends Component {
                 valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
             },
             {
-                field: 'newFunctionsTimeSpentInCurrentQuarter',
+                field: 'timeSpentInCurrentQuarter',
                 headerName: 'Фактические трудозатраты с начала квартала (ч)',
                 width: 200,
                 align: 'right',

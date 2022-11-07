@@ -179,15 +179,15 @@ def test_dedicated_team_detail():
                 "cto": {
                     "name": "Не указано"
                 },
-                "calculatedFinishDate": "2100-12-31",
+                "calculatedFinishDate": two_weeks_ago_string,
                 "timeSheetsByDate": [{
                     "date": two_weeks_ago_string,
-                    "timeSpentCumsum": 9.0,
+                    "timeSpentCumsum": 15.5,
                     "timeSpentCumsumPrediction": 0.0,
-                    "timeSpentWithoutValuePercentCumsum": 1.0,
-                    "timeSpentWithValuePercentCumsum": 0.0,
-                    "timeSpentForReengineeringPercentCumsum": 0.0,
-                    "timeSpentNotForReengineeringPercentCumsum": 1.0
+                    "timeSpentWithoutValuePercentCumsum": pytest.approx(1 - 1.5 / 15.5),
+                    "timeSpentWithValuePercentCumsum": pytest.approx(1.5 / 15.5),
+                    "timeSpentForReengineeringPercentCumsum": pytest.approx(1.5 / 15.5),
+                    "timeSpentNotForReengineeringPercentCumsum": pytest.approx(1 - 1.5 / 15.5),
                 }],
                 "projectTeams": [
                     {
@@ -195,11 +195,11 @@ def test_dedicated_team_detail():
                         "estimate": 15.5,
                         "timeLeft": 0.0,
                         "name": "Корпоративные кредиты",
-                        "calculatedFinishDate": "2100-12-31",
+                        "calculatedFinishDate": two_weeks_ago_string,
                         "timeSpentChronon": 15.5,
                         "queueLength": 0.0,
                         "positionPersonPlanFactIssueCount": 0,
-                        "timeSpentForReengineeringPercent": 0.0
+                        "timeSpentForReengineeringPercent": pytest.approx(1.5 / 15.5),
                      }
                 ],
                 "dedicatedTeamPlanningPeriods": [{

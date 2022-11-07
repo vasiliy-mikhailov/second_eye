@@ -15,7 +15,7 @@ const fetchQuarterByKey = gql`
             id 
             key
             name
-            newFunctionsFullTimeEquivalentPrevious28Days
+            timeSpentChrononFte
             start
             end
             estimate
@@ -35,8 +35,8 @@ const fetchQuarterByKey = gql`
                 }
                 effortPerFunctionPoint
                 calculatedFinishDate
-                newFunctionsTimeSpentPrevious28Days
-                newFunctionsFullTimeEquivalentPrevious28Days
+                timeSpentChronon
+                timeSpentChrononFte
                 timeSpentForReengineeringPercent
                 changeRequestCalculatedDateBeforeQuarterEndShare
             }
@@ -73,7 +73,7 @@ const fetchQuarterByKey = gql`
                 stateCategoryId
                 effortPerFunctionPoint
                 calculatedFinishDate
-                newFunctionsTimeSpentPrevious28Days
+                timeSpentChronon
             }
         }
     }
@@ -85,7 +85,7 @@ class QuarterDetail extends Component {
 
         const quarterKey = this.props.match.params.key
         const quarter = this.props.data.quarterByKey
-        const newFunctionsFullTimeEquivalentPrevious28Days = quarter.newFunctionsFullTimeEquivalentPrevious28Days
+        const timeSpentChrononFte = quarter.timeSpentChrononFte
         const estimate = quarter.estimate
         const effortPerFunctionPoint = quarter.effortPerFunctionPoint
         const calculatedFinishDate = quarter.calculatedFinishDate
@@ -133,8 +133,8 @@ class QuarterDetail extends Component {
                         dedicatedTeamName: dedicatedTeamQuarter.dedicatedTeam.name,
                         effortPerFunctionPoint: dedicatedTeamQuarter.effortPerFunctionPoint,
                         calculatedFinishDate: dedicatedTeamQuarter.calculatedFinishDate,
-                        newFunctionsTimeSpentPrevious28Days: dedicatedTeamQuarter.newFunctionsTimeSpentPrevious28Days,
-                        newFunctionsFullTimeEquivalentPrevious28Days: dedicatedTeamQuarter.newFunctionsFullTimeEquivalentPrevious28Days,
+                        timeSpentChronon: dedicatedTeamQuarter.timeSpentChronon,
+                        timeSpentChrononFte: dedicatedTeamQuarter.timeSpentChrononFte,
                         timeSpentForReengineeringPercent: dedicatedTeamQuarter.timeSpentForReengineeringPercent,
                         changeRequestCalculatedDateBeforeQuarterEndShare: dedicatedTeamQuarter.changeRequestCalculatedDateBeforeQuarterEndShare,
                     }
@@ -179,15 +179,15 @@ class QuarterDetail extends Component {
                 valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
             },
             {
-                field: 'newFunctionsTimeSpentPrevious28Days',
+                field: 'timeSpentChronon',
                 headerName: 'Фактические трудозатраты за 28 дней (ч)',
                 width: 200,
                 align: 'right',
                 valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
             },
             {
-                field: 'newFunctionsFullTimeEquivalentPrevious28Days',
-                headerName: 'Новый функционал: фактический FTE за 28 дней',
+                field: 'timeSpentChrononFte',
+                headerName: 'Трудомощность, FTE',
                 width: 200,
                 align: 'right',
                 valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
@@ -283,7 +283,7 @@ class QuarterDetail extends Component {
                         stateCategoryId: changeRequest.stateCategoryId,
                         effortPerFunctionPoint: changeRequest.effortPerFunctionPoint,
                         calculatedFinishDate: changeRequest.calculatedFinishDate,
-                        newFunctionsTimeSpentPrevious28Days: changeRequest.newFunctionsTimeSpentPrevious28Days
+                        timeSpentChronon: changeRequest.timeSpentChronon
                     }
             ))
 
@@ -333,7 +333,7 @@ class QuarterDetail extends Component {
                 valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
             },
             {
-                field: 'newFunctionsTimeSpentPrevious28Days',
+                field: 'timeSpentChronon',
                 headerName: 'Фактические трудозатраты за 28 дней (ч)',
                 width: 200,
                 align: 'right',
@@ -348,7 +348,7 @@ class QuarterDetail extends Component {
                     <br />
                     Затраты на функциональную точку (аналитика + разработка + менеджмент) { effortPerFunctionPoint.toFixed(2) } часов / функциональная точка
                     <br />
-                    Новый функционал: фактический FTE за 28 дней: { newFunctionsFullTimeEquivalentPrevious28Days.toLocaleString(undefined, { maximumFractionDigits: 0 }) }
+                    Трудомощность, FTE: { timeSpentChrononFte.toLocaleString(undefined, { maximumFractionDigits: 0 }) }
                     <br />
                     Прогноз исполнения плана по заявкам на доработку ПО: { (changeRequestCalculatedDateBeforeQuarterEndShare * 100).toLocaleString(undefined, { maximumFractionDigits: 0 }) }%
                     <br />

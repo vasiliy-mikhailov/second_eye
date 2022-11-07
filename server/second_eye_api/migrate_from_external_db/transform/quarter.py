@@ -249,5 +249,5 @@ class PersonsWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNot
         id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
         person_id = cubista.AggregatedTableGroupField(source="person_id", primary_key=False)
         project_team_id = cubista.AggregatedTableGroupField(source="project_team_id", primary_key=False)
-        new_functions_time_spent_in_current_quarter = cubista.AggregatedTableAggregateField(source="time_spent_in_current_quarter", aggregate_function="sum")
+        time_spent_in_current_quarter = cubista.AggregatedTableAggregateField(source="time_spent_in_current_quarter", aggregate_function="sum")
 

@@ -246,7 +246,7 @@ def test_dedicated_team_planning_period():
                 }],
                 "dedicatedTeamPlanningPeriodSystems": [{
                     "id": AnyValue(),
-                    "estimate": 9.0,
+                    "estimate": 14.0,
                     "timeLeft": 0.0,
                     "system": {
                         "id": system_id,

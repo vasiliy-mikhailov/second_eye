@@ -133,4 +133,4 @@ class PersonsWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNot
         person = graphene_frame.Field(to_entity=lambda: person.Person)
         project_team = graphene_frame.Field(to_entity=lambda: project_team.ProjectTeam)
         project_team_quarter = graphene_frame.Field(to_entity=lambda: project_team_quarter.ProjectTeamQuarter)
-        new_functions_time_spent_in_current_quarter = graphene_frame.Float()
+        time_spent_in_current_quarter = graphene_frame.Float()

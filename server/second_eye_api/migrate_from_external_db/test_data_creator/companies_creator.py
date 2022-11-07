@@ -8,8 +8,10 @@ class CompaniesCreator:
             "name": "Не указано",
         }]
 
-    def create_company(self, name):
-        id = self.last_id + 100
+    def create_company(self, name, id=None):
+        if not id:
+            id = self.last_id + 100
+
         companies = self.companies
         companies.append(
             {

@@ -14,7 +14,7 @@ from second_eye_api.migrate_from_external_db.transform import state
 from tests.utils import AnyValue
 
 
-def test_dedicated_team_quarter_detail():
+def test_project_team_quarter_detail():
     creator = test_data_creator.TestDataCreator()
 
     today = datetime.date.today()
@@ -127,8 +127,8 @@ def test_dedicated_team_quarter_detail():
 
     executed = graphene_client.execute(
         """
-            query DedicatedTeamQuarterByQuarterKeyAndDedicatedTeamId($quarterKey: String!, $dedicatedTeamId: Int!) {
-                  dedicatedTeamQuarterByQuarterKeyAndDedicatedTeamId(dedicatedTeamId: $dedicatedTeamId, quarterKey: $quarterKey) {
+           query ProjectTeamQuarterByQuarterKeyAndProjectTeamId($quarterKey: String!, $projectTeamId: Int!) {
+                  projectTeamQuarterByQuarterKeyAndProjectTeamId(projectTeamId: $projectTeamId, quarterKey: $quarterKey) {
                         id
                         estimate
                         effortPerFunctionPoint
@@ -136,23 +136,43 @@ def test_dedicated_team_quarter_detail():
                         changeRequestCalculatedDateAfterQuarterEndIssueCount
                         changeRequestCount
                         changeRequestCalculatedDateBeforeQuarterEndShare
-                        
-                        dedicatedTeam {
+                        timeSpentInCurrentQuarterForQuarterChangeRequestsShare
+
+                        projectTeam {
                             name
-                            cio {
-                                name
+
+                            changeRequestsWithTimeSpentInCurrentQuarterWhileItIsNotInCurrentQuarter {
+                                id
+                                changeRequest {
+                                    id
+                                    key
+                                    estimate
+                                    timeLeft
+                                    hasValue
+                                    name
+                                    stateCategoryId
+                                    effortPerFunctionPoint
+                                    calculatedFinishDate
+                                    timeSpentInCurrentQuarter
+                                }
                             }
-                            cto {
-                                name
+
+                            personsWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNotInCurrentQuarter {
+                                id
+                                person {
+                                    id
+                                    key
+                                    name
+                              }
+                              timeSpentInCurrentQuarter
                             }
                         }
-                        
                         quarter {
+                            key
                             name
                             start
                             end
                         }
-                        
                         timeSheetsByDate {
                             date
                             timeSpentCumsum
@@ -162,33 +182,19 @@ def test_dedicated_team_quarter_detail():
                             timeSpentForReengineeringPercentCumsum
                             timeSpentNotForReengineeringPercentCumsum
                         }
-                        
-                        projectTeamQuarters {
+
+                        projectTeamQuarterSystems {
+                          id
+                          estimate
+                          timeLeft
+                          system {
                             id
-                            estimate
-                            timeLeft
-                            projectTeam {
-                                id
-                                name
-                            }
-                            effortPerFunctionPoint
-                            calculatedFinishDate
-                            timeSpentInCurrentQuarter
-                            changeRequestCalculatedDateBeforeQuarterEndShare
+                            name
+                          }
+                          effortPerFunctionPoint
+                          calculatedFinishDate
                         }
-                        
-                        dedicatedTeamQuarterSystems {
-                            id
-                            estimate
-                            timeLeft
-                            system {
-                                id
-                                name
-                            }
-                            effortPerFunctionPoint
-                            calculatedFinishDate
-                        }
-                        
+
                         changeRequests {
                             id
                             key
@@ -204,11 +210,11 @@ def test_dedicated_team_quarter_detail():
                   }
             }
         """,
-        variables={"dedicatedTeamId": dedicated_team_id, "quarterKey": quarter_key},
+        variables={"projectTeamId": project_team_id, "quarterKey": quarter_key},
     )
     assert executed == {
         "data": {
-            "dedicatedTeamQuarterByQuarterKeyAndDedicatedTeamId": {
+            "projectTeamQuarterByQuarterKeyAndProjectTeamId": {
                 "id": AnyValue(),
                 "estimate": 15.5,
                 "effortPerFunctionPoint": 0.0,
@@ -216,16 +222,14 @@ def test_dedicated_team_quarter_detail():
                 "changeRequestCalculatedDateAfterQuarterEndIssueCount": 0,
                 "changeRequestCount": 1,
                 "changeRequestCalculatedDateBeforeQuarterEndShare": 1.0,
-                "dedicatedTeam": {
-                    "name": "Корпоративный блок",
-                    "cio": {
-                        "name": "Не указано"
-                    },
-                    "cto": {
-                        "name": "Не указано"
-                    },
+                "timeSpentInCurrentQuarterForQuarterChangeRequestsShare": 1.0,
+                "projectTeam": {
+                    "name": "Корпоративные кредиты",
+                    "changeRequestsWithTimeSpentInCurrentQuarterWhileItIsNotInCurrentQuarter": [],
+                    "personsWithTimeSpentForChangeRequestsInCurrentQuarterWhileChangeRequestNotInCurrentQuarter": []
                 },
                 "quarter": {
+                    "key": quarter_key,
                     "name": quarter_key,
                     "start": quarter_start_date_string,
                     "end": quarter_end_date_string,
@@ -239,20 +243,7 @@ def test_dedicated_team_quarter_detail():
                     "timeSpentForReengineeringPercentCumsum": pytest.approx(1.5 / 15.5),
                     "timeSpentNotForReengineeringPercentCumsum": pytest.approx(1 - 1.5 / 15.5),
                 }],
-                "projectTeamQuarters": [{
-                    "id": AnyValue(),
-                    "estimate": 15.5,
-                    "timeLeft": 0.0,
-                    "projectTeam": {
-                        "id": project_team_id,
-                        "name": "Корпоративные кредиты"
-                    },
-                    "effortPerFunctionPoint": 0.0,
-                    "calculatedFinishDate": two_weeks_ago_string,
-                    "timeSpentInCurrentQuarter": 15.5,
-                    "changeRequestCalculatedDateBeforeQuarterEndShare": 1,
-                }],
-                "dedicatedTeamQuarterSystems": [{
+                "projectTeamQuarterSystems": [{
                     "id": AnyValue(),
                     "estimate": 14.0,
                     "timeLeft": 0.0,

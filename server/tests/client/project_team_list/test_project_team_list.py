@@ -14,6 +14,7 @@ def test_project_team_list():
     today = datetime.date.today()
     two_weeks = datetime.timedelta(days=14)
     two_weeks_ago = today - two_weeks
+    two_weeks_ago_string = two_weeks_ago.strftime('%Y-%m-%d')
     current_year = today.year
 
     creator = test_data_creator.TestDataCreator()
@@ -149,7 +150,7 @@ def test_project_team_list():
                 "estimate": 6.0,
                 "timeLeft": 0.0,
                 "name": "Не указано",
-                "calculatedFinishDate": "2100-12-31",
+                "calculatedFinishDate": two_weeks_ago_string,
                 "timeSpentChrononFte": pytest.approx(6.0 / 20.0 / 8.0),
                 "queueLength": 0.0,
                 "positionPersonPlanFactIssueCount": 0,
@@ -174,7 +175,7 @@ def test_project_team_list():
                 "estimate": 15.5,
                 "timeLeft": 0.0,
                 "name": "Корпоративные кредиты",
-                "calculatedFinishDate": "2100-12-31",
+                "calculatedFinishDate": two_weeks_ago_string,
                 "timeSpentChrononFte": pytest.approx(15.5 / 20.0 / 8.0),
                 "queueLength": 0.0,
                 "positionPersonPlanFactIssueCount": 0,

@@ -10,7 +10,7 @@ from django.conf import settings
 from second_eye_api.migrate_from_external_db.transform import skill
 
 
-def test_when_company_has_change_request_and_incident_both_are_summed_up():
+def test_company_detail():
     today = datetime.date.today()
     two_weeks = datetime.timedelta(days=14)
     two_weeks_ago = today - two_weeks
@@ -197,17 +197,17 @@ def test_when_company_has_change_request_and_incident_both_are_summed_up():
                 "name": "Не указано",
                 "timeLeft": 0.0,
                 "timeSpentChrononFte": pytest.approx(6.0 / 20.0 / 8.0),
-                "calculatedFinishDate": "2100-12-31",
+                "calculatedFinishDate": two_weeks_ago_string,
                 "queueLength": 0.0,
-                "timeSpentForReengineeringPercent": 1.0,
+                "timeSpentForReengineeringPercent": 0.0,
             }, {
                 "id": dedicated_team_id,
                 "name": "Корпоративный блок",
                 "timeLeft": 0.0,
                 "timeSpentChrononFte": pytest.approx(15.5 / 20.0 / 8.0),
-                "calculatedFinishDate": "2100-12-31",
+                "calculatedFinishDate": two_weeks_ago_string,
                 "queueLength": 0.0,
-                "timeSpentForReengineeringPercent": 0.0,
+                "timeSpentForReengineeringPercent": pytest.approx(1.5 / 15.5),
             }],
             "companyById": {
                 "id": company_id,
@@ -221,7 +221,7 @@ def test_when_company_has_change_request_and_incident_both_are_summed_up():
                 "nonProjectActivityTimeSpentChrononFte": 6.0 / 20.0 / 8.0,
                 "timeSpentChrononFte": 21.5 / 20.0 / 8.0,
                 "timeSpentForReengineeringPercent": pytest.approx(1.5 / 21.5),
-                "calculatedFinishDate": "2100-12-31",
+                "calculatedFinishDate": two_weeks_ago_string,
                 "timeSheetsByDate": [{
                     "date": two_weeks_ago_string,
                     "timeSpentCumsum": 21.5,

@@ -86,8 +86,8 @@ const fetchChangeRequest = gql`
                     id
                     name
                 }
-                newFunctionsTimeSpent
-                newFunctionsFullTimeEquivalentPrevious28Days
+                timeSpent
+                timeSpentChrononFte
             }
         }
     }
@@ -223,16 +223,16 @@ class ChangeRequestDetail extends Component {
 
         const personsTableContents = persons.slice()
             .sort((a, b) =>  (
-                (a.newFunctionsFullTimeEquivalentPrevious28Days > b.newFunctionsFullTimeEquivalentPrevious28Days) ? -1 : (
-                    (a.newFunctionsFullTimeEquivalentPrevious28Days == b.newFunctionsFullTimeEquivalentPrevious28Days) ? 0 : 1
+                (a.timeSpentChrononFte > b.timeSpentChrononFte) ? -1 : (
+                    (a.timeSpentChrononFte == b.timeSpentChrononFte) ? 0 : 1
                 )
             ))
             .map(person => (
                     {
                         id: person.person.id,
                         name: person.person.name,
-                        newFunctionsTimeSpent: person.newFunctionsTimeSpent,
-                        newFunctionsFullTimeEquivalentPrevious28Days: person.newFunctionsFullTimeEquivalentPrevious28Days
+                        timeSpent: person.timeSpent,
+                        timeSpentChrononFte: person.timeSpentChrononFte
                     }
             ))
 
@@ -243,15 +243,15 @@ class ChangeRequestDetail extends Component {
                 flex: 1,
             },
             {
-                field: 'newFunctionsTimeSpent',
-                headerName: 'Новый функционал: списано всего (ч)',
+                field: 'timeSpent',
+                headerName: 'Трудозатраты (ч)',
                 width: 200,
                 align: 'right',
                 valueFormatter: ({ value }) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
             },
             {
-                field: 'newFunctionsFullTimeEquivalentPrevious28Days',
-                headerName: 'Новый функционал: фактический FTE за 28 дней',
+                field: 'timeSpentChrononFte',
+                headerName: 'Трудомощность, FTE',
                 width: 200,
                 align: 'right',
                 valueFormatter: ({ value }) => (value).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),

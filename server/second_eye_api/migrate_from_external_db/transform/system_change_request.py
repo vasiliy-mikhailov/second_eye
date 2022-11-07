@@ -204,9 +204,19 @@ class SystemChangeRequest(cubista.Table):
             default=0
         )
 
+        incident_fixing_time_spent = cubista.CalculatedField(
+            lambda_expression=lambda x: 0,
+            source_fields=[]
+        )
+
+        non_project_activity_time_spent = cubista.CalculatedField(
+            lambda_expression=lambda x: 0,
+            source_fields=[]
+        )
+
         time_spent = cubista.CalculatedField(
-            lambda_expression=lambda x: x["analysis_time_spent"] + x["development_time_spent"] + x["testing_time_spent"],
-            source_fields=["analysis_time_spent", "development_time_spent", "testing_time_spent"]
+            lambda_expression=lambda x: x["analysis_time_spent"] + x["development_time_spent"] + x["testing_time_spent"] + x["management_time_spent"] + x["incident_fixing_time_spent"] + x["non_project_activity_time_spent"],
+            source_fields=["analysis_time_spent", "development_time_spent", "testing_time_spent", "management_time_spent", "incident_fixing_time_spent", "non_project_activity_time_spent"]
         )
 
         analysis_estimate = cubista.CalculatedField(
@@ -251,9 +261,24 @@ class SystemChangeRequest(cubista.Table):
             source_fields=["testing_time_spent", "state_category_id", "testing_planned_estimate", "testing_preliminary_estimate", "testing_tasks_estimate_sum"]
         )
 
+        management_estimate = cubista.CalculatedField(
+            lambda_expression=lambda x: x["management_time_spent"],
+            source_fields=["management_time_spent"]
+        )
+
+        incident_fixing_estimate = cubista.CalculatedField(
+            lambda_expression=lambda x: x["incident_fixing_time_spent"],
+            source_fields=["incident_fixing_time_spent"]
+        )
+
+        non_project_activity_estimate = cubista.CalculatedField(
+            lambda_expression=lambda x: x["non_project_activity_time_spent"],
+            source_fields=["non_project_activity_time_spent"]
+        )
+
         estimate = cubista.CalculatedField(
-            lambda_expression=lambda x: x["analysis_estimate"] + x["development_estimate"] + x["testing_estimate"],
-            source_fields=["analysis_estimate", "development_estimate", "testing_estimate"]
+            lambda_expression=lambda x: x["analysis_estimate"] + x["development_estimate"] + x["testing_estimate"] + x["management_estimate"] + x["incident_fixing_estimate"] + x["non_project_activity_estimate"],
+            source_fields=["analysis_estimate", "development_estimate", "testing_estimate", "management_estimate", "incident_fixing_estimate", "non_project_activity_estimate"]
         )
 
         time_left = cubista.CalculatedField(lambda_expression=lambda x:
@@ -332,9 +357,12 @@ class SystemChangeRequest(cubista.Table):
         )
 
         calculated_finish_date = cubista.CalculatedField(
-            lambda_expression=lambda x: x["planning_period_end"] if x["time_sheets_by_date_model_m"] == 0 else
-                x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"]),
-            source_fields=["time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+            lambda_expression=lambda x: x["last_timesheet_date"] if x["time_left"] == 0 else (
+                x["planning_period_end"] if x["time_sheets_by_date_model_m"] < 1e-2 else (
+                    x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"])
+                )
+            ),
+            source_fields=["last_timesheet_date", "time_left", "time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )
 
         main_developer_id = cubista.PullMaxByRelatedField(
@@ -344,6 +372,15 @@ class SystemChangeRequest(cubista.Table):
             max_field_name="time_spent",
             pulled_field_name="person_id",
             default=-1
+        )
+
+        last_timesheet_date = cubista.PullMaxByRelatedField(
+            foreign_table=lambda: time_sheet.SystemChangeRequestTimeSheetByDate,
+            related_field_names=["id"],
+            foreign_field_names=["system_change_request_id"],
+            max_field_name="time_spent_cumsum",
+            pulled_field_name="date",
+            default=datetime.date.today()
         )
 
 class SystemChangeRequestTimeSpent(cubista.AggregatedTable):

@@ -11,12 +11,13 @@ from second_eye_api.migrate_from_external_db.transform import skill
 from second_eye_api.migrate_from_external_db.transform import utils
 
 
-def test_project_team_detail():
+def test_change_request_detail():
     today = datetime.date.today()
     two_weeks = datetime.timedelta(days=14)
     two_weeks_ago = today - two_weeks
     two_weeks_ago_string = two_weeks_ago.strftime('%Y-%m-%d')
-    first_day_of_month_two_weeks_ago = datetime.date(year=two_weeks_ago.year, month=two_weeks_ago.month, day=1).strftime(
+    first_day_of_month_two_weeks_ago = datetime.date(year=two_weeks_ago.year, month=two_weeks_ago.month,
+                                                     day=1).strftime(
         '%Y-%m-%d')
     current_year = today.year
     working_days_in_month_occured = utils.working_days_in_month_occured(for_date=two_weeks_ago, sys_date=today)
@@ -113,199 +114,160 @@ def test_project_team_detail():
 
     executed = graphene_client.execute(
         """
-            query ProjectTeamById($id: Int!) {
-                projectTeamById(id: $id) {
-                    id
-                    estimate
-                    name
+            query ChangeRequestByKeyQuery($key: String!) {
+                changeRequestByKey(key: $key) {
+                    id 
+                    key
                     url
-                    
-                    calculatedFinishDate
-                    
-                    dedicatedTeam {
-                        id
+                    name
+                    state {
                         name
                     }
                     
-                    projectManager {
-                        id
-                        name
+                    analysisEstimate
+                    analysisTimeSpent
+                    analysisTimeLeft
+                    analysisTimeSheetsByDate {
+                        date
+                        timeSpentCumsum
                     }
                     
+                    developmentEstimate
+                    developmentTimeSpent
+                    developmentTimeLeft
+                    developmentTimeSheetsByDate {
+                        date
+                        timeSpentCumsum
+                    }
+                    
+                    testingEstimate
+                    testingTimeSpent
+                    testingTimeLeft
+                    testingTimeSheetsByDate {
+                        date
+                        timeSpentCumsum
+                    }
+                    
+                    estimate
+                    effortPerFunctionPoint
+                    timeSpent
+                    timeLeft
                     timeSheetsByDate {
                         date
                         timeSpentCumsum
                         timeSpentCumsumPrediction
-                        timeSpentWithoutValuePercentCumsum
-                        timeSpentWithValuePercentCumsum
-                        timeSpentForReengineeringPercentCumsum
-                        timeSpentNotForReengineeringPercentCumsum
                     }
                     
-                    timeSheetsByMonth {
-                        month
-                        timeSpentFte
-                        analysisTimeSpentFte
-                        developmentTimeSpentFte
-                        testingTimeSpentFte
-                        managementTimeSpentFte
-                        incidentFixingTimeSpentFte
-                        nonProjectActivityTimeSpentFte
-                        workingDaysInMonthOccured
-                    }
+                    plannedInstallDate
                     
-                    projectTeamPlanningPeriods {
-                        planningPeriod {
-                            id 
-                            name
-                            start
-                            end
-                        }
-                        calculatedFinishDate
+                    calculatedFinishDate
+                    
+                    systemChangeRequests {
+                        id
+                        key
+                        name
+                        
                         estimate
-                        timeLeft
                         effortPerFunctionPoint
-                        timeSpentChronon
-                    }
-                    
-                    chrononPositions {
-                        position {
-                            id
-                            url
+                        
+                        timeLeft
+                        state {
                             name
                         }
+                        stateCategory {
+                            id
+                        }
+                        
+                        calculatedFinishDate
+                        
+                        mainDeveloper {
+                            id
+                            name
+                        }
+                    }
+                    
+                    persons {
                         person {
                             id
-                            key
                             name
                         }
                         timeSpent
                         timeSpentChrononFte
-                        totalCapacityFte
-                        
-                        planFactFteDifference
-                        
-                        state {
-                            name
-                        }
                     }
-                    
-                    positions {
-                        position {
-                            id
-                            url
-                            name
-                        }
-                        person {
-                            id
-                            key
-                            name
-                        }
-                        timeSpent
-                        timeSpentChrononFte
-                        totalCapacityFte
-                        
-                        planFactFteDifference
-                        
-                        state {
-                            name
-                        }
-                    }
-                    
-                    positionPersonPlanFactIssueCount
                 }
             }
         """,
-        variables={"id": project_team_id},
+        variables={"key": "CR-1"},
     )
     assert executed == {
         "data": {
-            "projectTeamById": {
-                "id": project_team_id,
-                "estimate": 15.5,
-                "name": "Корпоративные кредиты",
+            "changeRequestByKey": {
+                "id": change_request_id,
+                "key": "CR-1",
                 "url": "",
-                "calculatedFinishDate": two_weeks_ago_string,
-                "dedicatedTeam": {
-                    "id": dedicated_team_id,
-                    "name": "Корпоративный блок"
+                "name": "Заявка на доработку кредитного процесса",
+                "state": {
+                    "name": "Не указано"
                 },
-                "projectManager": {
-                    "id": project_manager_id,
-                    "name": "Руководитель проекта"
-                },
+                "analysisEstimate": 2.0,
+                "analysisTimeSpent": 2.0,
+                "analysisTimeLeft": 0.0,
+                "analysisTimeSheetsByDate": [{
+                    "date": two_weeks_ago_string,
+                    "timeSpentCumsum": 2.0,
+                }],
+                "developmentEstimate": 3.0,
+                "developmentTimeSpent": 3.0,
+                "developmentTimeLeft": 0.0,
+                "developmentTimeSheetsByDate": [{
+                    "date": two_weeks_ago_string,
+                    "timeSpentCumsum": 3.0,
+                }],
+                "testingEstimate": 4.0,
+                "testingTimeSpent": 4.0,
+                "testingTimeLeft": 0.0,
+                "testingTimeSheetsByDate": [{
+                    "date": two_weeks_ago_string,
+                    "timeSpentCumsum": 4.0,
+                }],
+                "estimate": 14.0,
+                "effortPerFunctionPoint": 0.0,
+                "timeSpent": 14.0,
+                "timeLeft": 0.0,
                 "timeSheetsByDate": [{
                     "date": two_weeks_ago_string,
-                    "timeSpentCumsum":  15.5,
+                    "timeSpentCumsum": 14.0,
                     "timeSpentCumsumPrediction": 0.0,
-                    "timeSpentWithoutValuePercentCumsum": pytest.approx(1 - 1.5 / 15.5),
-                    "timeSpentWithValuePercentCumsum": pytest.approx(1.5 / 15.5),
-                    "timeSpentForReengineeringPercentCumsum": pytest.approx(1.5 / 15.5),
-                    "timeSpentNotForReengineeringPercentCumsum": pytest.approx(1 - 1.5 / 15.5)
                 }],
-                "timeSheetsByMonth": [{
-                    "month": first_day_of_month_two_weeks_ago,
-                    "analysisTimeSpentFte": pytest.approx(2.0 / working_days_in_month_occured / 8.0),
-                    "developmentTimeSpentFte": pytest.approx(3.0 / working_days_in_month_occured / 8.0),
-                    "testingTimeSpentFte": pytest.approx(4.0 / working_days_in_month_occured / 8.0),
-                    "managementTimeSpentFte": pytest.approx(5.0 / working_days_in_month_occured / 8.0),
-                    "incidentFixingTimeSpentFte": pytest.approx(1.5 / working_days_in_month_occured / 8.0),
-                    "nonProjectActivityTimeSpentFte": pytest.approx(0.0),
-                    "timeSpentFte": pytest.approx(15.5 / working_days_in_month_occured / 8.0),
-                    "workingDaysInMonthOccured": working_days_in_month_occured,
-                }],
-                "projectTeamPlanningPeriods": [{
-                    "planningPeriod": {
-                        "id": -1,
-                        "name": "Бэклог",
-                        "start": "2022-01-01",
-                        "end": "2024-12-31"
-                    },
-                    "calculatedFinishDate": "2024-12-31",
-                    "estimate": 15.5,
-                    "timeLeft": 0.0,
+                "plannedInstallDate": None,
+                "calculatedFinishDate": two_weeks_ago_string,
+                "systemChangeRequests": [{
+                    "id": system_change_request_id,
+                    "key": "SCR-1",
+                    "name": "Заявка на доработку Кредитного конвейера",
+                    "estimate": 14.0,
                     "effortPerFunctionPoint": 0.0,
-                    "timeSpentChronon": 15.5
-                }],
-                "chrononPositions": [{
-                    "position": {
+                    "timeLeft": 0.0,
+                    "state": {
+                        "name": "Не указано",
+                    },
+                    "stateCategory": {
                         "id": -1,
-                        "url": "",
+                    },
+                    "calculatedFinishDate": two_weeks_ago_string,
+                    "mainDeveloper": {
+                        "id": -1,
                         "name": "Не указано"
                     },
+                }],
+                "persons": [{
                     "person": {
                         "id": -1,
-                        "key": "-1",
                         "name": "Не указано"
                     },
-                    "timeSpent": 15.5,
-                    "timeSpentChrononFte": pytest.approx(15.5 / 20.0 / 8.0),
-                    "totalCapacityFte": 0.0,
-                    "planFactFteDifference": pytest.approx(15.5 / 20.0 / 8.0),
-                    "state": {
-                        "name": "Не указано"
-                    }
-                }],
-                "positions": [{
-                    "position": {
-                        "id": -1,
-                        "url": "",
-                        "name": "Не указано"
-                    },
-                    "person": {
-                        "id": -1,
-                        "key": "-1",
-                        "name": "Не указано"
-                    },
-                    "timeSpent": 15.5,
-                    "timeSpentChrononFte": pytest.approx(15.5 / 20.0 / 8.0),
-                    "totalCapacityFte": 0.0,
-                    "planFactFteDifference": pytest.approx(15.5 / 20.0 / 8.0),
-                    "state": {
-                        "name": "Не указано"
-                    }
-                }],
-                "positionPersonPlanFactIssueCount": 0
+                    "timeSpent": 14.0,
+                    "timeSpentChrononFte": pytest.approx(14.0 / 20.0 / 8.0),
+                }]
             }
         }
     }

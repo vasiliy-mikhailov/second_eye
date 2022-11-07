@@ -66,10 +66,10 @@ class TestDataCreator:
 
         return change_requests_creator.create_change_request(key=key, name=name, project_team_id=project_team_id, state_id=state_id, resolution_date=resolution_date, quarter_key=quarter_key)
 
-    def create_company(self, name):
+    def create_company(self, name, id=None):
         companies_creator = self.companies_creator
 
-        return companies_creator.create_company(name=name)
+        return companies_creator.create_company(name=name, id=id)
 
     def create_dedicated_team(self, name, company_id):
         dedicated_teams_creator = self.dedicated_teams_creator

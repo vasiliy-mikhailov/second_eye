@@ -20,4 +20,5 @@ class PersonChangeRequestTimeSpent(cubista.AggregatedTable):
     class FieldPacks:
         field_packs = [
             lambda: field_pack.ChrononFieldPackForAggregatedTable(),
+            lambda: field_pack.TimeSpentFieldPackForAggregatedTable(),
         ]

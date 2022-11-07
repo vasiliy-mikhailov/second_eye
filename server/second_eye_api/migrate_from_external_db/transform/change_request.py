@@ -170,9 +170,17 @@ class ChangeRequest(cubista.Table):
             default=0
         )
 
+        system_change_requests_management_estimate_sum = cubista.AggregatedForeignField(
+            foreign_table=lambda: system_change_request.SystemChangeRequest,
+            foreign_field_name="change_request_id",
+            aggregated_field_name="management_estimate",
+            aggregate_function="sum",
+            default=0
+        )
+
         system_change_requests_estimate_sum = cubista.CalculatedField(
-            lambda_expression=lambda x: x["system_change_requests_analysis_estimate_sum"] + x["system_change_requests_development_estimate_sum"] + x["system_change_requests_testing_estimate_sum"],
-            source_fields=["system_change_requests_analysis_estimate_sum", "system_change_requests_development_estimate_sum", "system_change_requests_testing_estimate_sum"]
+            lambda_expression=lambda x: x["system_change_requests_analysis_estimate_sum"] + x["system_change_requests_development_estimate_sum"] + x["system_change_requests_testing_estimate_sum"] + x["system_change_requests_management_estimate_sum"],
+            source_fields=["system_change_requests_analysis_estimate_sum", "system_change_requests_development_estimate_sum", "system_change_requests_testing_estimate_sum", "system_change_requests_management_estimate_sum"]
         )
 
         analysis_time_spent = cubista.AggregatedForeignField(

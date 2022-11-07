@@ -12,5 +12,6 @@ class PersonChangeRequestTimeSpent(graphene_frame.DataFrameObjectType):
 
     class FieldPacks:
         field_packs = [
+            lambda: field_pack.TimeSpentFieldPack(),
             lambda: field_pack.ChrononFieldPack(),
         ]
