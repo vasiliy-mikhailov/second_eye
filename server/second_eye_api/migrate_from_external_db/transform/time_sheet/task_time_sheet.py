@@ -46,6 +46,7 @@ class TaskTimeSheet(cubista.Table):
 
         system_change_request_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: task.Task, related_field_name="task_id", pulled_field_name="system_change_request_id")
         change_request_id = cubista.PullByForeignPrimaryKeyField(foreign_table=lambda: task.Task, related_field_name="task_id", pulled_field_name="change_request_id")
+
         incident_id = cubista.CalculatedField(
             lambda_expression=lambda x: -1,
             source_fields=[]

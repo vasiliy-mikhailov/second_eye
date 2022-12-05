@@ -59,7 +59,13 @@ class PersonPlanningPeriodTimeSpent(graphene_frame.DataFrameObjectType):
         person_name = graphene_frame.String()
         planning_period = graphene_frame.Field(to_entity=lambda: planning_period.PlanningPeriod)
         system_change_requests = graphene_frame.List(to_entity=lambda: person_system_change_request.PersonSystemChangeRequestTimeSpent, to_field="person_planning_period_id")
+        function_points_effort = graphene_frame.Float()
         effort_per_function_point = graphene_frame.Float()
+
+    class FieldPacks:
+        field_packs = [
+            lambda: field_pack.TimeSpentFieldPack(),
+        ]
 
 class PersonProjectTeamPlanningPeriodTimeSpent(graphene_frame.DataFrameObjectType):
     class Fields:
@@ -75,6 +81,7 @@ class PersonSystemChangeRequestTimeSheetsByDate(graphene_frame.DataFrameObjectTy
         system_change_request = graphene_frame.Field(to_entity=lambda: system_change_request.SystemChangeRequest)
         system_change_request_key = graphene_frame.String()
         date = graphene_frame.Date()
+        function_points_effort = graphene_frame.Float()
         time_spent = graphene_frame.Float()
 
 

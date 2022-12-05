@@ -1,5 +1,6 @@
 import cubista
 
+from . import change_request
 from . import field_pack
 from . import person_change_request
 from . import time_sheet

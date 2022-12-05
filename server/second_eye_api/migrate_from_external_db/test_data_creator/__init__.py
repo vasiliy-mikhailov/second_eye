@@ -81,6 +81,11 @@ class TestDataCreator:
 
         return epics_creator.create_epic(key=key, name=name)
 
+    def create_function_component(self, task_id, kind_id, name, count):
+        function_components_creator = self.function_component_creator
+
+        return function_components_creator.create_function_component(task_id=task_id, kind_id=kind_id, name=name, count=count)
+
     def create_incident_sub_task(self, key, name, incident_id, skill_id):
         incident_subtasks_creator = self.incident_sub_tasks_creator
 

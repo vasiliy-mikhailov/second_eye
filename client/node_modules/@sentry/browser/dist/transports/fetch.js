@@ -1,7 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
-var core_1 = require("@sentry/core");
-var types_1 = require("@sentry/types");
 var utils_1 = require("@sentry/utils");
 var base_1 = require("./base");
 var utils_2 = require("./utils");
@@ -15,28 +13,18 @@ var FetchTransport = /** @class */ (function (_super) {
         return _this;
     }
     /**
-     * @inheritDoc
-     */
-    FetchTransport.prototype.sendEvent = function (event) {
-        return this._sendRequest(core_1.eventToSentryRequest(event, this._api), event);
-    };
-    /**
-     * @inheritDoc
-     */
-    FetchTransport.prototype.sendSession = function (session) {
-        return this._sendRequest(core_1.sessionToSentryRequest(session, this._api), session);
-    };
-    /**
      * @param sentryRequest Prepared SentryRequest to be delivered
      * @param originalPayload Original payload used to create SentryRequest
      */
     FetchTransport.prototype._sendRequest = function (sentryRequest, originalPayload) {
         var _this = this;
+        // eslint-disable-next-line deprecation/deprecation
         if (this._isRateLimited(sentryRequest.type)) {
-            this.recordLostEvent(types_1.Outcome.RateLimitBackoff, sentryRequest.type);
+            this.recordLostEvent('ratelimit_backoff', sentryRequest.type);
             return Promise.reject({
                 event: originalPayload,
                 type: sentryRequest.type,
+                // eslint-disable-next-line deprecation/deprecation
                 reason: "Transport for " + sentryRequest.type + " requests locked till " + this._disabledUntil(sentryRequest.type) + " due to too many requests.",
                 status: 429,
             });
@@ -44,9 +32,9 @@ var FetchTransport = /** @class */ (function (_super) {
         var options = {
             body: sentryRequest.body,
             method: 'POST',
-            // Despite all stars in the sky saying that Edge supports old draft syntax, aka 'never', 'always', 'origin' and 'default
-            // https://caniuse.com/#feat=referrer-policy
-            // It doesn't. And it throw exception instead of ignoring this parameter...
+            // Despite all stars in the sky saying that Edge supports old draft syntax, aka 'never', 'always', 'origin' and 'default'
+            // (see https://caniuse.com/#feat=referrer-policy),
+            // it doesn't. And it throws an exception instead of ignoring this parameter...
             // REF: https://github.com/getsentry/raven-js/issues/1233
             referrerPolicy: (utils_1.supportsReferrerPolicy() ? 'origin' : ''),
         };
@@ -79,10 +67,10 @@ var FetchTransport = /** @class */ (function (_super) {
             .then(undefined, function (reason) {
             // It's either buffer rejection or any other xhr/fetch error, which are treated as NetworkError.
             if (reason instanceof utils_1.SentryError) {
-                _this.recordLostEvent(types_1.Outcome.QueueOverflow, sentryRequest.type);
+                _this.recordLostEvent('queue_overflow', sentryRequest.type);
             }
             else {
-                _this.recordLostEvent(types_1.Outcome.NetworkError, sentryRequest.type);
+                _this.recordLostEvent('network_error', sentryRequest.type);
             }
             throw reason;
         });

@@ -1,6 +1,7 @@
 import cubista
 import datetime
 
+from . import change_request
 from . import dedicated_team_planning_period
 from . import dedicated_team_planning_period_system
 from . import dedicated_team_quarter
@@ -12,10 +13,6 @@ from . import project_team_quarter_system
 from . import person
 from . import system_planning_period
 from . import time_sheet
-
-"system_change_request_id", "change_request_id", "epic_id",
-"dedicated_team_planning_period_system_id", "dedicated_team_quarter_system_id",
-"system_planning_period_id"
 
 class WorkItemTimeSheet(cubista.UnionTable):
     WORK_ITEM_TYPE_INCIDENT_NO_INCIDENT_SUB_TASK_AGGREGATION_TIME_SHEET = 1
@@ -118,6 +115,11 @@ class WorkItemTimeSheet(cubista.UnionTable):
         time_spent = cubista.UnionTableUnionField(source="time_spent")
         time_spent_month_fte = cubista.UnionTableUnionField(source="time_spent_month_fte")
 
+        function_points_effort = cubista.CalculatedField(
+            lambda_expression=lambda x: x["analysis_time_spent"] + x["development_time_spent"] + x["management_time_spent"],
+            source_fields=["analysis_time_spent", "development_time_spent", "management_time_spent"]
+        )
+
         is_in_chronon = cubista.UnionTableUnionField(source="is_in_chronon")
         analysis_time_spent_chronon = cubista.UnionTableUnionField(source="analysis_time_spent_chronon")
         development_time_spent_chronon = cubista.UnionTableUnionField(source="development_time_spent_chronon")
@@ -138,6 +140,7 @@ class WorkItemTimeSheet(cubista.UnionTable):
         person_id = cubista.UnionTableUnionField(source="person_id")
         system_change_request_id = cubista.UnionTableUnionField(source="system_change_request_id")
         change_request_id = cubista.UnionTableUnionField(source="change_request_id")
+
         incident_id = cubista.UnionTableUnionField(source="incident_id")
         non_project_activity_id = cubista.UnionTableUnionField(source="non_project_activity_id")
         project_team_id = cubista.UnionTableUnionField(source="project_team_id")

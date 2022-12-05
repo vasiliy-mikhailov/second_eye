@@ -1,24 +1,37 @@
 import cubista
 
 from .. import field_pack
+from .. import person
 from .. import person_system_change_request
 from .. import system_change_request
 from .. import time_sheet
 
-class PersonSystemChangeRequestTimeSheetByDate(cubista.AggregatedTable):
+class PersonSystemChangeRequestTimeSheetsByDate(cubista.AggregatedTable):
     class Aggregation:
-        source = lambda: time_sheet.PersonTaskTimeSheetByDate
+        source = lambda: time_sheet.WorkItemTimeSheet
         sort_by: [str] = ["date"]
-        group_by: [str] = ["person_id", "person_key", "system_change_request_id", "system_change_request_key", "change_request_id", "epic_id", "date"]
-        filter = None
-        filter_fields: [str] = []
+        group_by: [str] = ["person_id", "system_change_request_id", "change_request_id", "epic_id", "date"]
+        filter = lambda x: x["work_item_type"] in [time_sheet.WorkItemTimeSheet.WORK_ITEM_TYPE_MANAGEMENT_TIME_SHEET, time_sheet.WorkItemTimeSheet.WORK_ITEM_TYPE_TASK_TIME_SHEET]
+        filter_fields: [str] = ["work_item_type"]
 
     class Fields:
         id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
         person_id = cubista.AggregatedTableGroupField(source="person_id")
-        person_key = cubista.AggregatedTableGroupField(source="person_key")
+        person_key = cubista.PullByRelatedField(
+            foreign_table=lambda: person.Person,
+            related_field_names=["person_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="key",
+            default="-1"
+        )
         system_change_request_id = cubista.AggregatedTableGroupField(source="system_change_request_id")
-        system_change_request_key = cubista.AggregatedTableGroupField(source="system_change_request_key")
+        system_change_request_key = cubista.PullByRelatedField(
+            foreign_table=lambda: system_change_request.SystemChangeRequest,
+            related_field_names=["system_change_request_id"],
+            foreign_field_names=["id"],
+            pulled_field_name="key",
+            default="-1"
+        )
         change_request_id = cubista.AggregatedTableGroupField(source="change_request_id")
         epic_id = cubista.AggregatedTableGroupField(source="epic_id")
 
@@ -63,6 +76,8 @@ class PersonSystemChangeRequestTimeSheetByDate(cubista.AggregatedTable):
             related_field_name="system_change_request_id",
             pulled_field_name="project_team_quarter_system_id"
         )
+
+        function_points_effort = cubista.AggregatedTableAggregateField(source="function_points_effort", aggregate_function="sum")
 
     class FieldPacks:
         field_packs = [

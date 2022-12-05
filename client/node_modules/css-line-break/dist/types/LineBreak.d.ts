@@ -5,7 +5,7 @@ export declare const classes: {
 export declare const BREAK_MANDATORY = "!";
 export declare const BREAK_NOT_ALLOWED = "\u00D7";
 export declare const BREAK_ALLOWED = "\u00F7";
-export declare const UnicodeTrie: import("./Trie").Trie;
+export declare const UnicodeTrie: import("utrie").Trie;
 export declare const codePointsToCharacterClasses: (codePoints: number[], lineBreak?: string) => [number[], number[], boolean[]];
 export declare type BREAK_OPPORTUNITIES = typeof BREAK_NOT_ALLOWED | typeof BREAK_ALLOWED | typeof BREAK_MANDATORY;
 export declare const lineBreakAtIndex: (codePoints: number[], index: number) => BREAK_OPPORTUNITIES;

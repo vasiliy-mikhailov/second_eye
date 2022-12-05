@@ -253,7 +253,7 @@ def test_dedicated_team_planning_period():
                         "name": "Кредитный конвейер",
                     },
                     "effortPerFunctionPoint": 0.0,
-                    "calculatedFinishDate": last_day_of_current_year_string,
+                    "calculatedFinishDate": today_minus_10_working_days_string,
                 }],
                 "changeRequests": [{
                     "id": change_request_id,

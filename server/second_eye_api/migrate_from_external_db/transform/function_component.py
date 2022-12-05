@@ -72,6 +72,12 @@ class FunctionComponent(cubista.Table):
         )
 
 class FunctionComponentKind(cubista.Table):
+    INPUT = 1
+    OUTPUT = 2
+    TABLE = 3
+    MESSAGE = 4
+    INTERFACE = 5
+
     class Fields:
         id = cubista.IntField(primary_key=True, unique=True)
         name = cubista.StringField()

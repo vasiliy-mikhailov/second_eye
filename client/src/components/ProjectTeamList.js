@@ -1,8 +1,7 @@
-import React, {Component} from "react";
-import {gql} from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import React from "react";
+import {gql, useQuery} from '@apollo/client';
 import Typography from '@material-ui/core/Typography';
-import {Box, Link} from "@material-ui/core";
+import {Box} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
 import {DataGridPro, GridToolbarContainer, GridToolbarExport,} from '@mui/x-data-grid-pro';
 
@@ -41,100 +40,105 @@ const fetchProjectTeams = gql`
 `;
 
 function ToolBarWithExport() {
-  return (
-    <GridToolbarContainer>
-        <GridToolbarExport
-          csvOptions={{
-              delimiter: ";",
-              utf8WithBom: true,
-          }}
-        />
+    return (
+        <GridToolbarContainer>
+            <GridToolbarExport
+                csvOptions={{
+                    delimiter: ";",
+                    utf8WithBom: true,
+                }}
+            />
 
 
-    </GridToolbarContainer>
-  );
+        </GridToolbarContainer>
+    );
 }
 
-class ProjectTeamList extends Component {
-    render() {
-        if (this.props.data.loading) { return <div>Loading ...</div> }
+function ProjectTeamList() {
+    const {loading, error, data} = useQuery(fetchProjectTeams);
 
-        const projectTeams = this.props.data.projectTeams
+    if (loading) return 'Loading ...'
 
-        const projectTeamsTableContents = projectTeams.slice()
-            .sort((a, b) => ((a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0)))
-            .map(projectTeam => (
-                    {
-                        id: projectTeam.id,
-                        name: projectTeam.name,
-                        projectManagerName: projectTeam.projectManager.name,
-                        cioName: projectTeam.dedicatedTeam.cio.name,
-                        ctoName: projectTeam.dedicatedTeam.cto.name,
-                        positionPersonPlanFactIssueCount: projectTeam.positionPersonPlanFactIssueCount,
-                        timeSpentChrononFte: projectTeam.timeSpentChrononFte,
-                    }
-            ))
+    if (error) return `Error! ${error.message}`
 
-        const projectTeamsTableColumns = [
-            {
-                field: 'name',
-                headerName: 'Название',
-                flex: 1,
-                renderCell: (params) => (
-                    <RouterLink to={ `/projectTeams/${ params.getValue(params.id, 'id') }` }>
-                        { params.getValue(params.id, 'name') }
-                    </RouterLink>
-                ),
-            },
-            {
-                field: 'projectManagerName',
-                headerName: 'Руководитель проекта',
-                flex: 1,
-            },
-            {
-                field: 'cioName',
-                headerName: 'Бизнес-партнер',
-                flex: 1,
-            },
-            {
-                field: 'ctoName',
-                headerName: 'Руководитель разработки (CTO)',
-                flex: 1,
-            },
-            {
-                field: 'timeSpentChrononFte',
-                headerName: 'FTE команды',
-                width: 200,
-                align: 'right',
-                valueFormatter: ({ value }) => (value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2}),
-            },
-            {
-                field: 'positionPersonPlanFactIssueCount',
-                headerName: 'Количество проблем с планированием команды (количество членов команды разницей между планом и фактом > 0.4 FTE)',
-                width: 200,
-                align: 'right',
-            },
-        ];
+    const projectTeams = data.projectTeams
 
-        return (
-            <Box>
-                <Typography variant="h6" noWrap>
-                    Проектные команды
-                </Typography>
+    const projectTeamsTableContents = projectTeams.slice()
+        .sort((a, b) => ((a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0)))
+        .map(projectTeam => (
+            {
+                id: projectTeam.id,
+                name: projectTeam.name,
+                projectManagerName: projectTeam.projectManager.name,
+                cioName: projectTeam.dedicatedTeam.cio.name,
+                ctoName: projectTeam.dedicatedTeam.cto.name,
+                positionPersonPlanFactIssueCount: projectTeam.positionPersonPlanFactIssueCount,
+                timeSpentChrononFte: projectTeam.timeSpentChrononFte,
+            }
+        ))
 
-                <div>
-                    <DataGridPro
-                        rows={ projectTeamsTableContents }
-                        columns={ projectTeamsTableColumns }
-                        components={{
-                            Toolbar: ToolBarWithExport,
-                        }}
-                        autoHeight
-                    />
-                </div>
-            </Box>
-        );
-    }
+    const projectTeamsTableColumns = [
+        {
+            field: 'name',
+            headerName: 'Название',
+            flex: 1,
+            renderCell: (params) => (
+                <RouterLink to={`/projectTeams/${params.getValue(params.id, 'id')}`}>
+                    {params.getValue(params.id, 'name')}
+                </RouterLink>
+            ),
+        },
+        {
+            field: 'projectManagerName',
+            headerName: 'Руководитель проекта',
+            flex: 1,
+        },
+        {
+            field: 'cioName',
+            headerName: 'Бизнес-партнер',
+            flex: 1,
+        },
+        {
+            field: 'ctoName',
+            headerName: 'Руководитель разработки (CTO)',
+            flex: 1,
+        },
+        {
+            field: 'timeSpentChrononFte',
+            headerName: 'FTE команды',
+            width: 200,
+            align: 'right',
+            valueFormatter: ({value}) => (value).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }),
+        },
+        {
+            field: 'positionPersonPlanFactIssueCount',
+            headerName: 'Количество проблем с планированием команды (количество членов команды разницей между планом и фактом > 0.4 FTE)',
+            width: 200,
+            align: 'right',
+        },
+    ];
+
+    return (
+        <Box>
+            <Typography variant="h6" noWrap>
+                Проектные команды
+            </Typography>
+
+            <div>
+                <DataGridPro
+                    rows={projectTeamsTableContents}
+                    columns={projectTeamsTableColumns}
+                    components={{
+                        Toolbar: ToolBarWithExport,
+                    }}
+                    autoHeight
+                />
+            </div>
+        </Box>
+    );
 }
 
-export default graphql(fetchProjectTeams)(ProjectTeamList);
+export default ProjectTeamList;

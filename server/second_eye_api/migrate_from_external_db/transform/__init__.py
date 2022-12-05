@@ -127,14 +127,14 @@ class Transformer:
         person_month = PersonMonthTimeSpent()
         person_non_project_activity = PersonNonProjectActivityTimeSpent()
         person_non_project_activity_month = PersonNonProjectActivityMonthTimeSpent()
-        person_planning_period = PersonPlanningPeriodTimeSpent()
+        person_planning_period_time_spent = PersonPlanningPeriodTimeSpent()
         person_project_team_month = PersonProjectTeamMonth()
         person_project_team_persons_last_180_days_time_sheet = PersonProjectTeamPersonsLast180DaysTimeSheet()
         person_project_team_planning_period = PersonProjectTeamPlanningPeriodTimeSpent()
         person_project_team_time_spent = PersonProjectTeamTimeSpent()
         person_system_change_request = PersonSystemChangeRequestTimeSpent()
         person_system_change_request_month_time_spent = PersonSystemChangeRequestMonthTimeSpent()
-        person_system_change_request_time_sheet_by_date = PersonSystemChangeRequestTimeSheetByDate()
+        person_system_change_request_time_sheet_by_date = PersonSystemChangeRequestTimeSheetsByDate()
         person_system = PersonSystem()
         person_task_month_time_spent = PersonTaskMonthTimeSpent()
         person_task_time_sheet_by_date = PersonTaskTimeSheetByDate()
@@ -271,7 +271,7 @@ class Transformer:
             person_non_project_activity,
             person_non_project_activity_month,
             person_system_change_request,
-            person_planning_period,
+            person_planning_period_time_spent,
             person_project_team_month,
             person_project_team_persons_last_180_days_time_sheet,
             person_project_team_planning_period,
@@ -421,7 +421,7 @@ class Transformer:
         output_data.person_project_team_planning_period_time_spent = data_source.tables[PersonProjectTeamPlanningPeriodTimeSpent].data_frame
         output_data.person_project_team_time_spent = data_source.tables[PersonProjectTeamTimeSpent].data_frame
         output_data.person_system_change_request_month_time_spent = data_source.tables[PersonSystemChangeRequestMonthTimeSpent].data_frame
-        output_data.person_system_change_request_time_sheet_by_date = data_source.tables[PersonSystemChangeRequestTimeSheetByDate].data_frame
+        output_data.person_system_change_request_time_sheet_by_date = data_source.tables[PersonSystemChangeRequestTimeSheetsByDate].data_frame
         output_data.person_system_change_request_time_spent = data_source.tables[PersonSystemChangeRequestTimeSpent].data_frame
         output_data.person_system_time_spent = data_source.tables[PersonSystem].data_frame
         output_data.person_task_month_time_spent = data_source.tables[PersonTaskMonthTimeSpent].data_frame

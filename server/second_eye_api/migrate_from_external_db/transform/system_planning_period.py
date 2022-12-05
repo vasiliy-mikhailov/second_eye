@@ -1,6 +1,7 @@
 import cubista
 import datetime
 
+from . import field_pack
 from . import planning_period
 from . import system_change_request
 from . import time_sheet
@@ -22,8 +23,6 @@ class SystemPlanningPeriod(cubista.AggregatedTable):
         testing_estimate = cubista.AggregatedTableAggregateField(source="testing_estimate", aggregate_function="sum")
         estimate = cubista.AggregatedTableAggregateField(source="estimate", aggregate_function="sum")
 
-        management_time_spent = cubista.AggregatedTableAggregateField(source="management_time_spent", aggregate_function="sum")
-        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")
         time_left = cubista.AggregatedTableAggregateField(source="time_left", aggregate_function="sum")
 
         function_points = cubista.AggregatedTableAggregateField(source="function_points", aggregate_function="sum")
@@ -78,9 +77,12 @@ class SystemPlanningPeriod(cubista.AggregatedTable):
         )
 
         calculated_finish_date = cubista.CalculatedField(
-            lambda_expression=lambda x: x["planning_period_end"] if x["time_sheets_by_date_model_m"] < 1e-2 else
-                x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"]),
-            source_fields=["time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
+            lambda_expression=lambda x: x["last_timesheet_date"] if x["time_left"] == 0 else (
+                x["planning_period_end"] if x["time_sheets_by_date_model_m"] < 1e-2 else (
+                    x["time_sheets_by_date_model_min_date"] + (x["estimate"] - x["time_sheets_by_date_model_b"]) / x["time_sheets_by_date_model_m"] * (x["time_sheets_by_date_model_max_date"] - x["time_sheets_by_date_model_min_date"])
+                )
+            ),
+            source_fields=["last_timesheet_date", "time_left", "time_sheets_by_date_model_min_date", "time_sheets_by_date_model_max_date", "planning_period_end", "estimate", "time_sheets_by_date_model_m", "time_sheets_by_date_model_b"]
         )
 
         analysis_time_sheets_by_date_model_m = cubista.PullByRelatedField(
@@ -196,3 +198,24 @@ class SystemPlanningPeriod(cubista.AggregatedTable):
                 x["testing_time_sheets_by_date_model_min_date"] + (x["testing_estimate"] - x["testing_time_sheets_by_date_model_b"]) / x["testing_time_sheets_by_date_model_m"] * (x["testing_time_sheets_by_date_model_max_date"] - x["testing_time_sheets_by_date_model_min_date"]),
             source_fields=["testing_time_sheets_by_date_model_min_date", "testing_time_sheets_by_date_model_max_date", "planning_period_end", "testing_estimate", "testing_time_sheets_by_date_model_m", "testing_time_sheets_by_date_model_b"]
         )
+
+        last_timesheet_date = cubista.PullMaxByRelatedField(
+            foreign_table=lambda: time_sheet.SystemPlanningPeriodTimeSheetByDate,
+            related_field_names=["id"],
+            foreign_field_names=["system_planning_period_id"],
+            max_field_name="time_spent_cumsum",
+            pulled_field_name="date",
+            default=datetime.date.today()
+        )
+
+    class FieldPacks:
+        field_packs = [
+            lambda: field_pack.ChrononFieldPackAsAggregatedForeignFields(
+                foreign_table=lambda: time_sheet.WorkItemTimeSheet,
+                foreign_field_name="system_planning_period_id"
+            ),
+            lambda: field_pack.TimeSpentFieldPackAsAggregatedForeignFields(
+                foreign_table=lambda: time_sheet.WorkItemTimeSheet,
+                foreign_field_name="system_planning_period_id"
+            ),
+        ]

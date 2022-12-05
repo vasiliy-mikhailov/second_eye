@@ -12,6 +12,7 @@ from second_eye_api.schema import non_project_activity
 from second_eye_api.schema import person
 from second_eye_api.schema import person_month
 from second_eye_api.schema import person_project_team_month
+from second_eye_api.schema import person_system_change_request
 from second_eye_api.schema import planning_period
 from second_eye_api.schema import project_manager
 from second_eye_api.schema import project_manager_month
@@ -150,6 +151,13 @@ class Query(graphene.ObjectType):
     )
     def resolve_person_system_change_request_time_sheets_by_date_by_person_key_and_system_change_request_key(root, info, person_key, system_change_request_key):
         return person.PersonSystemChangeRequestTimeSheetsByDate.filter_by_multiple_fields(fields={
+            'person_key': person_key,
+            'system_change_request_key': system_change_request_key,
+        }, data_store=get_data_store())
+
+    person_system_change_request_time_spent_by_person_key_and_system_change_request_key = graphene.Field(person_system_change_request.PersonSystemChangeRequestTimeSpent, person_key=graphene.String(), system_change_request_key=graphene.String())
+    def resolve_person_system_change_request_time_spent_by_person_key_and_system_change_request_key(root, info, person_key, system_change_request_key):
+        return person_system_change_request.PersonSystemChangeRequestTimeSpent.get_by_multiple_fields(fields={
             'person_key': person_key,
             'system_change_request_key': system_change_request_key,
         }, data_store=get_data_store())

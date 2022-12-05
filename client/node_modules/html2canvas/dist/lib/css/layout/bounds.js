@@ -15,9 +15,9 @@ var Bounds = /** @class */ (function () {
         return new Bounds(clientRect.left + context.windowBounds.left, clientRect.top + context.windowBounds.top, clientRect.width, clientRect.height);
     };
     Bounds.fromDOMRectList = function (context, domRectList) {
-        var domRect = domRectList[0];
+        var domRect = Array.from(domRectList).find(function (rect) { return rect.width !== 0; });
         return domRect
-            ? new Bounds(domRect.x + context.windowBounds.left, domRect.y + context.windowBounds.top, domRect.width, domRect.height)
+            ? new Bounds(domRect.left + context.windowBounds.left, domRect.top + context.windowBounds.top, domRect.width, domRect.height)
             : Bounds.EMPTY;
     };
     Bounds.EMPTY = new Bounds(0, 0, 0, 0);

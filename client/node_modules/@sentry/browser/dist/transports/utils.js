@@ -1,5 +1,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = require("@sentry/utils");
+var flags_1 = require("../flags");
 var global = utils_1.getGlobalObject();
 var cachedFetchImpl;
 /**
@@ -41,7 +42,6 @@ var cachedFetchImpl;
  * Safari:  resource blocked by content blocker
  */
 function getNativeFetchImplementation() {
-    var _a, _b;
     if (cachedFetchImpl) {
         return cachedFetchImpl;
     }
@@ -53,18 +53,20 @@ function getNativeFetchImplementation() {
     var document = global.document;
     var fetchImpl = global.fetch;
     // eslint-disable-next-line deprecation/deprecation
-    if (typeof ((_a = document) === null || _a === void 0 ? void 0 : _a.createElement) === "function") {
+    if (document && typeof document.createElement === 'function') {
         try {
             var sandbox = document.createElement('iframe');
             sandbox.hidden = true;
             document.head.appendChild(sandbox);
-            if ((_b = sandbox.contentWindow) === null || _b === void 0 ? void 0 : _b.fetch) {
-                fetchImpl = sandbox.contentWindow.fetch;
+            var contentWindow = sandbox.contentWindow;
+            if (contentWindow && contentWindow.fetch) {
+                fetchImpl = contentWindow.fetch;
             }
             document.head.removeChild(sandbox);
         }
         catch (e) {
-            utils_1.logger.warn('Could not create sandbox iframe for pure fetch check, bailing to window.fetch: ', e);
+            flags_1.IS_DEBUG_BUILD &&
+                utils_1.logger.warn('Could not create sandbox iframe for pure fetch check, bailing to window.fetch: ', e);
         }
     }
     return (cachedFetchImpl = fetchImpl.bind(global));

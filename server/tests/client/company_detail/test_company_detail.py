@@ -6,12 +6,14 @@ from server import schema
 from graphene.test import Client
 from second_eye_api.migrate_from_external_db.migrate import migrate
 from second_eye_api.migrate_from_external_db import test_data_creator
+from second_eye_api.migrate_from_external_db.test_data_creator.states_creator import StatesCreator
 from django.conf import settings
 from second_eye_api.migrate_from_external_db.transform import skill
 
 
 def test_company_detail():
     today = datetime.date.today()
+    today_string = today.strftime('%Y-%m-%d')
     two_weeks = datetime.timedelta(days=14)
     two_weeks_ago = today - two_weeks
     two_weeks_ago_string = two_weeks_ago.strftime('%Y-%m-%d')
@@ -42,8 +44,14 @@ def test_company_detail():
         person_key="-1"
     )
 
-    change_request_id = creator.create_change_request(key="CR-1", name="Заявка на доработку кредитного процесса",
-                                                      project_team_id=project_team_id)
+    change_request_id = creator.create_change_request(
+        key="CR-1",
+        name="Заявка на доработку кредитного процесса",
+        project_team_id=project_team_id,
+        state_id=StatesCreator.DONE_ID,
+        resolution_date=today
+    )
+
     system_id = creator.create_system(name="Кредитный конвейер")
     system_change_request_id = creator.create_system_change_request(
         key="SCR-1",
@@ -176,21 +184,21 @@ def test_company_detail():
                 "name": "Бэклог",
                 "start": "2022-01-01",
                 "end": "2024-12-31",
-                "calculatedFinishDate": "2024-12-31",
-                "estimate": 21.5,
+                "calculatedFinishDate": two_weeks_ago_string,
+                "estimate": 7.5,
                 "timeLeft": 0.0,
                 "effortPerFunctionPoint": 0.0,
-                "timeSpentChrononFte": pytest.approx(21.5 / 20.0 / 8.0),
+                "timeSpentChrononFte": pytest.approx(7.5 / 20.0 / 8.0),
             }, {
                 "id": 2022,
                 "name": "2022",
                 "start": "2022-01-01",
                 "end": "2022-12-31",
-                "calculatedFinishDate": "2022-12-31",
-                "estimate": 0.0,
+                "calculatedFinishDate": two_weeks_ago_string,
+                "estimate": 14.0,
                 "timeLeft": 0.0,
                 "effortPerFunctionPoint": 0.0,
-                "timeSpentChrononFte": 0.0,
+                "timeSpentChrononFte": pytest.approx(14.0 / 20.0 / 8.0),
             }],
             "dedicatedTeams": [{
                 "id": -1,

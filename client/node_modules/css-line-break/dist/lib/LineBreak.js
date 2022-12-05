@@ -1,8 +1,7 @@
-/* @flow */
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LineBreaker = exports.inlineBreakOpportunities = exports.lineBreakAtIndex = exports.codePointsToCharacterClasses = exports.UnicodeTrie = exports.BREAK_ALLOWED = exports.BREAK_NOT_ALLOWED = exports.BREAK_MANDATORY = exports.classes = exports.LETTER_NUMBER_MODIFIER = void 0;
-var Trie_1 = require("./Trie");
+var utrie_1 = require("utrie");
 var linebreak_trie_1 = require("./linebreak-trie");
 var Util_1 = require("./Util");
 exports.LETTER_NUMBER_MODIFIER = 50;
@@ -103,7 +102,7 @@ exports.classes = {
 exports.BREAK_MANDATORY = '!';
 exports.BREAK_NOT_ALLOWED = '×';
 exports.BREAK_ALLOWED = '÷';
-exports.UnicodeTrie = Trie_1.createTrieFromBase64(linebreak_trie_1.base64);
+exports.UnicodeTrie = utrie_1.createTrieFromBase64(linebreak_trie_1.base64, linebreak_trie_1.byteLength);
 var ALPHABETICS = [AL, HL];
 var HARD_LINE_BREAKS = [BK, CR, LF, NL];
 var SPACE = [SP, ZW];

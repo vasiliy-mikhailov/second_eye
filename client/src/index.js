@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals'
 import '@fontsource/roboto'
 import {
     BrowserRouter as Router,
-    Switch,
+    Routes,
     Route
 } from "react-router-dom"
 import {Box} from "@material-ui/core"
@@ -60,7 +60,7 @@ Sentry.init({
   tracesSampleRate: 0.01,
 });
 
-LicenseInfo.setLicenseKey('c96f4e151cafeb69315727049b583000T1JERVI6Mjk0NjAsRVhQSVJZPTE2NjMzMjQyODcwMDAsS0VZVkVSU0lPTj0x')
+LicenseInfo.setLicenseKey('29d15176019c4254d109b514e026d8f8Tz01MzkxNCxFPTE2OTk0NjkxNTIxODksUz1wcm8sTE09cGVycGV0dWFsLEtWPTI=')
 
 const client = new ApolloClient({
     uri: process.env.REACT_APP_SECOND_EYE_API_URL,
@@ -72,43 +72,43 @@ ReactDOM.render(
         <ApolloProvider client={client}>
             <Box m="1rem">
                 <Router>
-                    <Switch>
+                    <Routes>
                         {/*<Route exact path="/" >*/}
                         {/*    <Redirect to="/planningPeriods/2021" />*/}
                         {/*</Route>*/}
-                        <Route exact path="/" component={ CompanyDetail } />
-                        <Route exact path="/capacityAndQueue" component={ CapacityAndQueue } />
-                        <Route exact path="/planningPeriods/:planningPeriodId/persons/" component={ PlanningPeriodPersonsList } />
-                        <Route exact path="/planningPeriods/:planningPeriodId/projectTeams/" component={ PlanningPeriodProjectTeamsList } />
-                        <Route exact path="/projectTeams/" component={ ProjectTeamList } />
-                        <Route exact path="/systems/" component={ SystemList } />
-                        <Route path="/dedicatedTeams/:dedicatedTeamId" component={ DedicatedTeamDetail } />
-                        <Route path="/persons/:personKey/month/:month" component={ PersonMonthByPersonKeyAndMonth } />
-                        <Route path="/persons/:key" component={ PersonDetail } />
-                        <Route path="/projectManagers/:id" component={ ProjectManagerDetail } />
-                        <Route path="/projectManagers/" component={ ProjectManagerList } />
-                        <Route path="/projectTeams/:projectTeamId/month/:month/persons" component={ PersonListByProjectTeamIdAndMonth } />
-                        <Route path="/projectTeams/:projectTeamId" component={ ProjectTeamDetail } />
-                        <Route path="/planningPeriods/:planningPeriodId/dedicatedTeams/:dedicatedTeamId/systems/:systemId" component={ DedicatedTeamPlanningPeriodSystemDetail } />
-                        <Route path="/planningPeriods/:planningPeriodId/dedicatedTeams/:dedicatedTeamId" component={ DedicatedTeamPlanningPeriodDetail } />
-                        <Route path="/planningPeriods/:planningPeriodId/projectTeams/:projectTeamId/systems/:systemId" component={ ProjectTeamPlanningPeriodSystemDetail } />
-                        <Route path="/planningPeriods/:planningPeriodId/projectTeams/:projectTeamId" component={ ProjectTeamPlanningPeriodDetail } />
-                        <Route path="/planningPeriods/:planningPeriodId/systems/:systemId" component={ SystemPlanningPeriodDetail } />
-                        <Route path="/planningPeriods/:planningPeriodId/persons/:personKey" component={ PlanningPeriodPersonDetail } />
-                        <Route path="/planningPeriods/:id" component={ PlanningPeriodDetail } />
-                        <Route path="/systems/:systemId" component={ SystemDetail } />
-                        <Route path="/quarters/:quarterKey/dedicatedTeams/:dedicatedTeamId" component={ DedicatedTeamQuarterDetail } />
-                        <Route exact path="/quarters/:quarterKey/projectTeams/" component={ QuarterProjectTeamList } />
-                        <Route path="/quarters/:quarterKey/projectTeams/:projectTeamId" component={ ProjectTeamQuarterDetail } />
-                        <Route path="/quarters/:key" component={ QuarterDetail } />
-                        <Route path="/epics/:epicKey/systems/:systemId" component={ EpicSystemDetail } />
-                        <Route path="/epics/:key" component={ EpicDetail } />
-                        <Route path="/changeRequests/:key" component={ ChangeRequestDetail } />
-                        <Route path="/systemChangeRequests/:systemChangeRequestKey/persons/:personKey" component={ PersonSystemChangeRequestDetail } />
-                        <Route path="/systemChangeRequests/:key" component={ SystemChangeRequestDetail } />
-                        <Route path="/persons" component={ PersonList } />
-                        <Route path="/" component={App} />
-                    </Switch>
+                        <Route exact path="/" element={ <CompanyDetail /> } />
+                        <Route exact path="/capacityAndQueue" element={ <CapacityAndQueue /> } />
+                        <Route exact path="/planningPeriods/:planningPeriodId/persons/" element={ <PlanningPeriodPersonsList /> } />
+                        <Route exact path="/planningPeriods/:planningPeriodId/projectTeams/" element={ <PlanningPeriodProjectTeamsList /> } />
+                        <Route exact path="/projectTeams/" element={ <ProjectTeamList /> } />
+                        <Route exact path="/systems/" element={ <SystemList /> } />
+                        <Route path="/dedicatedTeams/:dedicatedTeamId" element={ <DedicatedTeamDetail /> } />
+                        <Route path="/persons/:personKey/month/:month" element={ <PersonMonthByPersonKeyAndMonth /> } />
+                        <Route path="/persons/:key" element={ <PersonDetail /> } />
+                        <Route path="/projectManagers/:id" element={ <ProjectManagerDetail /> } />
+                        <Route path="/projectManagers/" element={ <ProjectManagerList /> } />
+                        <Route path="/projectTeams/:projectTeamId/month/:month/persons" element={ <PersonListByProjectTeamIdAndMonth />} />
+                        <Route path="/projectTeams/:projectTeamId" element={ <ProjectTeamDetail /> } />
+                        <Route path="/planningPeriods/:planningPeriodId/dedicatedTeams/:dedicatedTeamId/systems/:systemId" element={ <DedicatedTeamPlanningPeriodSystemDetail /> } />
+                        <Route path="/planningPeriods/:planningPeriodId/dedicatedTeams/:dedicatedTeamId" element={ <DedicatedTeamPlanningPeriodDetail /> } />
+                        <Route path="/planningPeriods/:planningPeriodId/projectTeams/:projectTeamId/systems/:systemId" element={ <ProjectTeamPlanningPeriodSystemDetail /> } />
+                        <Route path="/planningPeriods/:planningPeriodId/projectTeams/:projectTeamId" element={ <ProjectTeamPlanningPeriodDetail /> } />
+                        <Route path="/planningPeriods/:planningPeriodId/systems/:systemId" element={ <SystemPlanningPeriodDetail /> } />
+                        <Route path="/planningPeriods/:planningPeriodId/persons/:personKey" element={ <PlanningPeriodPersonDetail /> } />
+                        <Route path="/planningPeriods/:id" element={ <PlanningPeriodDetail /> } />
+                        <Route path="/systems/:systemId" element={ <SystemDetail /> } />
+                        <Route path="/quarters/:quarterKey/dedicatedTeams/:dedicatedTeamId" element={ <DedicatedTeamQuarterDetail /> } />
+                        <Route exact path="/quarters/:quarterKey/projectTeams/" element={ <QuarterProjectTeamList /> } />
+                        <Route path="/quarters/:quarterKey/projectTeams/:projectTeamId" element={ <ProjectTeamQuarterDetail /> } />
+                        <Route path="/quarters/:key" element={ <QuarterDetail /> } />
+                        <Route path="/epics/:epicKey/systems/:systemId" element={ <EpicSystemDetail /> } />
+                        <Route path="/epics/:key" element={ <EpicDetail /> } />
+                        <Route path="/changeRequests/:key" element={ <ChangeRequestDetail />} />
+                        <Route path="/systemChangeRequests/:systemChangeRequestKey/persons/:personKey" element={ <PersonSystemChangeRequestDetail />} />
+                        <Route path="/systemChangeRequests/:key" element={ <SystemChangeRequestDetail /> } />
+                        <Route path="/persons" element={ <PersonList /> } />
+                        <Route path="/" element={ <App /> } />
+                    </Routes>
                 </Router>
             </Box>
         </ApolloProvider>

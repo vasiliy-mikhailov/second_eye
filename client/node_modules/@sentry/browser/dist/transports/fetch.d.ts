@@ -1,4 +1,4 @@
-import { Event, Response, Session, TransportOptions } from '@sentry/types';
+import { Event, Response, SentryRequest, Session, TransportOptions } from '@sentry/types';
 import { BaseTransport } from './base';
 import { FetchImpl } from './utils';
 /** `fetch` based transport */
@@ -9,17 +9,9 @@ export declare class FetchTransport extends BaseTransport {
     private _fetch;
     constructor(options: TransportOptions, fetchImpl?: FetchImpl);
     /**
-     * @inheritDoc
-     */
-    sendEvent(event: Event): PromiseLike<Response>;
-    /**
-     * @inheritDoc
-     */
-    sendSession(session: Session): PromiseLike<Response>;
-    /**
      * @param sentryRequest Prepared SentryRequest to be delivered
      * @param originalPayload Original payload used to create SentryRequest
      */
-    private _sendRequest;
+    protected _sendRequest(sentryRequest: SentryRequest, originalPayload: Event | Session): PromiseLike<Response>;
 }
 //# sourceMappingURL=fetch.d.ts.map

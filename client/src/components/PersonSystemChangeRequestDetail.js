@@ -1,72 +1,80 @@
-import React, {Component} from "react";
-import {gql} from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import React from "react";
+import {gql, useQuery} from '@apollo/client';
 import Typography from '@material-ui/core/Typography';
-import {Box, Link} from "@material-ui/core";
-import TimeSheetsByDateIssueChart from './TimeSheetsByDateIssueChart'
-import {Link as RouterLink} from "react-router-dom";
+import {Box} from "@material-ui/core";
 import {DataGridPro} from "@mui/x-data-grid-pro";
+import {useParams} from "react-router-dom";
 
 const fetchPersonSystemChangeRequestTimeSheetsByDateByPersonKeyAndSystemChangeRequestKey = gql`
     query PersonSystemChangeRequestTimeSheetsByDateByPersonKeyAndSystemChangeRequestKey($personKey: String!, $systemChangeRequestKey: String!) {
         personSystemChangeRequestTimeSheetsByDateByPersonKeyAndSystemChangeRequestKey(personKey: $personKey, systemChangeRequestKey: $systemChangeRequestKey) {
             id
             date
-            timeSpent
+            functionPointsEffort
         }
     }
 `;
 
-class PersonSystemChangeRequestDetail extends Component {
-    render() {
-        if (this.props.data.loading) { return <div>Loading ...</div> }
+function PersonSystemChangeRequestDetail() {
+    const {systemChangeRequestKey, personKey} = useParams();
+    const {
+        loading,
+        error,
+        data
+    } = useQuery(fetchPersonSystemChangeRequestTimeSheetsByDateByPersonKeyAndSystemChangeRequestKey, {
+        variables: {systemChangeRequestKey: systemChangeRequestKey, personKey: personKey}
+    });
 
-        const timeSheetsByDate = this.props.data.personSystemChangeRequestTimeSheetsByDateByPersonKeyAndSystemChangeRequestKey
+    if (loading) return 'Loading ...'
 
-        const timeSheetsTableContents = timeSheetsByDate.slice()
-            .sort((a, b) => ((a.date > b.date) ? 1 : ((a.date < b.date) ? -1 : 0)))
-            .map(timeSheetRecord => (
-                    {
-                        id: timeSheetRecord.id,
-                        date: timeSheetRecord.date,
-                        timeSpent: timeSheetRecord.timeSpent,
-                    }
-            ))
+    if (error) return `Error! ${error.message}`
 
-        const timeSheetsTableColumns = [
+    const timeSheetsByDate = data.personSystemChangeRequestTimeSheetsByDateByPersonKeyAndSystemChangeRequestKey
+
+    const timeSheetsTableContents = timeSheetsByDate.slice()
+        .sort((a, b) => ((a.date > b.date) ? 1 : ((a.date < b.date) ? -1 : 0)))
+        .map(timeSheetRecord => (
             {
-                field: 'date',
-                headerName: 'Дата',
-                width: 200,
-                align: 'center',
-            },
-            {
-                field: 'timeSpent',
-                headerName: 'Списано (ч)',
-                width: 200,
-                align: 'right',
-                valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-            },
-        ];
+                id: timeSheetRecord.id,
+                date: timeSheetRecord.date,
+                functionPointsEffort: timeSheetRecord.functionPointsEffort,
+            }
+        ))
 
-        return (
-            <Box>
-                <Typography variant="h6" noWrap>
-                    Тайм-шиты
-                </Typography>
+    const timeSheetsTableColumns = [
+        {
+            field: 'date',
+            headerName: 'Дата',
+            width: 200,
+            align: 'center',
+        },
+        {
+            field: 'functionPointsEffort',
+            headerName: 'Списано аналитика, разработка, менеджмент (ч)',
+            width: 200,
+            align: 'right',
+            valueFormatter: ({value}) => value.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }),
+        },
+    ];
 
-                <div>
-                    <DataGridPro
-                        rows={ timeSheetsTableContents }
-                        columns={ timeSheetsTableColumns }
-                        autoHeight
-                    />
-                </div>
-            </Box>
-        );
-    }
+    return (
+        <Box>
+            <Typography variant="h6" noWrap>
+                Тайм-шиты
+            </Typography>
+
+            <div>
+                <DataGridPro
+                    rows={timeSheetsTableContents}
+                    columns={timeSheetsTableColumns}
+                    autoHeight
+                />
+            </div>
+        </Box>
+    );
 }
 
-export default graphql(fetchPersonSystemChangeRequestTimeSheetsByDateByPersonKeyAndSystemChangeRequestKey, {
-    options: (props) => { return { variables: { systemChangeRequestKey: props.match.params.systemChangeRequestKey, personKey: props.match.params.personKey }}}
-})(PersonSystemChangeRequestDetail);
+export default PersonSystemChangeRequestDetail;

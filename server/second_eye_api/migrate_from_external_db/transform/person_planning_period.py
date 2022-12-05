@@ -4,6 +4,7 @@ import datetime
 from . import field_pack
 from . import person
 from . import person_planning_period
+from . import person_system_change_request
 from . import time_sheet
 from . import utils
 
@@ -19,9 +20,6 @@ class PersonPlanningPeriodTimeSpent(cubista.AggregatedTable):
         id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
         person_id = cubista.AggregatedTableGroupField(source="person_id")
         planning_period_id = cubista.AggregatedTableGroupField(source="planning_period_id")
-
-        # effort_per_function_point = cubista.AggregatedTableAggregateField(source="effort_per_function_point", aggregate_function="sum")
-        # time_spent_in_planning_period =
 
         person_key = cubista.PullByRelatedField(
             foreign_table=lambda: person.Person,
@@ -39,17 +37,18 @@ class PersonPlanningPeriodTimeSpent(cubista.AggregatedTable):
             default=""
         )
 
-        # percentage_of_person_total_time_in_planning_period = cubista.CalculatedField(
-        #     lambda_expression=lambda x: x["time_spent"] / x[
-        #         "person_planning_period_time_spent"] if x[
-        #         "person_planning_period_time_spent"] else 1,
-        #     source_fields=["time_spent", "person_planning_period_time_spent"]
-        # )
-        #
-        # effort_per_function_point_weighted_by_person_total_time_in_planning_period = cubista.CalculatedField(
-        #     lambda_expression=lambda x: x["effort_per_function_point"] * x["percentage_of_person_total_time_in_planning_period"],
-        #     source_fields=["effort_per_function_point", "percentage_of_person_total_time_in_planning_period"]
-        # )
+        function_points_effort = cubista.CalculatedField(
+            lambda_expression=lambda x: x["analysis_time_spent"] + x["development_time_spent"] + x["management_time_spent"],
+            source_fields=["analysis_time_spent", "development_time_spent", "management_time_spent"]
+        )
+
+        effort_per_function_point = cubista.AggregatedForeignField(
+            foreign_table=lambda: person_system_change_request.PersonSystemChangeRequestTimeSpent,
+            foreign_field_name="person_planning_period_id",
+            aggregated_field_name="effort_per_function_point_weighted_by_person_total_time_in_planning_period",
+            aggregate_function="sum",
+            default=0
+        )
 
     class FieldPacks:
         field_packs = [

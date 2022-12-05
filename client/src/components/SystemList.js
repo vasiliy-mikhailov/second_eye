@@ -1,10 +1,9 @@
-import React, {Component} from "react";
-import {gql} from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import React from "react";
+import {gql, useQuery} from '@apollo/client';
 import Typography from '@material-ui/core/Typography';
-import {Box, Link} from "@material-ui/core";
+import {Box} from "@material-ui/core";
 import {Link as RouterLink} from "react-router-dom";
-import { DataGridPro,} from '@mui/x-data-grid-pro';
+import {DataGridPro,} from '@mui/x-data-grid-pro';
 
 const fetchSystems = gql`
     query Systems {
@@ -13,68 +12,73 @@ const fetchSystems = gql`
             estimate
             timeLeft
             name
-            newFunctionsFullTimeEquivalentPrevious28Days
-            newFunctionsTimeSpentPrevious28Days
+            timeSpentChrononFte
+            timeSpentChronon
         }
     }
 `;
 
-class SystemList extends Component {
-    render() {
-        if (this.props.data.loading) { return <div>Loading ...</div> }
+function SystemList() {
+    const {loading, error, data} = useQuery(fetchSystems);
 
-        const systems = this.props.data.systems
+    if (loading) return 'Loading ...'
 
-        const systemsTableContents = systems.slice()
-            .sort((a, b) => ((a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0)))
-            .filter(system => (
-                   system.newFunctionsFullTimeEquivalentPrevious28Days > 0
-                )
+    if (error) return `Error! ${error.message}`
+
+    const systems = data.systems
+
+    const systemsTableContents = systems.slice()
+        .sort((a, b) => ((a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0)))
+        .filter(system => (
+                system.timeSpentChrononFte > 0
             )
-            .map(system => (
-                    {
-                        id: system.id,
-                        name: system.name,
-                        newFunctionsFullTimeEquivalentPrevious28Days: system.newFunctionsFullTimeEquivalentPrevious28Days,
-                    }
-            ))
-
-        const systemsTableColumns = [
+        )
+        .map(system => (
             {
-                field: 'name',
-                headerName: 'Название',
-                flex: 1,
-                renderCell: (params) => (
-                    <RouterLink to={ `/systems/${ params.getValue(params.id, 'id') }` }>
-                        { params.getValue(params.id, 'name') }
-                    </RouterLink>
-                ),
-            },
-            {
-                field: 'newFunctionsFullTimeEquivalentPrevious28Days',
-                headerName: 'Новый функционал: фактический FTE за 28 дней',
-                width: 200,
-                align: 'right',
-                valueFormatter: ({ value }) => (value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2}),
-            },
-        ];
+                id: system.id,
+                name: system.name,
+                timeSpentChrononFte: system.timeSpentChrononFte,
+            }
+        ))
 
-        return (
-            <Box>
-                <Typography variant="h6" noWrap>
-                    Системы
-                </Typography>
+    const systemsTableColumns = [
+        {
+            field: 'name',
+            headerName: 'Название',
+            flex: 1,
+            renderCell: (params) => (
+                <RouterLink to={`/systems/${params.getValue(params.id, 'id')}`}>
+                    {params.getValue(params.id, 'name')}
+                </RouterLink>
+            ),
+        },
+        {
+            field: 'timeSpentChrononFte',
+            headerName: 'Трудомощность, FTE',
+            width: 200,
+            align: 'right',
+            valueFormatter: ({value}) => (value).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }),
+        },
+    ];
 
-                <div>
-                    <DataGridPro
-                        rows={ systemsTableContents }
-                        columns={ systemsTableColumns }
-                        autoHeight
-                    />
-                </div>
-            </Box>
-        );
-    }
+    return (
+        <Box>
+            <Typography variant="h6" noWrap>
+                Системы
+            </Typography>
+
+            <div>
+                <DataGridPro
+                    rows={systemsTableContents}
+                    columns={systemsTableColumns}
+                    autoHeight
+                />
+            </div>
+        </Box>
+    );
 }
 
-export default graphql(fetchSystems)(SystemList);
+export default SystemList;

@@ -10,6 +10,7 @@ from second_eye_api.migrate_from_external_db.test_data_creator.states_creator im
 from django.conf import settings
 from second_eye_api.migrate_from_external_db.transform import skill
 from second_eye_api.migrate_from_external_db.transform import utils
+from tests.utils import AnyValue
 
 
 def test_person_detail():
@@ -130,7 +131,7 @@ def test_person_detail():
                        timeSpentChrononFte
                        
                        incidents {
-                            #id
+                            id
                             incident {
                                 id
                                 key
@@ -168,7 +169,7 @@ def test_person_detail():
                        }
                 
                        nonProjectActivities {
-                            #id
+                            id
                             nonProjectActivity {
                                 id
                                 key
@@ -180,7 +181,7 @@ def test_person_detail():
                        }
              
                        tasks {
-                            #id
+                            id
                             task {
                                 id
                                 key
@@ -227,6 +228,7 @@ def test_person_detail():
                 "timeSpentChrononFte": pytest.approx(21.5 / 20.0 / 8.0),
                 "incidents": [
                     {
+                        "id": AnyValue(),
                         "incident": {
                             "id": incident_id,
                             "key": "I-1",
@@ -261,6 +263,7 @@ def test_person_detail():
                 ],
                 "nonProjectActivities": [
                     {
+                        "id": AnyValue(),
                         "nonProjectActivity": {
                             "id": non_project_activity_id,
                             "key": "NPA-1",
@@ -272,6 +275,7 @@ def test_person_detail():
                 ],
                 "tasks": [
                     {
+                        "id": AnyValue(),
                         "task": {
                             "id": analysis_task_id,
                             "key": "AT-1",
@@ -295,6 +299,7 @@ def test_person_detail():
                         "timeSpentChrononFte": pytest.approx(2.0 / 20.0 / 8.0),
                     },
                     {
+                        "id": AnyValue(),
                         "task": {
                             "id": development_task_id,
                             "key": "DT-1",
@@ -318,6 +323,7 @@ def test_person_detail():
                         "timeSpentChrononFte": pytest.approx(3.0 / 20.0 / 8.0),
                     },
                     {
+                        "id": AnyValue(),
                         "task": {
                             "id": testing_task_id,
                             "key": "TT-1",

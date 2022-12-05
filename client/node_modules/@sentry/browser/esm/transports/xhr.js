@@ -1,6 +1,4 @@
 import { __extends } from "tslib";
-import { eventToSentryRequest, sessionToSentryRequest } from '@sentry/core';
-import { Outcome } from '@sentry/types';
 import { SentryError, SyncPromise } from '@sentry/utils';
 import { BaseTransport } from './base';
 /** `XHR` based transport */
@@ -10,28 +8,18 @@ var XHRTransport = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     /**
-     * @inheritDoc
-     */
-    XHRTransport.prototype.sendEvent = function (event) {
-        return this._sendRequest(eventToSentryRequest(event, this._api), event);
-    };
-    /**
-     * @inheritDoc
-     */
-    XHRTransport.prototype.sendSession = function (session) {
-        return this._sendRequest(sessionToSentryRequest(session, this._api), session);
-    };
-    /**
      * @param sentryRequest Prepared SentryRequest to be delivered
      * @param originalPayload Original payload used to create SentryRequest
      */
     XHRTransport.prototype._sendRequest = function (sentryRequest, originalPayload) {
         var _this = this;
+        // eslint-disable-next-line deprecation/deprecation
         if (this._isRateLimited(sentryRequest.type)) {
-            this.recordLostEvent(Outcome.RateLimitBackoff, sentryRequest.type);
+            this.recordLostEvent('ratelimit_backoff', sentryRequest.type);
             return Promise.reject({
                 event: originalPayload,
                 type: sentryRequest.type,
+                // eslint-disable-next-line deprecation/deprecation
                 reason: "Transport for " + sentryRequest.type + " requests locked till " + this._disabledUntil(sentryRequest.type) + " due to too many requests.",
                 status: 429,
             });
@@ -51,7 +39,7 @@ var XHRTransport = /** @class */ (function (_super) {
                 };
                 request.open('POST', sentryRequest.url);
                 for (var header in _this.options.headers) {
-                    if (_this.options.headers.hasOwnProperty(header)) {
+                    if (Object.prototype.hasOwnProperty.call(_this.options.headers, header)) {
                         request.setRequestHeader(header, _this.options.headers[header]);
                     }
                 }
@@ -61,10 +49,10 @@ var XHRTransport = /** @class */ (function (_super) {
             .then(undefined, function (reason) {
             // It's either buffer rejection or any other xhr/fetch error, which are treated as NetworkError.
             if (reason instanceof SentryError) {
-                _this.recordLostEvent(Outcome.QueueOverflow, sentryRequest.type);
+                _this.recordLostEvent('queue_overflow', sentryRequest.type);
             }
             else {
-                _this.recordLostEvent(Outcome.NetworkError, sentryRequest.type);
+                _this.recordLostEvent('network_error', sentryRequest.type);
             }
             throw reason;
         });
