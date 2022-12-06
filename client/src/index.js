@@ -10,8 +10,6 @@ import {
     Route
 } from "react-router-dom"
 import {Box} from "@material-ui/core"
-import * as Sentry from "@sentry/react"
-import { Integrations } from "@sentry/tracing"
 import { LicenseInfo } from "@mui/x-data-grid-pro"
 import {
   ApolloClient,
@@ -49,16 +47,6 @@ import SystemList from "./components/SystemList"
 import SystemPlanningPeriodDetail from "./components/SystemPlanningPeriodDetail"
 import QuarterDetail from "./components/QuarterDetail"
 import QuarterProjectTeamList from "./components/QuarterProjectTeamList"
-
-Sentry.init({
-  dsn: "https://2bdd473a8cea45a495242e7259b2846d@o498438.ingest.sentry.io/5916644",
-  integrations: [new Integrations.BrowserTracing()],
-
-  // Set tracesSampleRate to 1.0 to capture 100%
-  // of transactions for performance monitoring.
-  // We recommend adjusting this value in production
-  tracesSampleRate: 0.01,
-});
 
 LicenseInfo.setLicenseKey('29d15176019c4254d109b514e026d8f8Tz01MzkxNCxFPTE2OTk0NjkxNTIxODksUz1wcm8sTE09cGVycGV0dWFsLEtWPTI=')
 

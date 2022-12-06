@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.7.11-buster
+FROM --platform=linux/amd64 python:3.7.11-buster
 
 # set work directory
 WORKDIR /usr/src/app
@@ -22,5 +22,7 @@ ENV NLS_LANG=AMERICAN_AMERICA.WE8ISO8859P1
 
 # copy project
 COPY . .
+
+ENV demo=demo
 
 ENTRYPOINT ["python", "manage.py", "runserver", "0.0.0.0:8000"]
