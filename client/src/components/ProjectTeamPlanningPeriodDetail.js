@@ -60,7 +60,7 @@ const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
                     newFunctionsTimeSpentPrevious28Days
                 }
                 
-                positions {
+                chrononPositions {
                     id
                     position {
                         id

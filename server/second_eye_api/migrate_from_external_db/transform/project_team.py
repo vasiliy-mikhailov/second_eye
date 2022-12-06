@@ -9,9 +9,7 @@ from . import incident
 from . import issue
 from . import person
 from . import person_project_team
-from . import person_project_team_planning_period
 from . import project_team
-from . import project_team_planning_period
 from . import state
 from . import time_sheet
 from . import work_item
@@ -313,36 +311,6 @@ class ProjectTeamPosition(cubista.Table):
         is_working = cubista.CalculatedField(
             lambda_expression=lambda x: x["state_name"] == "Работает",
             source_fields=["state_name"]
-        )
-
-class ProjectTeamProjectTeamPlanningPeriodPosition(cubista.OuterJoinedTable):
-    class OuterJoin:
-        left_source_table: cubista.Table = lambda: ProjectTeamPosition
-        right_source_table: cubista.Table = lambda: project_team_planning_period.ProjectTeamPlanningPeriod
-        left_fields = {
-            "id": "position_id",
-            "total_capacity": "total_capacity",
-            "person_id": "person_id",
-            "project_team_id": "project_team_id",
-        }
-
-        right_fields = {
-            "project_team_id": "project_team_id",
-            "id": "project_team_planning_period_id",
-        }
-
-        on_fields = ["project_team_id"]
-    class Fields:
-        id = cubista.OuterJoinedTableTableAutoIncrementPrimaryKeyField()
-        position_id = cubista.OuterJoinedTableOuterJoinedField(source="position_id", default=-1)
-        person_id = cubista.OuterJoinedTableOuterJoinedField(source="person_id", default=-1)
-        project_team_id = cubista.OuterJoinedTableOuterJoinedField(source="project_team_id", default=-1)
-        project_team_planning_period_id = cubista.OuterJoinedTableOuterJoinedField(source="project_team_planning_period_id", default=-1)
-        total_capacity = cubista.OuterJoinedTableOuterJoinedField(source="total_capacity", default=0)
-
-        total_capacity_fte = cubista.CalculatedField(
-            lambda_expression=lambda x: x["total_capacity"] / 8.0,
-            source_fields=["total_capacity"]
         )
 
 class ProjectTeamPositionPersonTimeSpent(cubista.OuterJoinedTable):

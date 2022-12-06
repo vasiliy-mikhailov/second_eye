@@ -107,3 +107,75 @@ class ProjectTeamPlanningPeriod(cubista.AggregatedTable):
             ),
             lambda: field_pack.TimeSpentFieldPackForAggregatedTable(),
         ]
+
+class ProjectTeamProjectTeamPlanningPeriodPosition(cubista.OuterJoinedTable):
+    class OuterJoin:
+        left_source_table: cubista.Table = lambda: project_team.ProjectTeamPosition
+        right_source_table: cubista.Table = lambda: project_team_planning_period.ProjectTeamPlanningPeriod
+        left_fields = {
+            "id": "position_id",
+            "total_capacity": "total_capacity",
+            "total_capacity_fte": "total_capacity_fte",
+            "person_id": "person_id",
+            "project_team_id": "project_team_id",
+        }
+
+        right_fields = {
+            "project_team_id": "project_team_id",
+            "id": "project_team_planning_period_id",
+        }
+
+        on_fields = ["project_team_id"]
+    class Fields:
+        id = cubista.OuterJoinedTableTableAutoIncrementPrimaryKeyField()
+        position_id = cubista.OuterJoinedTableOuterJoinedField(source="position_id", default=-1)
+        person_id = cubista.OuterJoinedTableOuterJoinedField(source="person_id", default=-1)
+        project_team_id = cubista.OuterJoinedTableOuterJoinedField(source="project_team_id", default=-1)
+        project_team_planning_period_id = cubista.OuterJoinedTableOuterJoinedField(source="project_team_planning_period_id", default=-1)
+        total_capacity = cubista.OuterJoinedTableOuterJoinedField(source="total_capacity", default=0)
+        total_capacity_fte = cubista.OuterJoinedTableOuterJoinedField(source="total_capacity_fte", default=0)
+
+class ProjectTeamPlanningPeriodPositionPersonTimeSpent(cubista.OuterJoinedTable):
+    class OuterJoin:
+        left_source_table: cubista.Table = lambda: project_team_planning_period.ProjectTeamProjectTeamPlanningPeriodPosition
+        right_source_table: cubista.Table = lambda: person_project_team_planning_period.PersonProjectTeamPlanningPeriod
+        left_fields = {
+            "position_id": "position_id",
+            "total_capacity": "total_capacity",
+            "total_capacity_fte": "total_capacity_fte",
+            "person_id": "person_id",
+            "project_team_id": "project_team_id",
+            "project_team_planning_period_id": "project_team_planning_period_id",
+        }
+
+        right_fields = {
+            "person_id": "person_id",
+            "project_team_planning_period_id": "project_team_planning_period_id",
+            "time_spent": "time_spent",
+            "time_spent_chronon_fte": "time_spent_chronon_fte"
+        }
+
+        on_fields = ["person_id", "project_team_planning_period_id"]
+    class Fields:
+        id = cubista.OuterJoinedTableTableAutoIncrementPrimaryKeyField()
+        position_id = cubista.OuterJoinedTableOuterJoinedField(source="position_id", default=-1)
+        person_id = cubista.OuterJoinedTableOuterJoinedField(source="person_id", default=-1)
+        project_team_id = cubista.OuterJoinedTableOuterJoinedField(source="project_team_id", default=-1)
+        project_team_planning_period_id = cubista.OuterJoinedTableOuterJoinedField(source="project_team_planning_period_id", default=-1)
+        total_capacity = cubista.OuterJoinedTableOuterJoinedField(source="total_capacity", default=0)
+        total_capacity_fte = cubista.OuterJoinedTableOuterJoinedField(source="total_capacity_fte", default=0)
+        time_spent = cubista.OuterJoinedTableOuterJoinedField(source="time_spent", default=0)
+        time_spent_chronon_fte = cubista.OuterJoinedTableOuterJoinedField(source="time_spent_chronon_fte", default=0)
+
+class ProjectTeamPlanningPeriodTimeSpentChronon(cubista.AggregatedTable):
+    class Aggregation:
+        source = lambda: time_sheet.TaskTimeSheet
+        sort_by: [str] = []
+        group_by: [str] = ["project_team_planning_period_id"]
+        filter = lambda x: utils.is_in_chronon_bounds(for_date=x["date"], sys_date=datetime.date.today())
+        filter_fields: [str] = ["date"]
+
+    class Fields:
+        id = cubista.AggregatedTableAutoIncrementPrimaryKeyField()
+        project_team_planning_period_id = cubista.AggregatedTableGroupField(source="project_team_planning_period_id")
+        time_spent = cubista.AggregatedTableAggregateField(source="time_spent", aggregate_function="sum")

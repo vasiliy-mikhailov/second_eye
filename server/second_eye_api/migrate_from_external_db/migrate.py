@@ -116,6 +116,7 @@ def migrate(extractor):
         project_team_planning_period.ProjectTeamPlanningPeriodSystem: output_data.project_team_planning_period_systems,
         project_team_planning_period.ProjectTeamPlanningPeriodSystemTimeSheetsByDate: output_data.project_team_planning_period_system_time_sheets_by_date,
         project_team_planning_period.ProjectTeamPlanningPeriodTimeSheetsByDate: output_data.project_team_planning_period_time_sheets_by_date,
+        project_team_planning_period.ProjectTeamPlanningPeriodPositionPersonTimeSpent: output_data.project_team_project_team_planning_period_position,
         project_team_quarter.ProjectTeamQuarter: output_data.project_team_quarter,
         project_team_quarter.ProjectTeamQuarterSystem: output_data.project_team_quarter_system,
         project_team_quarter.ProjectTeamQuarterSystemTimeSheetsByDate: output_data.project_team_quarter_system_time_sheet_by_date,

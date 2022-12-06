@@ -298,6 +298,7 @@ class Transformer:
             project_team_planning_period_system_time_sheet_by_date_model,
             project_team_planning_period_time_sheet_by_date,
             project_team_planning_period_time_sheet_by_date_model,
+            project_team_project_team_planning_period_position,
             project_team_quarter,
             project_team_quarter_system,
             project_team_quarter_system_time_sheet_by_date,
@@ -441,6 +442,7 @@ class Transformer:
         output_data.project_team_planning_period_system_time_sheets_by_date = data_source.tables[ProjectTeamPlanningPeriodSystemTimeSheetByDate].data_frame
         output_data.project_team_planning_period_system_time_sheets_by_date_model = data_source.tables[ProjectTeamPlanningPeriodSystemTimeSheetByDateModel].data_frame
         output_data.project_team_planning_periods = data_source.tables[ProjectTeamPlanningPeriod].data_frame
+        output_data.project_team_project_team_planning_period_position = data_source.tables[ProjectTeamProjectTeamPlanningPeriodPosition].data_frame
         output_data.project_team_quarter = data_source.tables[ProjectTeamQuarter].data_frame
         output_data.project_team_quarter_system = data_source.tables[ProjectTeamQuarterSystem].data_frame
         output_data.project_team_quarter_system_time_sheet_by_date = data_source.tables[ProjectTeamQuarterSystemTimeSheetByDate].data_frame
