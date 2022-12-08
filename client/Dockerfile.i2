@@ -1,7 +1,7 @@
 # client/Dockerfile
 
 # pull official base image
-FROM prognoz-kkt.mcb.ru:5000/node/14.17-alpine:latest as builder
+FROM prognoz-kkt.mcb.ru:5000/node:18.12-alpine as builder
 
 # set working directory
 WORKDIR /usr/src/app
@@ -15,9 +15,9 @@ ARG REACT_APP_SECOND_EYE_API_URL
 # install app dependencies
 COPY . .
 
-RUN chmod +x /usr/src/app/node_modules/.bin/react-scripts
+#RUN chmod +x /usr/src/app/node_modules/.bin/react-scripts
 
-RUN npm run build
+#RUN npm run build
 
 FROM prognoz-kkt.mcb.ru:5000/nginx/stable-alpine:latest
 COPY --from=builder /usr/src/app/build /usr/share/nginx/html
