@@ -29,7 +29,7 @@ const fetchPlanningPeriodById = gql`
                 }
                 effortPerFunctionPoint
                 calculatedFinishDate
-                timeSpentChronon
+                timeSpentChrononFte
                 timeSpentForReengineeringPercent
             }
             
@@ -96,7 +96,7 @@ function PlanningPeriodDetail() {
                 dedicatedTeamName: dedicatedTeamPlanningPeriod.dedicatedTeam.name,
                 effortPerFunctionPoint: dedicatedTeamPlanningPeriod.effortPerFunctionPoint,
                 calculatedFinishDate: dedicatedTeamPlanningPeriod.calculatedFinishDate,
-                timeSpentChronon: dedicatedTeamPlanningPeriod.timeSpentChronon,
+                timeSpentChrononFte: dedicatedTeamPlanningPeriod.timeSpentChrononFte,
                 timeSpentForReengineeringPercent: dedicatedTeamPlanningPeriod.timeSpentForReengineeringPercent,
             }
         ))
@@ -134,18 +134,8 @@ function PlanningPeriodDetail() {
             valueFormatter: ({value}) => value.toLocaleString(undefined, {maximumFractionDigits: 0}),
         },
         {
-            field: 'effortPerFunctionPoint',
-            headerName: 'Затраты на ф.т.',
-            width: 200,
-            align: 'right',
-            valueFormatter: ({value}) => value.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }),
-        },
-        {
-            field: 'timeSpentChronon',
-            headerName: 'Трудомощность (ч)',
+            field: 'timeSpentChrononFte',
+            headerName: 'Трудомощность, FTE',
             width: 200,
             align: 'right',
             valueFormatter: ({value}) => value.toLocaleString(undefined, {
@@ -163,7 +153,16 @@ function PlanningPeriodDetail() {
                 maximumFractionDigits: 1
             }),
         },
-
+        {
+            field: 'effortPerFunctionPoint',
+            headerName: 'Затраты на ф.т.',
+            width: 200,
+            align: 'right',
+            valueFormatter: ({value}) => value.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }),
+        },
     ];
 
     const systemsTableContents = systemPlanningPeriods.slice()

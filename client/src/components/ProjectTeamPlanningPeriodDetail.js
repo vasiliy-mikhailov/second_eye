@@ -215,8 +215,8 @@ function ProjectTeamPlanningPeriodDetail() {
             valueFormatter: ({value}) => value.toLocaleString(undefined, {maximumFractionDigits: 0}),
         },
         {
-            field: 'effortPerFunctionPoint',
-            headerName: 'Затраты на ф.т.',
+            field: 'timeSpentChronon',
+            headerName: 'Трудомощность, ч',
             width: 200,
             align: 'right',
             valueFormatter: ({value}) => value.toLocaleString(undefined, {
@@ -225,8 +225,8 @@ function ProjectTeamPlanningPeriodDetail() {
             }),
         },
         {
-            field: 'timeSpentChronon',
-            headerName: 'Фактические трудозатраты за 28 дней (ч)',
+            field: 'effortPerFunctionPoint',
+            headerName: 'Затраты на ф.т.',
             width: 200,
             align: 'right',
             valueFormatter: ({value}) => value.toLocaleString(undefined, {

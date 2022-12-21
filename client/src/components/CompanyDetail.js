@@ -30,6 +30,7 @@ const fetchCompanyWithIdOne = gql`
             calculatedFinishDate
             queueLength
             timeSpentForReengineeringPercent
+            effortPerFunctionPoint
         }
         
         companyById(id: 1) {
@@ -64,6 +65,7 @@ const fetchCompanyWithIdOne = gql`
             key
             name
             timeSpentChrononFte
+            effortPerFunctionPoint
         }
     }
 `;
@@ -194,6 +196,7 @@ function CompanyDetail() {
                 calculatedFinishDate: dedicatedTeam.calculatedFinishDate,
                 queueLength: dedicatedTeam.queueLength,
                 timeSpentForReengineeringPercent: dedicatedTeam.timeSpentForReengineeringPercent,
+                effortPerFunctionPoint: dedicatedTeam.effortPerFunctionPoint,
             }
         ))
 
@@ -248,6 +251,16 @@ function CompanyDetail() {
                 maximumFractionDigits: 1
             }),
         },
+        {
+            field: 'effortPerFunctionPoint',
+            headerName: 'Затраты на ф.т.',
+            width: 200,
+            align: 'right',
+            valueFormatter: ({value}) => value.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }),
+        },
     ];
 
     const quartersTableContents = quarters.slice()
@@ -258,6 +271,7 @@ function CompanyDetail() {
                 key: quarter.key,
                 name: quarter.name,
                 timeSpentChrononFte: quarter.timeSpentChrononFte,
+                effortPerFunctionPoint: quarter.effortPerFunctionPoint,
             }
         ))
 
@@ -275,6 +289,16 @@ function CompanyDetail() {
         {
             field: 'timeSpentChrononFte',
             headerName: 'Трудомощность FTE',
+            width: 200,
+            align: 'right',
+            valueFormatter: ({value}) => value.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }),
+        },
+        {
+            field: 'effortPerFunctionPoint',
+            headerName: 'Затраты на ф.т.',
             width: 200,
             align: 'right',
             valueFormatter: ({value}) => value.toLocaleString(undefined, {

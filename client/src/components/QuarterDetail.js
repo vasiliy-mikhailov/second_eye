@@ -189,7 +189,7 @@ function QuarterDetail() {
         },
         {
             field: 'timeSpentChronon',
-            headerName: 'Фактические трудозатраты за 28 дней (ч)',
+            headerName: 'Трудомощность, ч',
             width: 200,
             align: 'right',
             valueFormatter: ({value}) => value.toLocaleString(undefined, {
@@ -357,7 +357,7 @@ function QuarterDetail() {
         },
         {
             field: 'timeSpentChronon',
-            headerName: 'Фактические трудозатраты за 28 дней (ч)',
+            headerName: 'Трудомощность, ч',
             width: 200,
             align: 'right',
             valueFormatter: ({value}) => value.toLocaleString(undefined, {

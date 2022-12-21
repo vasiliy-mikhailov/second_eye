@@ -261,7 +261,7 @@ class EpicDetail extends Component {
             },
             {
                 field: 'newFunctionsTimeSpentPrevious28Days',
-                headerName: 'Фактические трудозатраты за 28 дней (ч)',
+                headerName: 'Трудомощность, ч',
                 width: 200,
                 align: 'right',
                 valueFormatter: ({ value }) => value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ,
