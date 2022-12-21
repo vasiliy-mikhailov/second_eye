@@ -261,7 +261,7 @@ def test_project_team_detail():
                         "start": "2022-01-01",
                         "end": "2024-12-31"
                     },
-                    "calculatedFinishDate": "2024-12-31",
+                    "calculatedFinishDate": two_weeks_ago_string,
                     "estimate": 15.5,
                     "timeLeft": 0.0,
                     "effortPerFunctionPoint": 0.0,
