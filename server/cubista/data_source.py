@@ -57,5 +57,5 @@ class DataSource:
             fields_to_evaluate = not_evaluated_fields
             tables_to_evaluate = set(list(fields_to_evaluate.values()))
 
-        for table_object, duration in dict(sorted(table_statistics.items(), key=lambda item: item[1], reverse=True)).items():
-            print("{} {}".format(duration, table_object))
+        # for table_object, duration in dict(sorted(table_statistics.items(), key=lambda item: item[1], reverse=True)).items():
+        #     print("{} {}".format(duration, table_object))

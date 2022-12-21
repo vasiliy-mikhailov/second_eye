@@ -293,16 +293,16 @@ function PlanningPeriodDetail() {
 
             <br/>
 
-            {/*<Typography variant="h6" noWrap>*/}
-            {/*    Системы*/}
-            {/*</Typography>*/}
-            {/*<div>*/}
-            {/*    <DataGridPro*/}
-            {/*        rows={systemsTableContents}*/}
-            {/*        columns={systemsTableColumns}*/}
-            {/*        autoHeight*/}
-            {/*    />*/}
-            {/*</div>*/}
+            <Typography variant="h6" noWrap>
+                Системы
+            </Typography>
+            <div>
+                <DataGridPro
+                    rows={systemsTableContents}
+                    columns={systemsTableColumns}
+                    autoHeight
+                />
+            </div>
         </Box>
     );
 }

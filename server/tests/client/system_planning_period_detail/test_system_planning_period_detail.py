@@ -15,16 +15,18 @@ from second_eye_api.migrate_from_external_db.transform import utils
 from tests.utils import AnyValue
 
 
-def test_planning_period_project_team_detail():
+def test_planning_period_system_detail():
     today = datetime.date.today()
     two_weeks = datetime.timedelta(days=14)
     two_weeks_ago = today - two_weeks
     two_weeks_ago_string = two_weeks_ago.strftime('%Y-%m-%d')
-    first_day_of_month_two_weeks_ago = datetime.date(year=two_weeks_ago.year, month=two_weeks_ago.month, day=1).strftime('%Y-%m-%d')
+    first_day_of_month_two_weeks_ago = datetime.date(year=two_weeks_ago.year, month=two_weeks_ago.month,
+                                                     day=1).strftime('%Y-%m-%d')
     two_weeks_ago_year = two_weeks_ago.year
     two_weeks_ago_year_string = str(two_weeks_ago_year)
     two_weeks_ago_first_day_of_year_string = datetime.date(year=two_weeks_ago.year, month=1, day=1).strftime('%Y-%m-%d')
-    two_weeks_ago_last_day_of_year_string = datetime.date(year=two_weeks_ago.year, month=12, day=31).strftime('%Y-%m-%d')
+    two_weeks_ago_last_day_of_year_string = datetime.date(year=two_weeks_ago.year, month=12, day=31).strftime(
+        '%Y-%m-%d')
 
     working_days_in_month_occured = utils.working_days_in_month_occured(for_date=two_weeks_ago, sys_date=today)
 
@@ -184,14 +186,15 @@ def test_planning_period_project_team_detail():
 
     executed = graphene_client.execute(
         """
-            query ProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId($planningPeriodId: Int!, $projectTeamId: Int!) {
-                  projectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId(projectTeamId: $projectTeamId, planningPeriodId: $planningPeriodId) {
+            query SystemPlanningPeriodByPlanningPeriodIdAndSystemId($planningPeriodId: Int!, $systemId: Int!) {
+                  systemPlanningPeriodByPlanningPeriodIdAndSystemId(systemId: $systemId, planningPeriodId: $planningPeriodId) {
                         id
                         estimate
                         effortPerFunctionPoint
                         calculatedFinishDate
                         
-                        projectTeam {
+                        
+                        system {
                             name
                         }
                         planningPeriod {
@@ -199,29 +202,44 @@ def test_planning_period_project_team_detail():
                             start
                             end
                         }
+                        
+                        analysisTimeSheetsByDate {
+                            date
+                            timeSpentCumsum
+                            timeSpentCumsumPrediction
+                        }
+                        
+                        analysisCalculatedFinishDate
+                        
+                        analysisEstimate
+                        
+                        developmentTimeSheetsByDate {
+                            date
+                            timeSpentCumsum
+                            timeSpentCumsumPrediction
+                        }
+                        
+                        developmentCalculatedFinishDate
+                        
+                        developmentEstimate
+                        
+                        testingTimeSheetsByDate {
+                            date
+                            timeSpentCumsum
+                            timeSpentCumsumPrediction
+                        }
+                        
+                        testingCalculatedFinishDate
+                        
+                        testingEstimate
+        
                         timeSheetsByDate {
                             date
                             timeSpentCumsum
                             timeSpentCumsumPrediction
-                            timeSpentWithoutValuePercentCumsum
-                            timeSpentWithValuePercentCumsum
-                            timeSpentForReengineeringPercentCumsum
-                            timeSpentNotForReengineeringPercentCumsum
                         }
                         
-                        projectTeamPlanningPeriodSystems {
-                          id
-                          estimate
-                          timeLeft
-                          system {
-                            id
-                            name
-                          }
-                          effortPerFunctionPoint
-                          calculatedFinishDate
-                        }
-                        
-                        changeRequests {
+                        systemChangeRequests {
                             id
                             key
                             estimate
@@ -230,71 +248,83 @@ def test_planning_period_project_team_detail():
                             name
                             stateCategoryId
                             effortPerFunctionPoint
-                            calculatedFinishDate
-                            timeSpentChronon
+                            mainDeveloper {
+                                id
+                                name
+                            }
                         }
                   }
             }
         """,
-        variables={"planningPeriodId": two_weeks_ago_year, "projectTeamId": project_team_id},
+        variables={"planningPeriodId": two_weeks_ago_year, "systemId": system_id},
     )
     assert executed == {
         "data": {
-            "projectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId": {
+            "systemPlanningPeriodByPlanningPeriodIdAndSystemId": {
                 "id": AnyValue(),
                 "estimate": 33.0,
                 "effortPerFunctionPoint": pytest.approx(25 / 25),
                 "calculatedFinishDate": two_weeks_ago_string,
-                "projectTeam": {
-                    "name": "Корпоративные кредиты",
+                "system": {
+                    "name": "Кредитный конвейер",
                 },
                 "planningPeriod": {
                     "name": two_weeks_ago_year_string,
                     "start": two_weeks_ago_first_day_of_year_string,
                     "end": two_weeks_ago_last_day_of_year_string,
                 },
+                "analysisTimeSheetsByDate": [{
+                    "date": two_weeks_ago_string,
+                    "timeSpentCumsum": 2.5,
+                    "timeSpentCumsumPrediction": 0.0,
+                }],
+                "analysisCalculatedFinishDate": two_weeks_ago_string,
+                "analysisEstimate": 2.5,
+                "developmentTimeSheetsByDate": [{
+                    "date": two_weeks_ago_string,
+                    "timeSpentCumsum": 15.0,
+                    "timeSpentCumsumPrediction": 0.0,
+                }],
+                "developmentCalculatedFinishDate": two_weeks_ago_string,
+                "developmentEstimate": 15.0,
+                "testingTimeSheetsByDate": [{
+                    "date": two_weeks_ago_string,
+                    "timeSpentCumsum": 8.0,
+                    "timeSpentCumsumPrediction": 0.0,
+                }],
+                "testingCalculatedFinishDate": two_weeks_ago_string,
+                "testingEstimate": 8.0,
                 "timeSheetsByDate": [{
                     "date": two_weeks_ago_string,
                     "timeSpentCumsum": 33.0,
                     "timeSpentCumsumPrediction": 0.0,
-                    "timeSpentWithoutValuePercentCumsum": 1.0,
-                    "timeSpentWithValuePercentCumsum": 0.0,
-                    "timeSpentForReengineeringPercentCumsum": 0.0,
-                    "timeSpentNotForReengineeringPercentCumsum": 1.0,
                 }],
-                "projectTeamPlanningPeriodSystems": [{
-                    "id": AnyValue(),
-                    "estimate": 33.0,
-                    "timeLeft": 0.0,
-                    "system": {
-                        "id": system_id,
-                        "name": "Кредитный конвейер",
-                    },
-                    "effortPerFunctionPoint": pytest.approx(25 / 25),
-                    "calculatedFinishDate": two_weeks_ago_string
-                }],
-                "changeRequests": [{
-                    "id": change_request1_id,
-                    "key": "CR-1",
+                "systemChangeRequests": [{
+                    "id": system_change_request1_1_id,
+                    "key": "SCR-1",
                     "estimate": 18.0,
                     "timeLeft": 0.0,
                     "hasValue": False,
-                    "name": "Заявка №1 на доработку кредитного процесса",
-                    "stateCategoryId": StateCategory.DONE,
+                    "name": "Заявка №1.1 на доработку Кредитного конвейера",
+                    "stateCategoryId": -1,
                     "effortPerFunctionPoint": pytest.approx(15.0 / 10.0),
-                    "calculatedFinishDate": two_weeks_ago_string,
-                    "timeSpentChronon": 18.0,
+                    "mainDeveloper": {
+                        "id": person2_id,
+                        "name": "Исполнитель 2",
+                    }
                 }, {
-                    "id": change_request2_id,
-                    "key": "CR-2",
+                    "id": system_change_request2_1_id,
+                    "key": "SCR-2",
                     "estimate": 15.0,
                     "timeLeft": 0.0,
                     "hasValue": False,
-                    "name": "Заявка №2 на доработку кредитного процесса",
-                    "stateCategoryId": StateCategory.DONE,
+                    "name": "Заявка №2.1 на доработку Кредитного конвейера",
+                    "stateCategoryId": -1,
                     "effortPerFunctionPoint": pytest.approx(10.0 / 15.0),
-                    "calculatedFinishDate": two_weeks_ago_string,
-                    "timeSpentChronon": 15.0,
+                    "mainDeveloper": {
+                        "id": person1_id,
+                        "name": "Исполнитель 1",
+                    }
                 }]
             }
         }

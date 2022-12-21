@@ -37,7 +37,7 @@ const fetchDedicatedTeamByDedicatedTeamId = gql`
                         timeLeft
                         name
                         calculatedFinishDate
-                        timeSpentChronon
+                        timeSpentChrononFte
                         queueLength
                         positionPersonPlanFactIssueCount
                         timeSpentForReengineeringPercent
@@ -54,7 +54,7 @@ const fetchDedicatedTeamByDedicatedTeamId = gql`
                         estimate
                         timeLeft
                         effortPerFunctionPoint
-                        timeSpentChronon
+                        timeSpentChrononFte
                     }
               }
         }
@@ -114,7 +114,7 @@ function DedicatedTeamDetail() {
                 timeLeft: projectTeam.timeLeft,
                 name: projectTeam.name,
                 calculatedFinishDate: projectTeam.calculatedFinishDate,
-                timeSpentChronon: projectTeam.timeSpentChronon,
+                timeSpentChrononFte: projectTeam.timeSpentChrononFte,
                 queueLength: projectTeam.queueLength,
                 positionPersonPlanFactIssueCount: projectTeam.positionPersonPlanFactIssueCount,
                 timeSpentForReengineeringPercent: projectTeam.timeSpentForReengineeringPercent,
@@ -160,7 +160,7 @@ function DedicatedTeamDetail() {
             valueFormatter: ({value}) => value.toLocaleString(undefined, {maximumFractionDigits: 0}),
         },
         {
-            field: 'timeSpentChronon',
+            field: 'timeSpentChrononFte',
             headerName: 'Трудомощность, FTE',
             width: 200,
             align: 'right',
@@ -198,7 +198,7 @@ function DedicatedTeamDetail() {
                 timeLeft: dedicatedTeamPlanningPeriod.timeLeft,
                 effortPerFunctionPoint: dedicatedTeamPlanningPeriod.effortPerFunctionPoint,
                 calculatedFinishDate: dedicatedTeamPlanningPeriod.calculatedFinishDate,
-                timeSpentChronon: dedicatedTeamPlanningPeriod.timeSpentChronon,
+                timeSpentChrononFte: dedicatedTeamPlanningPeriod.timeSpentChrononFte,
             }
         ))
 
@@ -245,7 +245,7 @@ function DedicatedTeamDetail() {
             }),
         },
         {
-            field: 'timeSpentChronon',
+            field: 'timeSpentChrononFte',
             headerName: 'Трудомощность, FTE',
             width: 200,
             align: 'right',

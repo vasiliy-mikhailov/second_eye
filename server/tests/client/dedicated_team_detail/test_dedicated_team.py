@@ -143,7 +143,7 @@ def test_dedicated_team_detail():
                         timeLeft
                         name
                         calculatedFinishDate
-                        timeSpentChronon
+                        timeSpentChrononFte
                         queueLength
                         positionPersonPlanFactIssueCount
                         timeSpentForReengineeringPercent
@@ -160,7 +160,7 @@ def test_dedicated_team_detail():
                         estimate
                         timeLeft
                         effortPerFunctionPoint
-                        timeSpentChronon
+                        timeSpentChrononFte
                     }
                 }
             }
@@ -196,7 +196,7 @@ def test_dedicated_team_detail():
                         "timeLeft": 0.0,
                         "name": "Корпоративные кредиты",
                         "calculatedFinishDate": two_weeks_ago_string,
-                        "timeSpentChronon": 15.5,
+                        "timeSpentChrononFte": pytest.approx(15.5 / 20 / 8),
                         "queueLength": 0.0,
                         "positionPersonPlanFactIssueCount": 0,
                         "timeSpentForReengineeringPercent": pytest.approx(1.5 / 15.5),
@@ -213,7 +213,7 @@ def test_dedicated_team_detail():
                     "estimate": 15.5,
                     "timeLeft": 0.0,
                     "effortPerFunctionPoint": 0.0,
-                    "timeSpentChronon": 15.5
+                    "timeSpentChrononFte": pytest.approx(15.5 / 20 / 8),
                 }],
             }
         }

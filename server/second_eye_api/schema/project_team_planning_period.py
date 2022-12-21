@@ -34,11 +34,6 @@ class ProjectTeamPlanningPeriod(graphene_frame.DataFrameObjectType):
 
         calculated_finish_date = graphene_frame.Date()
 
-        chrononPositions = graphene_frame.List(
-            to_entity=lambda: ProjectTeamPlanningPeriodPositionPersonTimeSpentChronon,
-            to_field="project_team_planning_period_id"
-        )
-
         resource_planning_error_numerator = graphene_frame.Float()
         resource_planning_error_denominator = graphene_frame.Float()
         resource_planning_error = graphene_frame.Float()
@@ -71,22 +66,6 @@ class ProjectTeamPlanningPeriodPositionPersonTimeSpent(graphene_frame.DataFrameO
         position = graphene_frame.Field(to_entity=lambda: dedicated_team.DedicatedTeamPosition)
         person = graphene_frame.Field(to_entity=lambda: person.Person)
         project_team_planning_period = graphene_frame.Field(to_entity=lambda: project_team_planning_period.ProjectTeamPlanningPeriod)
-        total_capacity_fte = graphene_frame.Float()
-
-    class FieldPacks:
-        field_packs = [
-            lambda: field_pack.ChrononFieldPack(),
-            lambda: field_pack.TimeSpentFieldPack(),
-        ]
-
-class ProjectTeamPlanningPeriodPositionPersonTimeSpentChronon(graphene_frame.DataFrameObjectType):
-    class Fields:
-        id = graphene_frame.PrimaryKey(graphene_frame.Int())
-        position = graphene_frame.Field(to_entity=lambda: project_team.ProjectTeamPosition)
-        person = graphene_frame.Field(to_entity=lambda: person.Person)
-        project_team_planning_period = graphene_frame.Field(to_entity=lambda: project_team_planning_period.ProjectTeamPlanningPeriod)
-
-        total_capacity = graphene_frame.Float()
         total_capacity_fte = graphene_frame.Float()
 
     class FieldPacks:

@@ -88,10 +88,11 @@ def refill_internal_db_from_demo_db_once():
         key="CR-1",
         name="Заявка №1 на доработку кредитного процесса",
         project_team_id=project_team_id,
-        state_id=StatesCreator.DONE_ID,
-        resolution_date=two_weeks_ago
+        resolution_date=two_weeks_ago,
+        analysis_express_estimate=20,
+        development_express_estimate=30,
+        testing_express_estimate=40
     )
-
     system_change_request1_1_id = creator.create_system_change_request(
         key="SCR-1",
         name="Заявка №1.1 на доработку Кредитного конвейера",

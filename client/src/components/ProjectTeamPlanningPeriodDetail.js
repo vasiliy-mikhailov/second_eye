@@ -58,23 +58,6 @@ const fetchProjectTeamPlanningPeriodByPlanningPeriodIdAndProjectTeamId = gql`
                     calculatedFinishDate
                     timeSpentChronon
                 }
-                
-                # chrononPositions {
-                #     id
-                #     position {
-                #         id
-                #         url
-                #         name
-                #     }
-                #     person {
-                #         id
-                #         key
-                #         name
-                #     }
-                #     timeSpent
-                #     timeSpentChrononFte
-                #     totalCapacityFte
-                # }
           }
     }
 `;
@@ -253,80 +236,6 @@ function ProjectTeamPlanningPeriodDetail() {
         },
     ];
 
-    // const positionsTableContents = positions.slice()
-    //     .sort((a, b) => (
-    //         (a.newFunctionsFullTimeEquivalentPrevious28Days > b.newFunctionsFullTimeEquivalentPrevious28Days) ? -1 : (
-    //             (a.newFunctionsFullTimeEquivalentPrevious28Days == b.newFunctionsFullTimeEquivalentPrevious28Days) ? 0 : 1
-    //         )
-    //     ))
-    //     .map(position => (
-    //         {
-    //             id: position.id,
-    //             url: position.position.url,
-    //             position: position.position.name,
-    //             personId: position.person.id,
-    //             personKey: position.person.key,
-    //             personName: position.person.name,
-    //             newFunctionsTimeSpent: position.newFunctionsTimeSpent,
-    //             newFunctionsFullTimeEquivalentPrevious28Days: position.newFunctionsFullTimeEquivalentPrevious28Days,
-    //             newFunctionsFullTimeEquivalentCapacity: position.newFunctionsFullTimeEquivalentCapacity
-    //         }
-    //     ))
-    //
-    // const positionsTableColumns = [
-    //     {
-    //         field: 'position',
-    //         headerName: 'Позиция',
-    //         flex: 1,
-    //         renderCell: (params) => {
-    //             const url = params.getValue(params.id, 'url')
-    //
-    //             return url ?
-    //                 <Link href={url} target="_blank">
-    //                     {params.getValue(params.id, 'position')}
-    //                 </Link>
-    //                 : params.getValue(params.id, 'position')
-    //         },
-    //     },
-    //     {
-    //         field: 'personName',
-    //         headerName: 'ФИО',
-    //         flex: 1,
-    //         renderCell: (params) => (
-    //             <RouterLink to={`/persons/${params.getValue(params.id, 'personKey')}`}>
-    //                 {params.getValue(params.id, 'personName')}
-    //             </RouterLink>
-    //         ),
-    //     },
-    //     {
-    //         field: 'newFunctionsTimeSpent',
-    //         headerName: 'Новый функционал: списано всего (ч)',
-    //         width: 200,
-    //         align: 'right',
-    //         valueFormatter: ({value}) => value.toLocaleString(undefined, {maximumFractionDigits: 0}),
-    //     },
-    //     {
-    //         field: 'newFunctionsFullTimeEquivalentCapacity',
-    //         headerName: 'Новый функционал: плановый FTE',
-    //         width: 200,
-    //         align: 'right',
-    //         valueFormatter: ({value}) => (value).toLocaleString(undefined, {
-    //             minimumFractionDigits: 1,
-    //             maximumFractionDigits: 1
-    //         }),
-    //     },
-    //     {
-    //         field: 'newFunctionsFullTimeEquivalentPrevious28Days',
-    //         headerName: 'Новый функционал: фактический FTE за 28 дней',
-    //         width: 200,
-    //         align: 'right',
-    //         valueFormatter: ({value}) => (value).toLocaleString(undefined, {
-    //             minimumFractionDigits: 1,
-    //             maximumFractionDigits: 1
-    //         }),
-    //     },
-    // ];
-
     return (
         <Box>
             <Typography variant="body1" noWrap>
@@ -390,18 +299,6 @@ function ProjectTeamPlanningPeriodDetail() {
                     autoHeight
                 />
             </div>
-
-            <br/>
-            {/*<Typography variant="h6" noWrap>*/}
-            {/*    Команда*/}
-            {/*</Typography>*/}
-            {/*<div>*/}
-            {/*    <DataGridPro*/}
-            {/*        rows={positionsTableContents}*/}
-            {/*        columns={positionsTableColumns}*/}
-            {/*        autoHeight*/}
-            {/*    />*/}
-            {/*</div>*/}
         </Box>
     );
 }

@@ -23,6 +23,9 @@ class SystemPlanningPeriod(cubista.AggregatedTable):
         testing_estimate = cubista.AggregatedTableAggregateField(source="testing_estimate", aggregate_function="sum")
         estimate = cubista.AggregatedTableAggregateField(source="estimate", aggregate_function="sum")
 
+        analysis_time_left = cubista.AggregatedTableAggregateField(source="analysis_time_left", aggregate_function="sum")
+        development_time_left = cubista.AggregatedTableAggregateField(source="development_time_left", aggregate_function="sum")
+        testing_time_left = cubista.AggregatedTableAggregateField(source="testing_time_left", aggregate_function="sum")
         time_left = cubista.AggregatedTableAggregateField(source="time_left", aggregate_function="sum")
 
         function_points = cubista.AggregatedTableAggregateField(source="function_points", aggregate_function="sum")
@@ -118,9 +121,12 @@ class SystemPlanningPeriod(cubista.AggregatedTable):
         )
 
         analysis_calculated_finish_date = cubista.CalculatedField(
-            lambda_expression=lambda x: x["planning_period_end"] if x["analysis_time_sheets_by_date_model_m"] == 0 else
-                x["analysis_time_sheets_by_date_model_min_date"] + (x["analysis_estimate"] - x["analysis_time_sheets_by_date_model_b"]) / x["analysis_time_sheets_by_date_model_m"] * (x["analysis_time_sheets_by_date_model_max_date"] - x["analysis_time_sheets_by_date_model_min_date"]),
-            source_fields=["analysis_time_sheets_by_date_model_min_date", "analysis_time_sheets_by_date_model_max_date", "planning_period_end", "analysis_estimate", "analysis_time_sheets_by_date_model_m", "analysis_time_sheets_by_date_model_b"]
+            lambda_expression=lambda x: x["analysis_last_timesheet_date"] if x["analysis_time_left"] == 0 else (
+                x["planning_period_end"] if x["analysis_time_sheets_by_date_model_m"] == 0 else (
+                    x["analysis_time_sheets_by_date_model_min_date"] + (x["analysis_estimate"] - x["analysis_time_sheets_by_date_model_b"]) / x["analysis_time_sheets_by_date_model_m"] * (x["analysis_time_sheets_by_date_model_max_date"] - x["analysis_time_sheets_by_date_model_min_date"])
+                )
+            ),
+            source_fields=["analysis_last_timesheet_date", "analysis_time_left", "analysis_time_sheets_by_date_model_min_date", "analysis_time_sheets_by_date_model_max_date", "planning_period_end", "analysis_estimate", "analysis_time_sheets_by_date_model_m", "analysis_time_sheets_by_date_model_b"]
         )
 
         development_time_sheets_by_date_model_m = cubista.PullByRelatedField(
@@ -156,9 +162,12 @@ class SystemPlanningPeriod(cubista.AggregatedTable):
         )
 
         development_calculated_finish_date = cubista.CalculatedField(
-            lambda_expression=lambda x: x["planning_period_end"] if x["development_time_sheets_by_date_model_m"] == 0 else
-                x["development_time_sheets_by_date_model_min_date"] + (x["development_estimate"] - x["development_time_sheets_by_date_model_b"]) / x["development_time_sheets_by_date_model_m"] * (x["development_time_sheets_by_date_model_max_date"] - x["development_time_sheets_by_date_model_min_date"]),
-            source_fields=["development_time_sheets_by_date_model_min_date", "development_time_sheets_by_date_model_max_date", "planning_period_end", "development_estimate", "development_time_sheets_by_date_model_m", "development_time_sheets_by_date_model_b"]
+            lambda_expression=lambda x: x["development_last_timesheet_date"] if x["development_time_left"] == 0 else (
+                x["planning_period_end"] if x["development_time_sheets_by_date_model_m"] == 0 else (
+                    x["development_time_sheets_by_date_model_min_date"] + (x["development_estimate"] - x["development_time_sheets_by_date_model_b"]) / x["development_time_sheets_by_date_model_m"] * (x["development_time_sheets_by_date_model_max_date"] - x["development_time_sheets_by_date_model_min_date"])
+                )
+            ),
+            source_fields=["development_last_timesheet_date", "development_time_left", "development_time_sheets_by_date_model_min_date", "development_time_sheets_by_date_model_max_date", "planning_period_end", "development_estimate", "development_time_sheets_by_date_model_m", "development_time_sheets_by_date_model_b"]
         )
 
         testing_time_sheets_by_date_model_m = cubista.PullByRelatedField(
@@ -194,9 +203,39 @@ class SystemPlanningPeriod(cubista.AggregatedTable):
         )
 
         testing_calculated_finish_date = cubista.CalculatedField(
-            lambda_expression=lambda x: x["planning_period_end"] if x["testing_time_sheets_by_date_model_m"] == 0 else
-                x["testing_time_sheets_by_date_model_min_date"] + (x["testing_estimate"] - x["testing_time_sheets_by_date_model_b"]) / x["testing_time_sheets_by_date_model_m"] * (x["testing_time_sheets_by_date_model_max_date"] - x["testing_time_sheets_by_date_model_min_date"]),
-            source_fields=["testing_time_sheets_by_date_model_min_date", "testing_time_sheets_by_date_model_max_date", "planning_period_end", "testing_estimate", "testing_time_sheets_by_date_model_m", "testing_time_sheets_by_date_model_b"]
+            lambda_expression=lambda x: x["testing_last_timesheet_date"] if x["testing_time_left"] == 0 else (
+                x["planning_period_end"] if x["testing_time_sheets_by_date_model_m"] == 0 else (
+                    x["testing_time_sheets_by_date_model_min_date"] + (x["testing_estimate"] - x["testing_time_sheets_by_date_model_b"]) / x["testing_time_sheets_by_date_model_m"] * (x["testing_time_sheets_by_date_model_max_date"] - x["testing_time_sheets_by_date_model_min_date"])
+                )
+            ),
+            source_fields=["testing_last_timesheet_date", "testing_time_left", "testing_time_sheets_by_date_model_min_date", "testing_time_sheets_by_date_model_max_date", "planning_period_end", "testing_estimate", "testing_time_sheets_by_date_model_m", "testing_time_sheets_by_date_model_b"]
+        )
+
+        analysis_last_timesheet_date = cubista.PullMaxByRelatedField(
+            foreign_table=lambda: time_sheet.SystemPlanningPeriodAnalysisTimeSheetByDate,
+            related_field_names=["id"],
+            foreign_field_names=["system_planning_period_id"],
+            max_field_name="time_spent_cumsum",
+            pulled_field_name="date",
+            default=datetime.date.today()
+        )
+
+        development_last_timesheet_date = cubista.PullMaxByRelatedField(
+            foreign_table=lambda: time_sheet.SystemPlanningPeriodDevelopmentTimeSheetByDate,
+            related_field_names=["id"],
+            foreign_field_names=["system_planning_period_id"],
+            max_field_name="time_spent_cumsum",
+            pulled_field_name="date",
+            default=datetime.date.today()
+        )
+
+        testing_last_timesheet_date = cubista.PullMaxByRelatedField(
+            foreign_table=lambda: time_sheet.SystemPlanningPeriodTestingTimeSheetByDate,
+            related_field_names=["id"],
+            foreign_field_names=["system_planning_period_id"],
+            max_field_name="time_spent_cumsum",
+            pulled_field_name="date",
+            default=datetime.date.today()
         )
 
         last_timesheet_date = cubista.PullMaxByRelatedField(

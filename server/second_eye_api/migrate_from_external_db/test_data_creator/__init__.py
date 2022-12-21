@@ -61,10 +61,20 @@ class TestDataCreator:
         self.task_time_sheets_creator = TaskTimeSheetsCreator()
         self.tasks_creator = TasksCreator()
 
-    def create_change_request(self, key, name, project_team_id=-1, state_id=-1, resolution_date=None, quarter_key="-1"):
+    def create_change_request(self, key, name, project_team_id=-1, state_id=-1, resolution_date=None, quarter_key="-1", analysis_express_estimate = 0, development_express_estimate = 0, testing_express_estimate = 0):
         change_requests_creator = self.change_requests_creator
 
-        return change_requests_creator.create_change_request(key=key, name=name, project_team_id=project_team_id, state_id=state_id, resolution_date=resolution_date, quarter_key=quarter_key)
+        return change_requests_creator.create_change_request(
+            key=key,
+            name=name,
+            project_team_id=project_team_id,
+            state_id=state_id,
+            resolution_date=resolution_date,
+            quarter_key=quarter_key,
+            analysis_express_estimate=analysis_express_estimate,
+            development_express_estimate=development_express_estimate,
+            testing_express_estimate=testing_express_estimate
+        )
 
     def create_company(self, name, id=None):
         companies_creator = self.companies_creator
