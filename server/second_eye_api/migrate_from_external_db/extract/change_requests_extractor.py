@@ -41,6 +41,14 @@ class ChangeRequestsExtractor:
                             when 504239 then '2022-III'
                             when 488704 then '2022-IV'
                             when 504240 then '2022-IV'
+                            when 600070 then '2023-I'
+                            when 600080 then '2023-I'
+                            when 638563 then '2023-II'
+                            when 638565 then '2023-II'
+                            when 638569 then '2023-III'
+                            when 638571 then '2023-III'
+                            when 638573 then '2023-IV'
+                            when 638574 then '2023-IV'
                             else '-1'
                         end as "quarter_key"
                     from 
