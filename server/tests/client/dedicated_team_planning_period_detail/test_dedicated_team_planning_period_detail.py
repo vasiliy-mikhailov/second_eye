@@ -175,6 +175,7 @@ def test_dedicated_team_planning_period():
                         estimate
                         timeLeft
                         hasValue
+                        isReengineering
                         name
                         stateCategoryId
                         effortPerFunctionPoint
@@ -261,6 +262,7 @@ def test_dedicated_team_planning_period():
                     "estimate": 14.0,
                     "timeLeft": 0.0,
                     "hasValue": False,
+                    "isReengineering": False,
                     "name": "Заявка на доработку кредитного процесса",
                     "stateCategoryId": 3,
                     "effortPerFunctionPoint": 0.0,

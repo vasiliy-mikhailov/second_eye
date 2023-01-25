@@ -20,6 +20,12 @@ def test_dedicated_team_detail():
     first_day_of_month_two_weeks_ago = datetime.date(year=two_weeks_ago.year, month=today.month, day=1).strftime(
         '%Y-%m-%d')
     current_year = today.year
+    current_year_january_first = datetime.date(year=current_year, month=1, day=1)
+    current_year_january_first_str = current_year_january_first.strftime('%Y-%m-%d')
+    two_years_in_future = current_year + 2
+    two_years_in_future_january_first = datetime.date(year=two_years_in_future, month=12, day=31)
+    two_years_in_future_january_first_str = two_years_in_future_january_first.strftime('%Y-%m-%d')
+
     working_days_in_month_occured = utils.working_days_in_month_occured(for_date=two_weeks_ago, sys_date=today)
 
     creator = test_data_creator.TestDataCreator()
@@ -206,8 +212,8 @@ def test_dedicated_team_detail():
                     "planningPeriod": {
                         "id": -1,
                         "name": "Бэклог",
-                        "start": "2022-01-01",
-                        "end": "2024-12-31"
+                        "start": current_year_january_first_str,
+                        "end": two_years_in_future_january_first_str
                     },
                     "calculatedFinishDate": two_weeks_ago_string,
                     "estimate": 15.5,

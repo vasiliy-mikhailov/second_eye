@@ -15,6 +15,7 @@ from . import quarter
 from . import state
 from . import system_change_request
 from . import time_sheet
+from . import utils
 
 class ChangeRequest(cubista.Table):
     CHANGE_REQUESTS_WITHOUT_FUNCTION_POINTS = [
@@ -85,7 +86,7 @@ class ChangeRequest(cubista.Table):
             default=-1
         )
 
-        planning_period_id = cubista.CalculatedField(
+        planning_period_id_as_specified_in_source = cubista.CalculatedField(
             lambda_expression=lambda x: x["install_date"].year if not pd.isnull(x["install_date"]) else (
                 x["resolution_date"].year if not pd.isnull(x["resolution_date"]) and x["state_category_id"] == state.StateCategory.DONE else (
                     x["planned_install_date"].year if not pd.isnull(x["planned_install_date"]) else (
@@ -96,6 +97,11 @@ class ChangeRequest(cubista.Table):
                 )
             ),
             source_fields=["install_date", "resolution_date", "state_category_id", "planned_install_date", "year_label_max", "quarter_planning_period_id", "quarter_id"]
+        )
+
+        planning_period_id = cubista.CalculatedField(
+            lambda_expression=lambda x: utils.get_current_year() if x["state_category_id"] != state.StateCategory.DONE and x["planning_period_id_as_specified_in_source"] > -1 else x["planning_period_id_as_specified_in_source"],
+            source_fields=["state_category_id", "planning_period_id_as_specified_in_source"]
         )
 
         planning_period_start = cubista.PullByRelatedField(

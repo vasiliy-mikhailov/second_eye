@@ -97,6 +97,17 @@ public_holidays = [
     datetime.date(year=2022, month=5, day=10),
     datetime.date(year=2022, month=6, day=13),
     datetime.date(year=2022, month=11, day=4),
+    datetime.date(year=2023, month=1, day=2),
+    datetime.date(year=2023, month=1, day=3),
+    datetime.date(year=2023, month=1, day=4),
+    datetime.date(year=2023, month=1, day=5),
+    datetime.date(year=2023, month=1, day=6),
+    datetime.date(year=2023, month=2, day=23),
+    datetime.date(year=2023, month=2, day=24),
+    datetime.date(year=2023, month=3, day=8),
+    datetime.date(year=2023, month=5, day=9),
+    datetime.date(year=2023, month=1, day=12),
+    datetime.date(year=2023, month=10, day=6),
 ]
 
 public_non_standard_working_days = [
@@ -205,6 +216,11 @@ def working_days_in_month_occured(for_date, sys_date):
         working_days_in_month_hash[sys_date][for_date] = working_days
 
     return working_days_in_month_hash[sys_date][for_date]
+
+def get_current_year():
+    today = datetime.date.today()
+
+    return today.year
 
 def get_current_quarter_id():
     today = datetime.date.today()

@@ -18,6 +18,14 @@ def test_company_detail():
     two_weeks_ago = today - two_weeks
     two_weeks_ago_string = two_weeks_ago.strftime('%Y-%m-%d')
     current_year = today.year
+    current_year_str = str(current_year)
+    current_year_january_first = datetime.date(year=current_year, month=1, day=1)
+    current_year_january_first_str = current_year_january_first.strftime('%Y-%m-%d')
+    current_year_december_thirty_first = datetime.date(year=current_year, month=12, day=31)
+    current_year_december_thirty_first_str = current_year_december_thirty_first.strftime('%Y-%m-%d')
+    two_years_in_future = current_year + 2
+    two_years_in_future_december_thirty_first = datetime.date(year=two_years_in_future, month=12, day=31)
+    two_years_in_future_december_thirty_first_str = two_years_in_future_december_thirty_first.strftime('%Y-%m-%d')
 
     creator = test_data_creator.TestDataCreator()
     creator.create_planning_period(id=current_year)
@@ -182,18 +190,18 @@ def test_company_detail():
             "planningPeriods": [{
                 "id": -1,
                 "name": "Бэклог",
-                "start": "2022-01-01",
-                "end": "2024-12-31",
+                "start": current_year_january_first_str,
+                "end": two_years_in_future_december_thirty_first_str,
                 "calculatedFinishDate": two_weeks_ago_string,
                 "estimate": 7.5,
                 "timeLeft": 0.0,
                 "effortPerFunctionPoint": 0.0,
                 "timeSpentChrononFte": pytest.approx(7.5 / 20.0 / 8.0),
             }, {
-                "id": 2022,
-                "name": "2022",
-                "start": "2022-01-01",
-                "end": "2022-12-31",
+                "id": current_year,
+                "name": current_year_str,
+                "start": current_year_january_first_str,
+                "end": current_year_december_thirty_first_str,
                 "calculatedFinishDate": two_weeks_ago_string,
                 "estimate": 14.0,
                 "timeLeft": 0.0,

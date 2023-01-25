@@ -13,6 +13,7 @@ def test_planning_periods_loaded():
     creator = test_data_creator.TestDataCreator()
     today = datetime.date.today()
     current_year = today.year
+    current_year_string = str(current_year)
     creator.create_planning_period(id=current_year)
 
     settings.GRAPHENE_FRAME_DATA_STORE = migrate(extractor=creator)
@@ -32,7 +33,7 @@ def test_planning_periods_loaded():
         "data": {
             "planningPeriods": [
                 { "id": -1, "name": "Бэклог" },
-                { "id": 2022, "name": "2022" },
+                { "id": current_year, "name": current_year_string },
             ]
         }
     }

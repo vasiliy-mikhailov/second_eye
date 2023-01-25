@@ -6,7 +6,7 @@ import {Link as RouterLink, useParams} from "react-router-dom";
 import TimeSheetsByDatePeriodChart from "./TimeSheetsByDatePeriodChart"
 import ReengineeringByDatePeriodChart from "./ReengineeringByDatePeriodChart"
 import ValueByDatePeriodChart from "./ValueByDatePeriodChart"
-import {DataGridPro,} from '@mui/x-data-grid-pro';
+import {DataGridPro, GridToolbarContainer, GridToolbarExport,} from '@mui/x-data-grid-pro';
 
 const fetchPlanningPeriodById = gql`
     query PlanningPeriodByIdQuery($id: Int!) {
@@ -57,6 +57,21 @@ const fetchPlanningPeriodById = gql`
         }
     }
 `;
+
+function SystemsToolBarWithExport() {
+    return (
+        <GridToolbarContainer>
+            <GridToolbarExport
+                csvOptions={{
+                    delimiter: ";",
+                    utf8WithBom: true,
+                }}
+            />
+
+
+        </GridToolbarContainer>
+    );
+}
 
 function PlanningPeriodDetail() {
     const {id} = useParams();
@@ -299,6 +314,9 @@ function PlanningPeriodDetail() {
                 <DataGridPro
                     rows={systemsTableContents}
                     columns={systemsTableColumns}
+                    components={{
+                        Toolbar: SystemsToolBarWithExport,
+                    }}
                     autoHeight
                 />
             </div>

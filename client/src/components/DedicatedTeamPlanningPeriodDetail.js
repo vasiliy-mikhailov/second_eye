@@ -70,6 +70,7 @@ const fetchDedicatedTeamPlanningPeriodByPlanningPeriodIdAndDedicatedTeamId = gql
                         estimate
                         timeLeft
                         hasValue
+                        isReengineering
                         name
                         stateCategoryId
                         effortPerFunctionPoint
@@ -273,6 +274,7 @@ function DedicatedTeamPlanningPeriodDetail() {
                 key: changeRequest.key,
                 name: changeRequest.name,
                 hasValue: changeRequest.hasValue,
+                isReengineering: changeRequest.isReengineering,
                 estimate: changeRequest.estimate,
                 timeLeft: changeRequest.timeLeft,
                 stateCategoryId: changeRequest.stateCategoryId,
@@ -305,6 +307,12 @@ function DedicatedTeamPlanningPeriodDetail() {
         {
             field: 'hasValue',
             headerName: 'Есть ценность',
+            width: 200,
+            valueFormatter: ({value}) => value ? "Да" : "Нет",
+        },
+        {
+            field: 'isReengineering',
+            headerName: 'Технологическое перевооружение',
             width: 200,
             valueFormatter: ({value}) => value ? "Да" : "Нет",
         },
